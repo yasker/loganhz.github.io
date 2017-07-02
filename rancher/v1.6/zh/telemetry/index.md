@@ -2,9 +2,9 @@
 title: Telemetry
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 ---
 
 ## Telemetry
 
-More information coming soon!
+更多内容尽请期待！

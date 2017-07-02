@@ -2,88 +2,87 @@
 title: Stacks in Cattle Environments
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Stacks
+## 应用
 ---
 
-A stack is a group of services. Stacks can be used to group together services that together implement an application.
+应用包含了一组服务。你可以把多个服务放在一起组成一个应用。
 
-### Adding Stacks
+### 添加应用
 
-In the **Stacks** page, click **Add Stack**. You will need to provide a **Name** and click **Create**.
+在**应用**页，点击**添加应用**。你需要输入一个**名称**然后点击**创建**.
 
-You will immediately be brought to the stack and can begin [adding services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/), [adding load balancers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/), [adding service aliases]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-service-alias), or [adding external services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-external-services).
+之后会进到这个刚创建的应用页面里。你可以开始在应用里[添加服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/)，[添加负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/)，[添加服务别名]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-service-alias)，或者[添加外部服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-external-services)。
 
-> **Note:** Before starting any services, you'll need to have a least one host launched in Rancher. For more information on adding hosts to Rancher, see [documentation]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/).
+> **注意：** 在启动服务之前，你需要至少向Rancher环境添加一台主机。更多添加主机的内容，请查看[文档]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/)。
 
-Rancher also provides an option to import `compose` files. The `docker-compose.yml` and `rancher-compose.yml` files can be imported directly into the creation page of a stack. Files can either be uploaded into Rancher or pasted directly into the text box. Once you click the **Create** button, the stack is formed with associated services. The services from the `docker-compose.yml` will only be created, but not started. You will have to start them individually.
+你也可以通过导入`compose`文件来创建应用。在应用创建页面可以导入`docker-compose.yml`和`rancher-compose.yml`文件。你可以在创建应用页面里直接上传文件，也可以把文件中的内容通过复制粘贴输入到创建页面上。当你点击**创建**之后，一个由相关服务组成的应用就创建成功了。通过`docker-compose.yml`文件来创建的服务，仅会被创建但并不会被启动。你需要手动启动他们。
 
-### Viewing Services in a Stack
+### 查看应用中的服务
 
-From the stacks page, you can easily monitor all the stacks in your [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/). From each stack, you can expand the stack to show the individual services by clicking the carat next to the drop-down menu.
+在应用列表页面，你可以轻松的监控该[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)内所有应用的状态。
+你可以点击应用左侧的加号来展开应用，并查看应用里面的每个服务。 你也可以点击应用名称，进入应用详情页面。
 
-This will expand to show you any services within the stack as well as all the containers that are part of the service. You can click any individual container or service to go to the detailed page.
+应用详情页面展示了应用内的全部服务。你可以点击服务名称，进入服务详情页面。在服务详情页面，可以点击容器名称，进入容器详情页面。
 
-### Stack Configuration
+### 应用配置
 
-As services are created, Rancher simultaneously creates a `docker-compose.yml` and `rancher-compose.yml` file of your stack. The `docker-compose` yaml file could be used outside of Rancher to start the same set of services using the `docker-compose` commands. For more information, see [docker-compose](https://docs.docker.com/compose/).
+当应用被创建时，Rancher同事生成了`docker-compose.yml`文件和`rancher-compose.yml`文件。`docker-compose`文件可以用在Rancher之外。你可以通过原生的`docker-compose`命令来启动服务。更多文档请查看[docker-compose](https://docs.docker.com/compose/).
 
-The `rancher-compose.yml` file is used to manage the additional information used by Rancher to start services. These fields are not supported inside the docker-compose file.
+`rancher-compose.yml`文件包含了Rancher启动服务时所需的额外信息。`docker-compose`文件内并不支持这些参数。
 
-With these files, you can also use Rancher Compose to start services that will be included in Rancher. For more information, see [Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/rancher-compose/).
+有了这两个文件，你也用可以用[Rancher Compose命令行]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/rancher-compose/)来启动服务。
 
-#### Viewing Configurations
+#### 查看配置
 
-In the stack drop-down, you can select **View Config** or click the **file icon**.
+在应用的下拉列表里，你可以选择**查看配置**或者点击应用详情页右上角的**文件图标**。
 
-#### Exporting Configurations
+#### 导出配置
 
-The following are the options to export the configuration files.
+下面是导出应用配置的两种方法。
 
-Option 1: Download a zip file that contains both `docker-compose.yml` and `rancher-compose.yml` by selecting **Export Config** in the stack drop-down menu.
+方法一：在应用的下拉菜单里点击**导出配置**按钮，可以下载一个zip包，包里包括`docker-compose.yml`和`rancher-compose.yml`文件。
 
-Option 2: Copy the file to your clipboard by clicking the icon next to the filename that you want to copy. You can copy either the `docker-compose.yml` file or the `rancher-compose.yml` file.
+方法二：在应用的下拉菜单里点击**查看配置**按钮，可以看到配置详情，点击`docker-compose.yml`和`rancher-compose.yml`旁边的按钮，可以讲文件内容复制到剪贴板。
 
-### Graph View
+### 查看图形
 
-You can view the stack in another view, which shows how all the services/balancers are related to each other. If they are linked together, there is a connection between the service names.
+你可以用另一种方法来查看应用。点击**查看图形**按钮，你可以通过可视化图形的方式，查看服务之间的关系。存在连接的两个服务，在图中会被用线连起来。
 
-Clicking the **graph icon** shows this view.
+#### 修改服务
 
-#### Editing Services
+可能你创建了不通的Rancher服务。但是在创建完成之后，所有服务的操作下拉菜单都是相同的。例如，服务与负载均衡的下拉菜单是相同的。
 
-All of Rancher services are created differently, but after creation, they all have the same options within their drop-down menu. All the options for the services and load balancers are the same.
+#### 容器数量
 
-#### Scaling
+对服务和负载均衡来说，你可以点击服务详情页面的**加号**快速对其进行扩容。扩容后，新的容器将会被添加到服务中。
 
-For services and load balancers, you can quickly increase the number of containers in the service by clicking the **+ Scale Up** link. This link is located as an additional container in the service.
+> **注意：** 对于负载均衡，如果你对其扩容的最终数量超过了有可用开放端口的主机数量。负载均衡将会卡在**Updating-Active**状态。如果卡住了，解决方法是停掉该负载均衡，并且把容器数量修改到和可用主机数量相同。
 
-> **Note:** For load balancers, if you scale up to a quantity that is higher than the number of hosts with available public ports, the balancer will be stuck in **Updating-Active** state. You will need to start a new service if you need any of those type of changes. If it is stuck, the workaround is to **Stop** the balancer and change the scale back to the number of available hosts.
+你也可以通过点击服务下拉菜单的**编辑**按钮来增加或者减少服务内容器的数量。在编辑服务的弹出框内，你可以通过滑动条来修改容器数量。
 
-You can also increase or decrease the number of containers in a service by selecting **Edit** option in the drop-down menu for the service. The drop-down menu is visible when hovering over the service. Move the slider for **Scale** to change the number containers in the service.
+#### 修改
 
-#### Editing
+在这里可修改的参数是有限的，因为容器在创建之后是不可变的。这也包括重启容器，你停止和启动的都是同一个容器。你所能修改的都是Rancher存储的一些参数，而不是Docker容器本身的参数。如果你想要修改其他参数，你可以通过**升级**或者**克隆**这个服务来进行修改。
 
-There are limited options for editing a service because Docker containers are immutable (not changeable) after creation. The only artifacts you can edit are the things that Rancher stores that aren't really part of the Docker container. This includes restarting; it's still the same container if you stop and start it. You will need to remove and recreate a service to change anything else. An easy way to make changes to a service is to **Clone** the service.
+你可以点击服务下拉菜单中的**编辑**按钮，来查看你可以修改的参数。你可以修改服务名称，服务描述和服务中容器的数量。如果你在创建服务的时候，忘了增加相关连接。你可以在编辑页面设置连接。
 
-To see what you can change, select **Edit** in the drop-down menu of the service. The name, description, and scale can be changed for all services. If you forgot to link your service when you had set it up, you will have the ability to link services through this option for any of our services. For example, services, load balancers, service alias, and external service.
+对服务来说，大多数参数都不能被修改，因为容器在创建之后是不可变的。为了摆脱这个限制，你可以**克隆**一个服务。克隆会创建一个和该服务全部参数都相同的新的服务，你可以在点击创建之前修改你想要更新的参数。
 
-For services, most of the options do not have the ability to change dynamically. Docker containers are immutable (not changeable) after creation. To get around this limitation, you can **Clone** a service. This will set up launching a service with the same parameters. You'll be able to make changes before creating a new service or container.
+#### 克隆
 
-#### Cloning
+你可以克隆任何服务，克隆的服务包含原服务的全部配置。但是其他服务里指向到原服务的连接并不会被克隆。你需要通过修改那些服务，把指向原服务的连接指向克隆出来的服务上。
 
-You can clone any service, which will have saved all the configuration. Any linking to the original service will not be cloned. You need to edit the services that are linking to the original service and add the newly cloned service so that those services would now link to the new service.
+示例：
 
-Example:
+服务A连接到了服务B。如果克隆服务B，得到服务C。这时服务A并不会连接到服务C。让服务A建立与服务C的连接的唯一方法就是修改服务A，添加指向服务C的连接。
 
-AppA is linked to AppB. If you clone AppB and create AppC, then AppA will not be linked to AppC. The only way to link is to edit AppA to link to AppC.
+#### 停止
 
-#### Stopping
+你可以停止某个服务，也可以一键停止应用内全部的服务。如果你想要停掉某个服务，可以点击服务下拉列表里的**停止**按钮。如果你想要停掉应用里的全部服务，可以点击应用下拉菜单里的**停止服务**按钮。
 
-You can stop individual services or all services in a stack at once. If you want to stop an individual service, select **Stop** from the service drop-down menu. If you decide to stop all the services in the stack, you can select **Stop Services** from the stack drop-down menu.
+#### 删除
 
-#### Deleting
-
-You can delete individual services/balancers or delete an entire stack. When you select **Delete** for the individual service/balancer, it will stop the containers before removing them from the host. There might be a slight delay because Rancher cleans up the containers before they are deleted from the UI.
+你可以单独删除服务也可以删除整改应用。当你选择**删除**某个服务的时候，这个服务中的容器将会先被停止，然后被从主机上删除。这可能会稍微有些延迟，因为Rancher会先清理主机上的容器，然后才会在UI上显示容器已删除。

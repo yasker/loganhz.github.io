@@ -2,30 +2,30 @@
 title: Secrets in Rancher
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Secrets - Experimental
+## 密文 - 实验性的
 ---
 
-Rancher has introduced the ability to create named secrets to be used in containers. Rancher interfaces with an encryption backend, by using either a local AES (Advanced Encryption Standard) key or [Vault Transit](https://www.vaultproject.io/docs/secrets/transit/), to securely store the values within Rancher.
+Rancher支持创建密文并在容器中使用该密文（在容器中使用该密文需要部署应用商店里的Rancher Secrets服务）。Rancher通过对接加密后台来保障密文的安全。加密后台可以使用本地的AES密钥或者使用[Vault Transit](https://www.vaultproject.io/docs/secrets/transit/)
 
-### Encryption Backend Configuration
+### 加密后台设置
 
-By default, Rancher server is configured to use a locally stored AES256 encryption key to perform the encryption of secrets. These encrypted values are stored in the MySQL database that Rancher server uses.
+默认情况下，Rancher服务器会使用本地的AES256密钥来对密文进行加密。加密的密文存储在MySQL数据库里。
 
-#### Using Vault Transit
+#### 使用Vault Transit
 
-Instead of using the locally stored key, Rancher can be configured to use [Vault Transit](https://www.vaultproject.io/docs/secrets/transit/) to perform the encryption.
+如果不想使用本地密钥加密，你可以通过配置[Vault Transit](https://www.vaultproject.io/docs/secrets/transit/)来进行密文加密。
 
-##### Installing Rancher Server using Vault Transit
+##### 在Rancher中配置Vault Transit
 
-Prior to installing Rancher Server, there are a couple of pre-requisites that need to be completed with Vault Transit.
+在安装Rancher服务器之前，需要进行如下Vault Transit相关的配置。
 
-1. Mount the Vault transit backend on the host that will be running Rancher server
-2. Using the Vault CLI or API, create a new encryption key named `rancher`
-3. Using the Vault CLI or API, create a Vault access token that can encrypt/decrypt using the `rancher` key
-    * This token must be scoped with a policy for Rancher server to use the following Vault Transit endpoints. The `<KEY>` in this list is the `rancher` key that was created.
+1. 在要运行Rancher服务器的主机上安装Vault transit后台。
+2. 通过Vault命令行或者API，创建一个叫`rancher`的加密密钥。
+3. 通过Vault命令行或者API，创建一个Vault访问口令，这个访问口令可以通过`rancher`加密密钥进行加密和解密。
+    * 这个访问口令必须具有一个给Rancher Server使用的安全策略，来限制Rancher Server的访问权限。下面列表中的`<KEY>`就是之前创建的`rancher`加密密钥
 
       ```
       path "transit/random/*" {
@@ -57,64 +57,64 @@ Prior to installing Rancher Server, there are a couple of pre-requisites that ne
       }
       ```
 
-3. Launch Rancher server and add environment variables to the command to connect to Vault.
+3. 启动Rancher服务器，并加入相关环境变量来连接Vault。
 
    ```bash
    $ docker run -d --restart=unless-stopped -p 8080:8080 \
       -e VAULT_ADDR=https://<VAULT_SERVER> -e VAULT_TOKEN=<TOKEN_FOR_VAULT_ACCCESS> rancher/server
    ```
 
-    > **Note:** Verify that you are running the desired [Rancher server tag]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/installing-rancher/installing-server/#rancher-server-tags).
+    > **注意：** 请检查运行的[Rancher服务器版本]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/installing-rancher/installing-server/#rancher-server-tags)是否是你想要的。
 
-4. Once Rancher server is up, you will need to update the `service-backend` setting within Rancher. Under **Admin** -> **Settings** -> **Advanced Settings**, find the `secrets.backend` value. By default, it will have `localkey` as the value. You can edit it to the value of `vault`.
+4. 在Rancher服务启动成功之后，你需要修改Rancher中的`service-backend`设置。在**系统管理** -> **系统设置** -> **高级设置**中，找到`secrets.backend`。它的默认值是`localkey`，你可以把它修改为`vault`。
 
-> **Note:** Currently, Rancher does not support switching between encryption backend types.
+> **注意：** 目前Rancher不支持对不同加密后台之间进行切换。
 
-### Creating Secrets
+### 创建密文
 
-Secrets are created and scoped at an environment level, which means there can only be one secret with the same name in an environment. Any container in the same environment can share the same secrets. For example, a database password, i.e. `db_password`, can be used in a database container and a Wordpress container. Once a secret is created, the secret value **cannot** be edited or updated. If you need to change an existing value of a secret, the only way to do so is to delete the secret. After a secret has been updated, any services using the secret will need to be re-launched with the updated secret.
+你可以在每个Rancher环境里创建密文。这也意味着，密文名称在环境中是唯一的。同一个环境下的任何容器都可以通过配置来共享密文。例如，一个数据库的密码`db_password`可以被用在数据库容器里，也可以被用在Wordpress容器里。一旦这个密文被创建了，这个密文的密文值就**不能**被修改了。如果你需要修改一个现有的密文，唯一的方法就是删除这个密文，然后再创建一个新密文。新密文被创建后，使用这个密文的服务需要重新部署。这样容器才能使用新的密文值。
 
-#### Creating secrets using Rancher CLI
+#### 通过Rancher命令行创建密文
 
-There are two ways to create secrets from the cli. One is by providing the secret value through standard input (stdin), and one by passing the filename containing the secret to be added.
+在命令行当中有两种方法来创建密文。一种是在标准输入中（stdin）输入密文值，另一种是给命令行传递含有密文的文件名称。
 
-##### Example of adding a secret through standard input (stdin)
+##### 通过标准输入（stdin）创建密文
 ```bash
 $ rancher secrets create name-of-secret - <<< secret-value
 ```
 
-##### Example of adding a secret by passing the filename containing the secret
+##### 通过传递密文所在的文件名称来创建密文
 ```bash
 $ echo secret-value > file-with-secret
 $ rancher secrets create name-of-secret file-with-secret
 ```
 
-#### Creating secrets in the UI
+#### 通过UI创建密文
 
-Go to **Infrastructure** -> **Secrets**. Provide a **Name** and a **Secret Value** and **Save** the secret.
+点击**基础架构** -> **密文**。点击**添加密文**。输入**名称**和**密文值**然后点击**保存**。
 
-### Deleting Secrets
+### 删除密文
 
-> **Note:** Rancher CLI currently does not support deleting secrets.
+> **备注：** 目前Rancher命令行不支持删除密文。
 
-In the UI, secrets can be deleted from Rancher, but it does not remove the secret (i.e. file) from any container using the secret or on the host that are running containers using a secret.
+你可以在UI里把密文从Rancher中删除，但是这并不会在已使用该密文的容器中删除该密文文件。如果一台主机上运行着使用该密文的容器，Rancher也不会在该主机上删除该密文文件。
 
-### Enabling Secrets in Containers
+### 在Rancher中启用密文
 
-In order to consume secrets in containers, the **Rancher Secrets** service will need to be launched. This service can be deployed by either adding it to [environment templates]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template) so that it's deployed on all [environments]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) or by launching it directly from the [Rancher Catalog]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/). If you are adding this service to an existing environment, navigate to **Catalog** -> **Library** and search for the **Rancher Secrets** entry. Without launching this catalog entry, you will only be able create secrets, but not be able to use them in your containers.
+为了在容器中使用密文，你要先部署**Rancher Secrets**服务。你可以把这个服务加到[环境模版]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template)中，在添加该服务之后部署的新[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)里都会含有**Rancher Secrets**服务。你也可以直接通过[应用商店]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/)部署该服务。如果你想在现有的环境中部署**Rancher Secrets**服务，你可以通过**应用商店** -> **官方认证**，然后搜索**Rancher Secrets**找到**Rancher Secrets**服务。如果不部署**Rancher Secrets**服务的话，你仅仅可以创建密文，但是不能在你的容器里使用这些密文。
 
-### Adding Secrets to Services/Containers
+### 向服务／容器中添加密文
 
-When secrets are added to a container, the secrets are written to a tmpfs volume, which can be accessible from the container and the host.
+当密文被添加到容器中时，密文会被写到一个tmpfs卷中。你可以在容器里和主机上访问这个卷。
 
-* Inside the container: The volume is mounted at `/run/secrets/`.
-* On the host that is running the container using the secrets: The volume is mounted at `/var/lib/rancher/volumes/rancher-secrets/`.
+* 在使用该密文的容器中：这个卷被挂载在`/run/secrets/`.
+* 在运行使用该密文的容器所在的主机上：这个卷被挂载在`/var/lib/rancher/volumes/rancher-secrets/`.
 
-#### Adding secrets using Rancher CLI
+#### 通过Rancher命令行添加密文到服务中
 
-For default usage of secrets, you can reference the secret by name in the secrets array in the `docker-compose.yml`. The target filename will be the same name as the name of the secret. By default, the target filename will be created as User ID and Group ID `0`, and File Mode of `0444`. Setting `external` to `true` in the `secrets` part will make sure it knows the secret has already been created.
+你可以在`docker-compose.yml`里，通过配置服务的`secrets`值来指定一个或者多个密文。密文文件的名称与在Rancher中加入的密文名称相同。在默认情况下，将使用用户ID`0`和组ID`0`创建该密文文件，文件权限为`0444`。在`secrets`里将`external`设置为`true`确保Rancher知道该密文已经被创建成功了。
 
-##### Example basic `docker-compose.yml`
+##### 基础示例`docker-compose.yml`
 ```yaml
 version: '2'
 services:
@@ -130,9 +130,9 @@ secrets:
     external: true
 ```
 
-If you want to change the default values of secrets, you can use `target` for the target filename, `uid` and `gid` for setting User ID and Group ID, and `mode` for setting File Mode.
+如果你想要修改密文的默认配置，你可以用`target`来修改文件名，`uid`和`gid`来设置用户ID和组ID，`mode`来修改文件权限。
 
-##### Example changing parameters `docker-compose.yml`
+##### 修改密文文件配置示例`docker-compose.yml`
 ```yaml
 version: '2'
 services:
@@ -151,10 +151,9 @@ secrets:
   name-of-secret:
     external: true
 ```
+Racnher可以在创建应用的时候创建密文。你可以通过指定`file`参数，使Rancher在创建应用并启动服务之前创建密文。该密文值来自你指定的文件内容。
 
-You can also specify multiple secrets, and create the secret while starting the stack. To do this you specify the `file` parameter, the contents of the the specified file will be used to create the secret before creating the stack and starting the service(s).
-
-##### Example multiple secrets `docker-compose.yml`
+##### 指定多个密文并且在启动服务前创建密文的示例`docker-compose.yml`
 ```yaml
 version: '2'
 services:
@@ -173,43 +172,44 @@ secrets:
     file: ./another-secret
 ```
 
-#### Adding secrets in the UI
+#### 通过Rancher UI添加密文到服务中
 
-Secrets can be added into a service/container under the **Secrets** tab during service/container creation.
+你可以在创建服务/容器页面的密文页里，向服务/容器中添加密文。
 
-1. Select **Add Secret**
-2.  The list of available secrets that have been created in Rancher is available in a drop down. Select the secret that you'd like to use.
-3.  (Optional) Input a different filename for the secrets file. By default, it will use the name of the secret for the filename.
-4. (Optional) If the default file mode needs to be modified, click the **Customize file ownership & permissions** link. The User ID, Group ID and File Mode (octal) can be updated. By default, the User ID is `0`, the Group ID is `0` and the file mode is `0444`.
-5. Click **Create**.
+1. 点击**添加密文**
+2. 下拉列表中会列出，已经加入到Rancher中的全部可用密文。你可以选择一个你想要使用的密文。
+3. （可选操作） 默认情况下，挂载到容器内的密文文件的名称为密文名。你可以在映射名称栏，给容器中的密文文件设置一个不同的文件名。
+4. （可选操作） 如果你想要修改默认的文件所有者和文件权限。你可以点击**自定义文件所有者及权限**链接来更新配置。你可以修改用户ID，组ID和文件权限。用户ID的默认值为`0`，组ID的默认值为0，文件权限的默认值为`0444`。
+5. 点击 **创建**.
 
-### Docker Hub Images
+### Docker Hub镜像
 
-Docker has provided support in many of their official repositories to enable passing secrets through files. To take advantage of this, append `_FILE` to the environment variable name and the value would be `/run/secrets/NAME>`. When the container starts up, the value in the file will be assigned to the environment variable.
+Docker在很多自己的官方镜像中都支持通过文件来传递密文。你可以添加以`_FILE`结尾的环境变量名并且以`/run/secrets/NAME>`为值的环境变量，来达到这一效果。当在容器启动时，文件中的密文值将会被赋给去掉`_FILE`的环境变量里。
 
-For example, when launching a MySQL container you can set environment variables to:
+例如，当你部署一个MySQL容器的时候，你可以配置如下环境变量。
 
 ```
 -e MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_password
 ```
 
-The `MYSQL_ROOT_PASSWORD` environment variable will use the value from the file.
+`MYSQL_ROOT_PASSWORD`环境变量的值，就是你所指定这个文件的内容。这个文件就是我们在Rancher中添加的密文。这样你就可以很方便的从环境变量中获取在Rancher中配置的密文，而不用自己去读取密文文件。但并不是所有镜像都支持这个功能。
 
-### Known Vulnerabilities
+### 已知的安全隐患
 
-#### Compromised Rancher server container
+#### 被入侵的Rancher服务器容器
 
-Secrets stored in Rancher contain the same level of trust as CI systems such as Travis CI and Drone. Since the encryption keys are stored directly in the Rancher server container, any compromise of the Rancher server should be treated as a compromise of your secret data. Rancher will be working to mitigate this condition in a future release.
+存储在Rancher中的密文和存储在CI系统（如Travis CI和Drone）中的密文安全程度是一样。由于加密密钥直接存储在Rancher服务器容器中，所以如果Rancher服务器容器被入侵，全部的密文都能被黑客获取到。Rancher将在以后的版本中努力降低这种情况的安全隐患。
 
-> **Note:** If you are using Vault for your encryption, create a policy that limits the access of the token used by Rancher server.
+> **注意：** 如果你使用Vault进行加密，你需要创建一个策略来限制Rancher Server所用的token的访问权限。
 
-#### Compromised Host
+#### 被入侵的主机
 
-If a host is compromised, secrets of all containers on the host can be accessed. The attacker can not list or request additional secrets to be placed on a host.
+如果一台主机被入侵了，这台主机上所运行的容器中使用到的全部密文，都可以被读取。 但是黑客获取不到其他主机上的额外密文。
 
-#### Container Access
-If a user has access to be able to execute into a container, the secrets of the container can be accessed through the volume stored in the container. Containers can be accessed through the following methods:  
+#### 容器访问
 
-  * UI Access through "Exec Shell"
-  * Rancher CLI
-  * Docker
+如果一个用户可以exec进入到容器中，该用户可以通过容器中挂载的卷查看到密文值。可以通过如下方式访问容器：
+
+  * UI点击"执行命令行"
+  * Rancher命令行工具
+  * Docker原生命令
