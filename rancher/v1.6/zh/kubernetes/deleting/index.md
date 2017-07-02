@@ -1,44 +1,44 @@
 ---
-title: Deleting Kubernetes
+title: 删除 Kubernetes
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Deleting Kubernetes
+## 删除 Kubernetes
 ---
 
-If you have chosen to delete **Kubernetes** orchestration from your environment, and want to continue using your environment and hosts, you will want to clean up your hosts.
+如果你选择从你的环境删除 **Kubernetes** 编排，并想继续使用你的环境和主机，你会需要清理你的主机。
 
-### Cleaning up pods
+### 清理 Pods
 
-Before deleting the Kubernetes stack in **Kubernetes** -> **Infrastructure Stacks**, you will need to remove your pods. You can use kubernetes to delete all the nodes and wait.
+在通过 **Kubernetes** -> **Infrastructure Stacks** 删除Kubernetes栈之前，你需要删除你的Pods。你可以使用Kubernetes来删除所有的结点然后等待。
 
 ```
 $ kubectl delete node --all
 ```
 
-### Cleaing up Persistent Data
+### 清理持久化数据
 
-After deleting the Kubernetes infrastructure stack, persistent data still remains on the hosts.
+在删除了 Kubernetes 基础架构栈之后，持久化数据依然会保留在主机上。
 
-#### Cleaning up hosts
+#### 清理主机
 
-For any hosts that had run the **etcd** service, there are a couple of items that need to be cleaned up by execing onto each host:
+对每台跑过 **etcd** 服务的主机，有几样东西需要通过执行进每台主机做清理：
 
-* A named volume `etcd`: Remove the named volume by running `docker volume rm etcd`.
-* By default, [backups]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/backups) are enabled and stored at `/var/etcd/backups`: Remove the backups by running `rm -r /var/etcd/backups/*`.
+* 一个命名存储卷 `etcd`: 通过执行 `docker volume rm etcd` 来删除该卷。
+* 默认情况下， [备份]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/backups) 是被激活的，备份数据存储在 `/var/etcd/backups`。 通过执行 `rm -r /var/etcd/backups/*` 删除备份。
 
-#### Reasons to clean up persistent data
+#### 清理持久化数据的场景
 
-* When a host is being re-added to the different environment where Kubernetes needs to run.
-* When the Kubernetes system stack gets removed and recreated launching Kubernetes through the catalog on the same set of hosts.
+* 当一台主机需要被重新添加到另一个Kubertes运行的环境时。
+* 当Kubernetes基础架构栈被删除并在同一组主机上通过应用商店（catalog）重建时。
 
-> **Note:** If you are cleaning up the persistent data, you will need to have deleted the [pods](#cleaning-up-pods) before deleting the Kubernetes infrastructure stack. Otherwise, the pods will remain on the hosts.
+> **注意:** 如果你正要清理持久化数据，你需要在删除Kubernetes基础架构栈之前先删掉 [pods](#cleaning-up-pods)。否则Pods会在主机上留存。
 
-#### Consequences of not cleaning up
+#### 不做清理的后果
 
-If cleanup is not performed, the data from the saved `etcd` volume will be used by the new Kubernetes system stack. It can cause several problems like:
+如果不做清理，来自先前保存的 `etcd` 存储卷会被新的 Kubernetes 基础架构栈使用。这样会导致诸如以下的严重问题：
 
-* You might not want to recreate the all pre-existing Kubernetes apps that are stored in etcd data, but it is going to happen when the Kubernetes API service gets connected to the etcd service mapped to saved etcd data.
-* **Important:** Every new Kubernetes API service obtains a new certificate from Rancher. That makes all previously created Kubernetes secrets stored in the etcd volume, obsolete. It means that any Kubernetes application that needs to communicate with the Kubernetes API service (i.e. [dashboard]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/addons/#dashboard), [helm]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/addons/#helm), heapster, and any user app that needs this kind of communication) will be broken. The only way to work around this lack of communication is to recreate user pods using the old set of secrets.
+* 你可能不想重建所有先前存在的Kubernetes应用，但当Kubernetes API service连到原来保存的etcd数据时这一情况就会发生。
+* **重要事项：** 每个新的Kubernetes API service 会从Rancher获得一个新的证书。这会导致所有先前存在etcd存储卷中的Kubernetes 密钥过期。这意味着所有需要和Kuvernetes API service通信的应用（例如：[dashboard]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/addons/#dashboard)， [helm]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/addons/#helm)，heapster以及其他需要这种通信的应用）都会出故障。解决办法是要使用旧的密钥集合重建应用的Pods。

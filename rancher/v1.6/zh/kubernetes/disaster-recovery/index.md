@@ -1,18 +1,18 @@
 ---
-title: Kubernetes - Disaster Recovery
+title: Kubernetes - 灾难恢复
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Kubernetes - Disaster Recovery
+## Kubernetes - 灾难恢复
 ---
 
-Rancher runs up to 3 instances of **etcd** on 3 different hosts. If a majority of hosts running **etcd** fail, follow these steps:
+Rancher在三个不同的主机上运行多达三个 **etcd** 实例。如果运行 **etcd** 的多数主机出了故障，按以下步骤做灾难恢复：
 
-1. In **Kubernetes** -> **Infrastructure Stacks**, expand the **Kubernetes** stack. Click on the **etcd** service. Find a `kubernetes-etcd` container that is in `running` state. Exec into the container, by using **Execute Shell**. In the shell, run `etcdctl cluster-health`.
-     * If the last output line reads `cluster is healthy`, then there is no disaster, stop immediately.
-     * If the last output line reads `cluster is unhealthy`, make a note of this `kubernetes-etcd` container. This is your sole survivor. All other containers can be replaced as you will use this container to scale up.
-2. Delete the hosts in `Disconnected` state. Confirm that none of these hosts are running your sole survivor.
-3. Exec into the container that is your sole survivor. In the shell, run `disaster`. The container will restart automatically and etcd will heal itself to become a single-node cluster. System functionality will be restored.
-4. Add more hosts until you have at least the number of hosts that were previously running etcd. We recommend running at least 3 hosts and if you are using [separated planes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/resiliency-planes/#separated-planes), don't forget to add the label `etcd=true` to your hosts. Etcd will scale back up as hosts are added and start running the **etcd** service. In most cases, everything will automatically heal. If new/dead containers are stuck in `initializing` after three minutes, exec into those containers and run `delete`. **Do not, under any circumstance, run the `delete` command on your sole survivor.**
+1. 在 **Kubernetes** -> **Infrastructure Stacks**页面中，展开 **Kubernetes** 栈。点击 **etcd** 服务。查找一个处于 `running` 状态的 `kubernetes-etcd` 容器。通过 **Execute Shell** 执行进这个容器中，运行 `etcdctl cluster-health`。
+     * 如果输出的最后一行显示 `cluster is healthy`，那么这会儿没有灾难发生，在这一步就结束了。
+     * 如果最后行显示 `cluster is unhealthy`，记下这个 `kubernetes-etcd` 容器。这是你唯一的幸存者。使用这个容器做扩展（scale up）可以取代其余的出故障的容器。
+2. 删除处于 `Disconnected` 状态的主机。确认其中没有主机在运行你的幸存者容器。
+3. 执行进入上述幸存者容器，在shell中运行 `disaster`。容器会自动重启，并且etcd会自愈成单节点的集群。系统功能会恢复。
+4. 加入更多的主机直到至少拥有先前运行etcd的主机的数量。我们建议运行至少三个主机。如果你正在使用 [分隔平面（separated planes）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/resiliency-planes/#separated-planes)，别忘了给你的主机加上 `etcd=true` 标签。 随主机的加入并运行 **etcd** 服务，etcd会扩展回集群的数量。在大部分情况，一切都会自动恢复。如果新的／死掉的容器在 `initializing` 状态卡住超过三分钟，执行进这些容器并运行 `delete`。 **在任何情况都不要在你的幸存者容器中运行 `delete` 命令。**

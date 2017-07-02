@@ -1,42 +1,42 @@
 ---
-title: Kubernetes Addons in Rancher
+title: Rancher中的Kubernetes插件
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Kubernetes Add-ons
+## Kubernetes 插件
 ---
 
-Rancher automatically installs Kubernetes add-ons to help enhance the Kubernetes experience. If you would like to turn off installing the add-ons, you will need to [configure Kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#configuring-kubernetes) to disable the automatic installation of the add-ons.
+Rancher 会自动安装好 Kubernetes 插件以提高用户使用Kubernetes的体验. 如果你想要关闭这一功能, 你需要 [配置 Kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#configuring-kubernetes) 来禁用插件的自动安装.
 
-* [Helm](#helm) - A Package Manager for Kubernetes
-* [Dashboard](#dashboard) - A dashboard web interface for Kubernetes
-* [SkyDNS](#skydns) - A DNS server for Kubernetes
+* [Helm](#helm) - Kubernetes的软件包管理工具
+* [Dashboard](#dashboard) - Kubernetes的Web仪表板
+* [SkyDNS](#skydns) - Kubernetes的DNS服务器
 
 ### Helm
 
-Helm is a tool that streamlines installing and managing Kubernetes applications. It helps you run applications on Kubernetes by packaging complex applications in to Charts. A Chart is a collection of files that describes Kubernetes resources, which may be used to deploy simple pods or complex applications (e.g. a full web stack with all of its components).
+Helm是一个用来提高Kubernetes中应用安装及管理效率的工具。 它通过将复杂应用打包为Charts的方式来帮助你在Kubernetes中运行应用。一个Chart是描述Kubernetes资源的一组文件，可以用来部署简单的Pods，也可以用来部署复杂的应用（例如一个完整的web应用栈）。
 
-Helm consists of two parts, a server called Tiller and a client called Helm. Tiller is automatically started by Rancher and is launched in the **kube-system** namespace. The Helm client is installed in the embedded `kubectl` CLI.
+Helm包括两个部分，一个叫Tiller的服务端和一个叫Helm的客户端。Tiller由Rancher自动在**kube-system** 命名空间启动. Helm客户端安装在集成的`kubectl` CLI中.
 
-#### Getting Started With Helm on Rancher
+#### 在Rancher中使用Helm
 
-When installing Kubernetes on Rancher, you'll need to [configure your Kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#configuring-kubernetes) so that the add-ons enabled in order to have Helm automatically installed. After Kubernetes is installed, you can start using helm either directly [through the shell that Rancher provides in the UI](#using-helm-in-the-rancher-ui) or [configuring your workstation to use helm](#using-helm-on-a-workstation).
+在Rancher中安装Kubernetes时，你需要[配置你的 Kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#configuring-kubernetes) 为启用插件，这样Helm可以自动安装好。等Kubernetes安装完成后，你可以[通过Rancher在UI提供的Shell](#using-helm-in-the-rancher-ui)直接使用Helm或者[配置你的工作站来使用helm](#using-helm-on-a-workstation).
 
-##### Using `helm` in the Rancher UI
+##### 在Rancher的UI中使用 `helm`
 
-ancher provides shell access directly to a managed `kubectl` instance that can be used to manage Kubernetes clusters and applications. To start using this shell, navigate to **Kubernetes** -> **CLI**. This shell is automatically installed with a Helm client and commands for Helm can be used immediately.
+Rancher提供对一个`kubectl`实例直接的shell访问，可以用它来管理Kubernetes集群和应用。要想使用这个shell，点击 **Kubernetes** -> **CLI**. 这个shell中自动安装好了Helm客户端，可以直接使用Helm的命令。
 
 ![Kubectl]({{site.baseurl}}/img/kubernetes/kubectl.png)
 
-##### Using `helm` on a Workstation
+##### 在你的工作站使用 `helm`
 
-After installing Kubernetes on Rancher, you can configure `kubectl` on your workstation by generating a configuration under **Kubernetes** -> ** CLI**.  
+在Rancher中安装好Kubernetes之后，通过 **Kubernetes** -> ** CLI** 菜单下生成一个配置文件，你可以在你的工作站配置 `kubectl`。
 
-In order to use Helm on your workstation, you will need to install it according to your needs. Please use the official [installation documentation for Helm](https://github.com/kubernetes/helm/blob/master/docs/install.md) to install Helm.
+要在你的工作站使用Helm，你需要根据要求安装Helm工具。请参考官方的 [Helm安装文档](https://github.com/kubernetes/helm/blob/master/docs/install.md) 来安装 Helm.
 
-On your workstation, verify that you can communicate with Tiller using your installed Helm client:
+在你的工作站，验证可以通过你安装的Helm客户端和Tiller通信：
 
 ```bash
 $ helm init
@@ -51,7 +51,7 @@ Server: &version.Version{SemVer:"v2.1.3", GitCommit:"5cbc48fb305ca4bf68c26eb8d2a
 
 #### Using Helm
 
-As with all package managers, before using helm, we should verify that the Charts are up-to-date.
+如同其他包管理工具，在使用Helm的时候我们应该确认Charts更到最新。
 
 ```bash
 > helm repo update
@@ -61,11 +61,11 @@ Hang tight while we grab the latest from your chart repositories...
 Update Complete. â Happy Helming!â
 ```
 
-Kubernetes has its own official Helm charts that can be used directly. We'll walk through an example of installing a Wordpress Chart on Kuberenetes.
+Kubernetes有自己的官方Helm charts，可以直接拿来使用。接下来我们通过一个例子来演示如何在Kubernetes安装一个Wordpress Chart。
 
-> **Note:** As Charts are updated in Helm, our versions may not match with the latest ones. You should always install the latest versions.
+> **Note:** 因为Helm中的Charts在持续更新，我们在这的版本不一定跟最新的版本相匹配。你应该安装最新的版本。
 
-First, we'll start by using `helm search` to find the available Charts.
+首先，我们通过使用 `helm search` 来查找可用的 Charts.
 
 ```bash
 > helm search
@@ -78,14 +78,14 @@ stable/redmine          0.3.3   A flexible project management web application.
 stable/wordpress        0.3.1   Web publishing platform for building blogs and ...
 ```
 
-You can immediately install the Chart directly from the Helm repository, but we are going to fetch the Wordpress Chart to examine the options available to deploy the chart.
+你可以立即从Helm的仓库中安装Chart，不过我们先获取Wordpress Chart，检查看看部署这一Chart可用的选项。
 
 ```bash
 $ helm fetch stable/wordpress
 $ tar xzvf wordpress-*.tgz
 $ cd wordpress
 ```
-You can see the available options for the Wordpress Chart by examining the `values.yaml` file. This file includes all the variables that are used in the Chart. By opening the file in your favorite text editor, you can see there are multiple settings.
+你可以通过`values.yaml`文件来查看对Wordpress Chart可用的选项。这个文件包括了Chart中使用到的所有变量。用你喜欢的文本编辑器打开这个文件，你可以看到如下所示多个配置。
 
 ```bash
 image: bitnami/wordpress:4.7-r0
@@ -99,9 +99,9 @@ wordpressBlogName: User's Blog!
 ....
 ```
 
-In the file in Wordpress, you will see that persistent storage is enabled by default. The default value is using a storage class to dynamically provision persistent volumes, which is called `default`. In order to get started with dynamically provisioned persistent storage in Kubernetes on Rancher, please read the docs on [how storage works in Rancher]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/storage).
+在Wordpress的这个文件中，你会看到持久存储默认是激活的。默认配置使用一个叫default的storage class 来动态提供持久存储卷。想要在Rancher的Kubernetes中使用动态供给持久存储，请阅读关于 [在 Rancher 中使用持久存储]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/storage)的文档。
 
-If persistent storage is not required in your use case, then we can disable the persistent storage when installing the Chart.
+如果在用例中持久存储不是必须的，我们可以在安装这个Chart的时候禁用持久存储。
 
 ```bash
 $ helm install --name wordpress --set mariadb.persistence.enabled=false,persistence.enabled=false stable/wordpress
@@ -146,7 +146,7 @@ NOTES:
   echo Password: $(kubectl get secret --namespace default wordpress-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
 ```
 
-You will notice a `NOTES` section that will help you get started with the installed Wordpress Chart. The notes include information about how to get the WordPress URL and how to login to the blog with the default credentials.
+你会注意到有一个 `NOTES` 的小节来帮助你使用安装的Wordpress Chart。这个 `NOTES` 提供的信息包括如何获取WordPress URL以及如何用默认的认证去登陆。
 
 ```bash
 $ export SERVICE_IP=$(kubectl get svc --namespace default wordpress-wordpress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -159,19 +159,19 @@ Username: user
 Password: 58wYgIT06m
 ```
 
-By accessing the URL displayed, you will be able to start using Wordpress on Kubernetes and log in with the provided credentials.
+通过访问展示出来的URL，你可以开始使用在Kubernetes中搭好的Wordpress并用提供的认证去登陆。
 
-#### Using Persisent Storage With a Helm Chart
+#### 配合 Helm Chart 使用持久存储
 
-If you have set up [persistent storage in Rancher]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/storage), you will be able to create storage classes on Kubernetes. In the next example, we will use the same Wordpress Chart and choose to use persistent storage on AWS.
+如果你在Rancher中 [配置了持久存储]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/storage)，你可以在Kubernetes中创建 storage classes。在下一个例子中，我们会使用同一个Wordpress Chart并选择使用AWS上的持久存储。
 
-The following pre-requisites would need to be configured:
+如下几个先决条件需要配置好：
 
-* Kubernetes is configured to use `aws` as the [cloud provider]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/providers/#aws).
-* All [hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/) have been added into Rancher in AWS EC2 with the correct IAM policies.
-* A [storage class]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/storage/#dynamic_provisioning) named `default` is installed and configured to use AWS volumes.
+* Kubernetes 设置为使用 `aws` 作为 [云提供商cloud provider]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/providers/#aws).
+* 所有的 [hosts主机]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/) 通过AWS EC2 加到Rancher，并设置了正确的IAM策略。
+* 需要创建一个名为 `default`的 [storage class]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/storage/#dynamic_provisioning) 并配置为使用AWS 存储卷。
 
-After Kubernetes is launched correctly and your storage class is created, you can deploy the Wordpress Chart to use your persistent storage.
+在正确启动Kubernetes，添加完storage class之后，你可以部署这个Wordpress Chart并使用你的持久存储。
 
 ```bash
 $ helm install --name wordpress stable/wordpress
@@ -222,7 +222,7 @@ NOTES:
   echo Password: $(kubectl get secret --namespace default wordpress-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode)
 ```
 
-You can see that new resources from using persistent storage in the Chart have been created.
+你可以看到使用持久存储的Chart中的新资源被创建。
 
 ```bash
 ==> v1/PersistentVolumeClaim
@@ -232,7 +232,7 @@ wordpress-wordpress-apache   Bound     pvc-f3986989-26a4-11e7-9213-02ee7a4cff8e 
 wordpress-mariadb   Bound     pvc-f399feb7-26a4-11e7-9213-02ee7a4cff8e   8Gi       RWO       2s
 ```
 
-You can verify that the persistent volumes have been created.
+你可以验证persistent volumes 已经被创建。
 ```bash
 $ kubectl get pv
 NAME                                       CAPACITY   ACCESSMODES   RECLAIMPOLICY   STATUS    CLAIM                                        REASON    AGE
@@ -241,19 +241,19 @@ pvc-yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy   1Gi        RWO           Delete      
 pvc-zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz   8Gi        RWO           Delete          Bound     default/wordpress-mariadb                              4m
 ```
 
-In this example, we have selected AWS as the [cloud provider]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/providers/#aws), which will have created an ELB on AWS as a load balancer for your Wordpress Chart.
+在这个例子中，我们选择了AWS作为 [云提供商cloud provider]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/providers/#aws)，它也会在AWS上创建一个ELB来用作你的Wordpress Chart的负载均衡器。
 
 ```bash
 $ export SERVICE_IP=$(kubectl get svc --namespace default wordpress-wordpress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-$ echo http://$SERVICE_IP/admin                                                                                         
+$ echo http://$SERVICE_IP/admin
 http://xxxxxxxxxxxxxx.us-west-2.elb.amazonaws.com/admin
 ```
 
 ### SkyDNS
 
-In Rancher, each service is given a name. Other services can communicate with a service using the DNS service name. The DNS service name is `<service_name>.<namespace_name>.svc.cluster.local`.
+在Rancher中，每个服务（service）会被赋予一个名字。其他服务可以使用DNS服务名来和一个服务通信。 DNS服务名为 `<service_name>.<namespace_name>.svc.cluster.local`.
 
-Using the wordpress application launched in the helm example, you can get the name and namespace of Wordpress endpoint services.
+使用上述Helm例子中启动的Wordpress应用，你可以获得Wordpress服务的名字和命名空间（namespace）。
 
 ```
 > kubectl get services
@@ -284,4 +284,4 @@ Session Affinity:	None
 No events.
 ```
 
-The wordpress application is named `wordpress`. For this instance, the DNS service name is `wordpress-wordpress.default.svc.cluster.local`.
+这个Wordpress应用被命名为 `wordpress`。在这个例子中，DNS服务名为 `wordpress-wordpress.default.svc.cluster.local`。

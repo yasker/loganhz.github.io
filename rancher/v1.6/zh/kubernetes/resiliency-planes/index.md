@@ -1,56 +1,56 @@
 ---
-title: Kubernetes - Resiliency Planes
+title: Kubernetes - 弹性平面
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Kubernetes - Resiliency Planes
+## Kubernetes - 弹性平面（Resiliency Planes）
 ---
 
-For production deployments, it is best practice that each plane runs on dedicated physical or virtual hosts. For development, multi-tenancy may be used to simplify management and reduce costs.
+对生产环境的部署，最佳实践是每一个平面运行在专门的物理或虚拟主机上。对开发环境，可以用多租户去简化管理和减少开销。
 
-#### Data Plane
+#### 数据平面
 
-This plane is comprised of one or more **etcd** containers. Etcd is a distributed reliable key-value store which stores all Kubernetes state. This plane may be referred to as stateful, meaning the software comprising the plane maintains application state.
+数据平面由一个或多个 **etcd** 容器组成。Etcd是一个分布式可靠的键-值存储，它存储了所有Kubernetes状态。可以认为数据平面是有状态的，也就是说组成数据平面的软件维护着应用状态。
 
-#### Orchestration Plane
+#### 编排平面
 
-This plane is comprised of stateless components that power our Kubernetes distribution.
+编排平面由无状态的组件组成，它们控制Kubernetes分发。
 
-#### Compute Plane
+#### 计算平面
 
-This plane is comprised of the Kubernetes [pods](https://kubernetes.io/docs/user-guide/pods/).
+计算平面由 Kubernetes [pods](https://kubernetes.io/docs/user-guide/pods/)组成。
 
-### Planning
+### 计划
 
-Before installation, it is important to consider your specific use case. Rancher provides two different deployment types.
+在安装之前，考虑你特定的用例是很重要的。Rancher提供了两种不同的部署类型。
 
-If you're looking for a quick way to launch Kubernetes to start testing out Kubernetes, we recommend launching Kubernetes with [overlapping planes](#overlapping-planes). By default, this is the setting in the default Kubernetes template.
+如果你在寻找一种快速启动Kubernetes的方式以试验我们的Kubernetes，我们建议通过 [重叠的平面](#overlapping-planes)的方式启动Kubernetes。这是默认Kubernetes模版的默认配置。
 
-For production environments, Rancher recommends launching Kubernetes using [separated planes](#separated-planes).
+针对生产环境，Rancher建议通过 [分离的平面](#separated-planes)的方式启动Kubernetes。
 
-### Installation
+### 安装
 
-#### Overlapping Planes
+#### 重叠平面（OVERLAPPING PLANES）
 
-By default, Kubernetes is configured to deploy on overlapping planes. All planes overlap and all services could run on a single host. Services are scheduled randomly. Add at least three hosts to make the data plane (i.e. etcd) resilient.
+默认情况，Kubernetes设置为用重叠平面的方式做部署。所有平面可以重叠，所有服务可以运行在一个主机上。服务会被随机地调度。增加至少三台主机以使数据平面（亦即 etcd）有复原能力。
 
-1. Create a Kubernetes environment.
-2. Add 1 or more hosts with at least 1 CPU, 2GB RAM. Resource requirements vary depending on workload.
+1. 创建一个 Kubernetes 环境。
+2. 增加1个或多个主机，主机至少有 1 CPU， 2GB 内存。资源需求依据工作负荷有所区别。
 
-#### Separated Planes
+#### 分隔平面（SEPARATED PLANES）
 
-This deployment allows the user to separate the planes by dedicating specific hosts for each plane type. It provides data plane resiliency and compute plane performance guarantees. You will need to [configure Kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#configuring-kubernetes) before adding the hosts. When configuring Kubernetes, select `required` for the **Plane Isolation** option.
+这种部署方式允许用户分割开不通类型的平面，使每一种平面运行在特定、专用的主机上。它可以提供数据平面的恢复能力，保证计算平面的性能。你需要在增加主机之前 [配置 Kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#configuring-kubernetes)。在配置 Kubernetes 的时候，在 **Plane Isolation** 选项中选择 `required`。
 
-> **Note:** If you are upgrading Kubernetes from overlapping planes to separated planes, please [read more about upgrading]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/upgrading/) to correctly handle the change.
+> **注意:** 如果你想要从重叠平面升级Kubernetes到分隔平面，请 [阅读如何升级Kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/upgrading/)以正确地处理改变。
 
-##### Adding Hosts with Host Labels
+##### 增加带标签（label）的主机
 
-All hosts added into a Kubernetes environment must be labeled so Rancher can schedule services based on the type of plane. A minimum of five hosts is required for this deployment type.
+所有加入到Kubernetes环境的主机必须打好标签，这样 Rancher 旧可以根据平面类型去调度不同的服务。在这种部署类型的情况下，最少需要5台主机。
 
-1. **Data Plane:** Add 3 or more hosts with 1 CPU, >=1.5GB RAM, >=20GB DISK. When adding the host, [label these hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels) with `etcd=true`.
-2. **Orchestration Plane:** Add 2 or more hosts with >=1 CPU and >=2GB RAM. When adding the host, [label these hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels) with `orchestration=true`. You can get away with 1 host, but in the event of host failure, the k8s API will be unavailable until a new orchestration host is added.
-3. **Compute Plane:** Add 1 or more hosts. When adding the host, [label these hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels) with `compute=true`.
+1. **数据平面：** 增加三个或以上的主机，主机需要有 >=1的CPU，>=1.5GB的内存，>=20GB的磁盘存储空间。在加入主机的时候，[给主机打上标签]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels) `etcd=true`。
+2. **编排平面** 增加2个或以上的主机，主机需要有 >=1 的CPU和 >=2GB 的内存。在加入主机的时候， [给主机打上标签]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels) `orchestration=true`。你可以只用一台主机，但是在这台主机故障的时候，直到新的用于编排的主机加入之前，K8s API将会不可用。
+3. **计算平面** 增加一个或以上的主机。在加入主机的时候， [给主机打上标签]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels) `compute=true`。
 
-> **Note:** Host labels can be added to existing hosts to add them to a plane, but we do not support attempting to change a host from one plane type to another plane type by changing labels. In order to change plane types, you can either delete the old plane label and delete all existing services on the host before adding a new plane label or update the labels and [upgrade Kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/upgrading/) to rebalance the containers based on the new plane labels.
+> **注意:** 主机标签可以加到已有的主机上，从而将这台主机添加到某一种平面中，但我们不支持通过修改标签把一种平面类型的主机转到另一种平面类型。如果想改变一台主机的平面类型，你可以删除旧的平面类型标签，接着删除主机上已有的所有服务，接着再增加或更新为新的平面类型标签，最后通过 [升级 Kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/upgrading/)来根据新的平面标签重新平衡容器。
