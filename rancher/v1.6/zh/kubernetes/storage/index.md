@@ -2,29 +2,29 @@
 title: Kubernetes Persistent Storage Support in Rancher
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Persistent Storage in Kubernetes
+## Kubernetes中的持久化存储
 ---
 
-Rancher can launch services with persistent storage through the native Kubernetes resources. In Kubernetes, [persistent storage](https://kubernetes.io/docs/user-guide/persistent-volumes/) is managed through the Kubernetes API resources, `PersistentVolume` and `PersistentVolumeClaim`. The storage components in Kubernetes support a variety of backends (e.g. NFS, EBS, etc.), which have separate life-cycles from pods. Depending on the type of persistent volumes that you are interested in using, you may need to [configure your Kubernetes environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/providers/).
+Rancher能够通过Kubernetes原生资源对象创建拥有持久化存储的服务。在Kubernetes中, [持久化存储](https://kubernetes.io/docs/user-guide/persistent-volumes/)通过API资源对象管理, 其中包括`PersistentVolume`和`PersistentVolumeClaim`。Kubernetes中的存储组件支持多种后端存储(例如：NFS、EBS等), 存储具有独立于pod的生命周期。根据你希望使用的持久化卷的类型，你可能需要[设置Kubernetes环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/providers/).
 
-We've outlined some examples of how to use [NFS](#persistent-volumes---nfs) and [EBS](#persistent-volumes---ebs) with Kubernetes in Rancher.
+以下是如何在Rancher的Kubernetes环境中使用[NFS](#persistent-volumes---nfs)和[EBS](#persistent-volumes---ebs)的示例。
 
 ### Persistent Volumes - NFS
 
-When using the NFS volume for Kubernetes, a file system (i.e. NFS) is mounted inside the pods. The filesystem allows multiple writes from different pods, which use the same persistent volume claim. Volumes can be shared between pods with the same data in each pod.
+在Kubernetes中使用NFS卷时，文件系统(也就是NFS)将被挂载在pod中。NFS允许多个pod同时进行写操作，这些pod使用相同的persistent volume claim。通过使用NFS卷，相同的数据可以在多个pod之间共享。
 
-#### NFS Configuration
+#### NFS设置
 
-You will need to have a running NFS server running with shared exports. In our examples, we're assuming that the `/nfs` directory is exported.
+你需要有一台正常运行的NFS服务器并设置了共享目录。在下面的示例中，我们假定`/nfs`被设置为共享目录。
 
-#### Create Persistent Volumes (PV) and Persistent Volume Claims (PVC)
+#### 创建Persistent Volumes (PV)和Persistent Volume Claims (PVC)
 
-In your Kubernetes template, the `kind` would be `PersistentVolume` and you should use the `nfs` resource. The server will use the `<IP_OF_NFS_SERVER>` and exported directory (i.e. `/nfs` in our yaml).
+在Kubernetes模板中，`kind`需要被设置为`PersistentVolume`并使用`nfs`资源。 服务器将使用`<IP_OF_NFS_SERVER>`中设置的地址以及path所指定的路径作为共享目录(在我们的示例yaml文件中也就是`/nfs`目录)。
 
-Example  `pv-nfs.yml`
+示例`pv-nfs.yml`文件
 
 ```yaml
 apiVersion: v1
@@ -42,15 +42,15 @@ spec:
     path: "/nfs"
 ```
 
-Using `kubectl`, let's launch our persistent volume into Kubernetes. Remember, you can either [configure `kubectl` for your local machine]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl) or you can use the shell in the UI under **Kubernetes** -> **kubectl**.
+通过`kubectl`客户端, 我们可以使用下面的命令在Kubernetes中创建persistent volume。记住, 你可以通过[为本地主机配置`kubectl`]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl)在本机使用kubectl客户端或者通过UI界面中的**Kubernetes** -> **kubectl** 命令行界面使用kubectl客户端。
 
 ```bash
 $ kubectl create -f pv-nfs.yml
 ```
 
-After the persistent volume is created, you can create the persistent volume claim, which claims the persistent volume that was just created.
+创建persistent volume之后, 你可以创建persistent volume claim，用于请求创建的persistent volume资源。
 
-Example `pvc-nfs.yml`
+示例`pvc-nfs.yml`文件
 
 ```yaml
 apiVersion: v1
@@ -64,13 +64,13 @@ spec:
       storage: 1Mi
 ```
 
-Using `kubectl`, let's launch our persistent volume into Kubernetes. Remember, you can either [configure `kubectl` for your local machine]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl) or you can use the shell in the UI under **Kubernetes** -> **kubectl**.
+通过`kubectl`客户端, 我们可以使用以下命令在Kubernetes中创建persistent volume claim。记住，你可以通过[为本地主机配置`kubectl`]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl)在本机使用kubectl客户端或者通过UI界面中的**Kubernetes** -> **kubectl** 命令行界面使用kubectl客户端。
 
 ```bash
 $ kubectl create -f pvc-nfs.yml
 ```
 
-After creating both the persistent volume and persistent volume claim, you can confirm that the persistent volume is bound.
+在创建了persistent volume和persistent volume claim之后, 你可以通过以下命令确认persistent volume已绑定。
 
 ```bash
 $ kubectl get pv,pvc
@@ -82,11 +82,11 @@ NAME      STATUS    VOLUME    CAPACITY   ACCESSMODES   AGE
 pvc/nfs   Bound     nfs       1Mi        RWX           5s
 ```
 
-#### Creating A Pod to Use the Persistent Volume Claim
+#### 创建一个Pod使用Persistent Volume Claim
 
-Now that the persistent volume claim has been created, we can start creating pods that will use the persistent volume claim and the pods will have the same data.
+现在persistent volume claim已经被创建, 我们可以创建使用这个persistent volume claim的pods。这些pods将会访问相同的数据。
 
-Example `rc-nfs.yml`
+示例`rc-nfs.yml`文件
 
 ```yaml
 apiVersion: v1
@@ -117,7 +117,7 @@ spec:
           claimName: nfs
 ```
 
-Using `kubectl`, let's create our replication controller and two pods into Kubernetes. The two pods will both use the `nfs` persistent volume, using the `nfs` persistent volume claim. It will mount inside the pod in `/usr/share/nginx/html`. Remember, you can either [configure `kubectl` for your local machine]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl) or you can use the shell in the UI under **Kubernetes** -> **kubectl**.
+通过`kubectl`客户端, 我们可以使用以下命令在Kubernetes中创建replication controller和两个pods。记住，你可以通过[为本地主机配置`kubectl`]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl)在本机使用kubectl客户端或者通过UI界面中的**Kubernetes** -> **kubectl** 命令行界面使用kubectl客户端。
 
 
 ```bash
@@ -131,13 +131,13 @@ rc-nfs-test-42785   1/1       Running   0          10s
 rc-nfs-test-rt3ld   1/1       Running   0          10s
 ```
 
-Let's check that both pods are able to access the persistent volume and access any changes in the NFS server. We'll add a file into `/nfs` folder on the NFS server.
+我们可以测试两个pods都可以访问同一个persistent volume以及NFS服务端产生的修改。示例如下，我们可以在NFS服务器端的`/nfs`目录下创建一个文件。
 
 ```bash
 $ echo "NFS Works!" > /nfs/index.html
 ```
 
-After adding the file onto the NFS server, we can check that the file is located on both pods as well.
+在NFS服务器端创建文件后，我们可以在两个pods中查看这个文件。
 
 ```
 $ kubectl exec rc-nfs-test-42785 cat /usr/share/nginx/html/index.html
@@ -148,18 +148,18 @@ NFS Works!
 
 ### Persistent Volumes - EBS
 
-In order to use EBS as a persistent volume in Kubernetes, you will need to configure Kubernetes with a couple of specific options.
+要在Kubernetes中使用EBS作为persistent volume，你需要对Kubernetes进行一些设置。
 
-1. Configure the Kubernetes environment with the [cloud provider option as AWS]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/providers/#aws).
-2. Any [hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/) should be started in AWS EC2 with the correct IAM policies.
+1. 参考[AWS cloud provider选项]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/providers/#aws)文档中的步骤设置Kubernetes环境.
+2. 所有[主机]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/)必须是AWS EC2实例并且拥有正确的IAM策略。
 
-Using EBS volumes with Kubernetes as persistent volumes can be divided into two sections: [static provisioning](#static-provisioning), and [dynamic provisioning](#dynamic-provisioning) using storage classes.
+在Kubernetes中使用EBS数据卷的操作可以分为两种: [静态初始化](#static-provisioning), 和通过storage classes[动态初始化](#dynamic-provisioning)。
 
-#### Static provisioning
+#### 静态初始化
 
-EBS volumes will need to be created in the same region and availability zone as the Rancher agents **before** using it in Kubernetes as a persistent volume. In order to start using the persistent volume, you will first need to create the persistent volume resource.
+在Kubernetes环境中使用persistent volume之前，需要预先在Rancher主机所在的AWS区域和可用区中创建EBS卷。为了使用persistent volume, 你需要先创建persistent volume资源对象。
 
-Example `pv-ebs.yml`
+示例`pv-ebs.yml`文件
 
 ```yaml
 apiVersion: v1
@@ -178,13 +178,13 @@ spec:
     volumeID: <VOLUME_ID_IN_EBS>
 ```
 
-Using `kubectl`, let's launch our persistent volume into Kubernetes. The `<VOLUME_ID_IN_EBS>` will need to be replaced with the EBS volume id. Remember, you can either [configure `kubectl` for your local machine]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl) or you can use the shell in the UI under **Kubernetes** -> **kubectl**.
+通过`kubectl`客户端, 我们可以使用以下命令在Kubernetes中创建persistent volume。 文件中的`<VOLUME_ID_IN_EBS>`需要被替换为相应的EBS volume id。 记住，你可以通过[为本地主机配置`kubectl`]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl)在本机使用kubectl客户端或者通过UI界面中的**Kubernetes** -> **kubectl** 命令行界面使用kubectl客户端。
 
 ```bash
 $ kubectl create -f pv-ebs.yml
 ```
 
-After the persistent volume is created, you can create the persistent volume claim, which claims the persistent volume that was just created.
+创建persistent volume之后, 你可以创建persistent volume claim，用于请求创建的persistent volume资源。
 
 Example `pvc-ebs.yml`
 
@@ -204,18 +204,17 @@ spec:
       release: "stable"
 ```
 
-
-After creating both the persistent volume and persistent volume claim, you can confirm that the persistent volume is bound.
+在创建了persistent volume和persistent volume claim之后, 你可以通过以下命令确认persistent volume已绑定。
 
 ```bash
 $ kubectl get pv,pvc
 ```
 
-#### Creating A Pod to Use the Persistent Volume Claim
+#### 创建一个Pod使用Persistent Volume Claim
 
-After the persistent volume claim is made, you just need to make a pod that uses it.
+创建persistent volume claim之后, 你只需要创建一个pod来使用它。
 
-Example `pod-ebs.yml`
+示例`pod-ebs.yml`文件
 
 ```yaml
 apiVersion: v1
@@ -234,7 +233,7 @@ spec:
         claimName: pvc-ebs
 ```
 
-The volume in AWS should turn from `available` to `in-use` after the pod uses it.
+在pod使用了相应的卷之后，AWS中卷的状态应当从`可用`变为`使用中`。
 
 
 ```bash
@@ -249,12 +248,12 @@ NAME          STATUS    VOLUME    CAPACITY   ACCESSMODES   AGE
 pvc/pvc-ebs  Bound     pv1       1Gi        RWO           3m
 ```
 
-#### Dynamic provisioning
+#### 动态创建
 
-An alternative approach in EBS is to use [dynamic provisioning](http://blog.kubernetes.io/2016/10/dynamic-provisioning-and-storage-in-kubernetes.html), which only uses the [StorageClass](https://kubernetes.io/docs/user-guide/persistent-volumes/#class-1) to automatically create and attach volumes to pods. In our example, the storage class will specify AWS as its storage provider and use type `gp2` and availability zone `us-west-2a`.
+在Kubernetes中使用EBS的另外一种方法是[动态创建](http://blog.kubernetes.io/2016/10/dynamic-provisioning-and-storage-in-kubernetes.html), 这种方式使用[StorageClass](https://kubernetes.io/docs/user-guide/persistent-volumes/#class-1)自动创建并挂载数据卷到pods中。在我们的示例中, storage class将指定AWS作为storage provider并使用`gp2`类型以及`us-west-2a`可用区。
 
 
-Example `storage-class.yml`
+示例`storage-class.yml`文件
 
 ```yaml
 kind: StorageClass
@@ -267,9 +266,9 @@ parameters:
   zone: us-west-2a
 ```
 
-#### Creating Pods using Storage Classes
+#### 创建Pod使用Storage Classes
 
-You can start using a storage class in any pod or claim to make Kubernetes automatically create new volumes and attach it to the pod.
+你可以在任何pod中使用storage class从而使Kubernetes自动创建新的卷并挂载到pod中。
 
 ```json
 {
@@ -294,7 +293,7 @@ You can start using a storage class in any pod or claim to make Kubernetes autom
 }
 ```
 
-After using this claim with a pod resource, you should be able to see a new pv is created and bounded to the claim automatically:
+通过在pod中使用这种请求方式，你将看到一个新的pv被创建并自动和pvc绑定:
 
 ```bash
 $ kubectl get pv,pvc,pods
