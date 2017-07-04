@@ -2,119 +2,121 @@
 title: Access Control in Rancher
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 redirect_from:
-  - /rancher/latest/en/configuration/access-control/
+  - /rancher/latest/zh/configuration/access-control/
 ---
 
-## Access Control
+## 访问控制
 ---
 
-### What is Access Control?
+### 什么是访问控制？
 
-Access Control is how Rancher limits the users who have the access permissions to your Rancher instance. By default, Access Control is not configured. This means anyone who has the IP address of your Rancher instance will be able to use it and access the API. Your Rancher instance is open to the public! We highly recommend configuring Access Control soon after launching Rancher. Upon enabling Access Control, you can share your Rancher instance with whom you wish. They will be required to authenticate to the instance before being able to access it. The API becomes accessible only to those who have the valid API keys to the instance.
+访问控制是Rancher如何限制用户对Rancher实例的访问权限。默认情况下，Rancher没有配置访问控制，这意味着任何拥有Rancher实例IP地址的人都可以使用它并访问该API，这样使得您的Rancher实例对外开放！我们强烈建议您在启动Rancher后立即配置访问控制，这样您可以按你所想分享你的Rancher实例。他们在访问您的rancher实例之前，需要进行身份验证，只用使用有效的API密钥才能访问您的Rancher API。
 
-The first account that authenticates with Rancher will become the **admin** of the account. For more information, see [permissions of an admin]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#admin).
+Rancher认证的第一个账户将成为 **admin** 账户。 想要获取有关详细信息，请参阅 [admin的权限]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#admin).
 
-### Enabling Access Control
+### 启用访问控制
 
-In the **Admin** tab, click **Access Control**.
+在 **系统管理** 选项卡中, 点击**访问控制**。
 
-After authenticating your Rancher instance, Access Control will be considered enabled. With Access Control enabled, you will be able to manage different [environments]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) and share them with different groups of people.
+在您的Rancher实例认证后，访问控制将被视为启用。启用访问控制后，您将能够管理不同的 [环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) 并与之分享给其他人。
 
-When Access Control is enabled, the API is locked and requires either being authenticated as a user or by using an [API key]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/api-keys/) to access it.
+当访问控制启用后，API被锁定，这时需要用户进行身份验证， 或者使用 [API 密钥]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/api-keys/) 来访问它。
 
-#### Active Directory
+#### 活动目录
 
-Select the **Active Directory** icon. If you want to use Active Directory using TLS, ensure that you have [started Rancher server with the appropriate certificate]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/installing-rancher/installing-server/#ldap). Fill in the sections and authenticate Rancher by clicking **Authenticate**. When Active Directory is enabled, you'll automatically be logged in as the username that was authenticated. You will also be logged in as an admin of Rancher.
+选择**活动目录**图标。 如果您想要通过TLS来使用活动目录，请确保您具有[使用相应证书来启动Rancher服务器]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/installing-rancher/installing-server/#ldap). 通过点击**身份认证**填写对应信息并验证Rancher。 当活动目录启用后，您将自动以已验证的用户名身份登录。 您将能够作为管理员登录Rancher。
 
-##### User Search Base vs. Group Search Base
+##### 用户搜索与用户组搜索
 
-When configuring the the Active Directory configuration, you will be required to input the search base for your users. This search base allows Rancher to search for users that are in your Active Directory set up. If your users and groups are in the search base, you **only** need to fill in the search base for users, but if your groups are in a different search base, you can put the alternative search base in the `Group Search Base` field. This field is dedicated to searching groups and is not required. 
+在配置活动目录时，您将需要输入用户的搜索分支。 此搜索分支允许Rancher搜索在活动目录中已设置的用户。如果您的用户和用户组位于搜索分支中，那么您**仅仅**需要填写用户的搜索分支，但是如果您的用户组在不同的搜索分支，你可以把用户搜索分支替换在`用户组搜索`字段下。 此字段专用于用户组搜索，但不是必需的。
 
 #### Azure AD
 
-Select the **Azure AD** icon. Fill in the sections and authenticate Rancher by clicking **Authenticate with Azure**. When Active Directory is enabled, you'll automatically be logged in as the username that was authenticated. You will also be logged in as an admin of Rancher.
+选择**Azure AD**图标。 通过单击**Azure验证**，填写相应信息并验证Rancher。 当活动目录启用后，您将自动以已验证的用户名身份登录，您将能够作为管理员登录Rancher。
 
 #### GitHub
 
-Select the **GitHub** icon and follow the directions in the UI to register Rancher as a GitHub application. After clicking **Authenticate with GitHub**, Access Control is enabled and you are automatically logged into Rancher with your GitHub login credentials and as an admin of Rancher.
+选择**GitHub**图标，并按照用户界面中的说明将Rancher注册为GitHub应用程序。 点击**使用GitHub进行身份验证**后，访问控制功能被启用，您将自动使用GitHub登录凭据登录到Rancher并且成为Rancher管理员。
 
-#### Local Authentication
+#### 本地身份认证
 
-Local authentication allows you to create your own set of accounts that is saved in the Rancher database.
+本地身份验证允许您创建自己的一组账户，这些账户存储在Rancher数据库中。
 
-Select the **Local** icon. Create an admin user by providing the **Login Username**, **Full Name**, and **Password**. Click **Enable Local Auth** to turn on local authentication. By clicking this button, the admin is created and saved in the database. You are automatically logged into the Rancher instance as the admin account that was just created.
+选择**本地**图标。 通过提供**登录用户名**，**全名**和**密码**来创建管理员用户。 点击**启用本地验证**来启用本地身份验证。 通过单击此按钮，管理员用户将被创建并保存在数据库中。这时您将自动用刚刚创建的管理员帐户登录到Rancher实例。
 
 #### OpenLDAP
 
-Select the **OpenLDAP** icon. If you want to use a OpenLDAP using TLS, ensure that you have [started Rancher server with the appropriate certificate]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/installing-rancher/installing-server/#ldap). Fill in the sections and authenticate Rancher by clicking **Authenticate**. When OpenLDAP is enabled, you'll automatically be logged in as the username that was authenticated. You will also be logged in as an admin of Rancher.
+ 填写对应信息后，通过点击**身份认证**来进行Rancher认证。当OpenLDAP启用后，您将自动以已验证的用户名身份登录，并成为Rancher管理员。
 
-##### User Search Base vs. Group Search Base
+##### 用户搜索与用户组搜索
 
-When configuring the the Active Directory configuration, you will be required to input the search base for your users. This search base allows Rancher to search for users that are in your Active Directory set up. If your users and groups are in the search base, you **only** need to fill in the search base for users, but if your groups are in a different search base, you can put the alternative search base in the `Group Search Base` field. This field is dedicated to searching groups and is not required. 
+在配置活动目录时，您将需要输入用户的搜索分支。 此搜索分支允许Rancher搜索在活动目录中已设置的用户。如果您的用户和用户组位于搜索分支中，那么您**仅仅**需要填写用户的搜索分支，但是如果您的用户组在不同的搜索分支，你可以把用户搜索分支替换在`用户组搜索`字段下。 此字段专用于用户组搜索，但不是必需的。
 
 #### Shibboleth
 
-Select the **Shibboleth** icon. Fill in the configuration for the Shibboleth account, **Save** the information and **Test** that access control is working.
+选择**Shibboleth**图标。 填写Shibboleth帐户的配置信息，点击**保存**保存信息，然后点击**测试**来测试访问控制是否正常工作。
 
-With Shibboleth, there are some known issues that you should be aware of if you are configuring to validate against it.
+使用Shibboleth时，如果您正在配置来验证它，您应该注意一些已知的问题。
 
-* There is no search or lookup support. When adding in users, the exact IDs must be inputted for the correct users to get access.
-* When adding users to an [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/), group IDs are not supported unless the admin, who turned on access control, is a member of the group.
+* 没有搜索或查找支持功能。 在添加用户时，想要正确的用户获取访问权限必须输入确切的ID。
+* 当添加用户到一个[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)时, 不支持组ID，除非管理员打开该组成员的访问控制权限。
 
-### Site Access
+### 站点访问
 
-Depending on your authentication type, Rancher provides different levels of site access.
+根据您的身份验证类型，Rancher提供不同级别的站点访问。
 
-#### Active Directory/GitHub/Shibboleth
+#### 活动目录/GitHub/Shibboleth
 
-If you have authenticated with AD or GitHub, there will be 3 options available.
+如果您已通过AD或GitHub进行身份验证，则将有3个选项可用。
 
-* **Allow any valid Users** - Any user within GitHub or Active Directory would be able to access your Rancher instance. This is **not** recommended for GitHub as it would be any user in GitHub!
-* **Allow members of Environments, plus Authorized Users and Organizations** - Any user who is a member or owner of an environment will also have access to the Rancher instance as well as any user added to the _Authorized Users and Organizations_ list.
-* **Restrict access only to Authorized Users and Organizations** - Only users who are added to the _Authorized Users and Organizations_ would have access to the Rancher instance. Even if a user has been added to an environment, they would not have access unless they are **also** added to the _Authorized Users and Organizations_ section.
+* **允许任何有效的用户** - GitHub或活动目录中的任何用户都可以访问您的Rancher实例。 **不**推荐将此设置用于GitHub，因为它将使GitHub中的任何用户都可以访问Rancher实例。
+* **允许环境成员，加上已授权用户和组织** - 一个环境的成员用户或拥有者用户和添加到`已授权用户和用户组`的用户一样，都有权限访问Rancher实例。
+* **限制访问只有授权用户和用户组可以访问** - 只有添加到`已授权用户和用户组`的用户才能访问Rancher实例。 即使用户已被添加到环境中，如果没有被添加到`已授权用户和用户组`，他们将仍然无法访问Rancher实例。
 
-Anyone with the permissions for the Rancher instance will be given [user]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/accounts/#users) permissions. They will not be able to view the **Admin** tab. You would explicitly need to change their account to be an [admin account]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/accounts/#admin).
+任何具有Rancher实例权限的人都将被授予 [用户]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/accounts/#users)权限. 他们将无法查看**管理员**标签。 如果想要他们查看，您将需要明确地将其帐户更改为[管理员帐户]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/accounts/#admin)。
 
-In order for users to view different [environments]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/), they will need to be added to the environment by an [owner]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#owners) of the environment.
+为了让用户查看不同的[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/), 它们将需要被环境的[所有者][owner]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#owners)添加到环境中。
+
 
 #### Azure AD/OpenLDAP
 
-For Azure AD and OpenLDAP, any user that is a member of your setup will be able to access the Rancher site.
+对于Azure AD和OpenLDAP，您的设置中的任何用户都可以访问Rancher站点。
 
-#### Local Authentication
+#### 本地身份认证
 
-Once local authentication is enabled, the admin can create additional admins/users by accessing the **Admin** > **Accounts** tab. Click **Add Account** and fill in the details of the account you want to add. You can select their account type as an **Admin** or **User**. An admin has the ability to view the **Admin** tab while users of Rancher instance would not have the visibility to the tab.  
+启用本地身份认证后，管理员可以通过访问**管理员**> **帐户**选项卡来创建其他管理员/用户。 点击**添加帐户**并填写您要添加的帐户的详细信息。 您可以选择其帐户类型为**管理员**或**用户**。 管理员可以查看“**管理员**标签，而Rancher实例的其他用户将无法看到该选项卡。
 
-Once an account has been created, the admin/user can be added to any [environments]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/).
+一旦创建一个帐户后，该账户可以被添加到任何[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)中。
 
-### Account Types
+### 账户类型
 
-The account type determines whether or not an account will have access to the admin tab. For each environment in Rancher, there are [membership roles]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#membership-roles) that provide different level of access for a specific environment.
+帐户类型决定帐户是否可以访问管理员选项卡。对于Rancher中的每个环境，可以提供不同级别的[成员角色]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#membership-roles)来对特定环境进行访问。
 
-#### Admin
+#### 管理员
 
-The first user that authenticates Rancher becomes an admin of Rancher. Only admins will have permissions to view the **Admin** tab.
+认证Rancher的第一个用户成为Rancher的管理员。 只有管理员才有权限查看**管理员**标签。
 
-When managing environment, admins have the ability to view all the [environments]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) in Rancher even if the admin is not added as a member to the environment. In an admin's environment drop-down menu, the members will only see the environments that they are on the membership list.
+在管理环境时，管理员可以查看Rancher中的所有[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)， 即使管理员没有被加入到该环境的成员中。 在管理员环境下拉菜单中，成员只能看到他们在成员列表中的环境。
 
-Admins can add other users to be an admin of Rancher. They can change a user's role on the **Admin** > **Accounts** page after the user has logged into Rancher. In the **Admin** > **Accounts** tab, click  **Edit** next to the account name and change the account type to _Admin_. Click **Save**.
+管理员可以将其他用户添加为Rancher管理员。 在用户登录Rancher后，他们可以在 **系统管理** > **账户**页面上更改用户角色。 在**管理员**> **帐户**标签中，点击帐户名称旁边的**编辑**，并将帐户类型更改为管理员。 点击**保存**。
 
-#### Users
+#### 用户
 
-Besides the user that authenticates Rancher, any other user will automatically be added with user permissions. They will not be able to see the **Admin** tab.
+除了Rancher的认证用户外，任何其他用户都将自动添加用户权限。 他们将无法看到**管理员**标签。
 
-They will only be able to view the environments that they are members of.
+他们只能看到他们同组成员的环境。
 
-### Disabling Access Control
+### 禁用访问控制
 
-If you decide that you no longer want Access Control, click the **Disable access control** button. This will make your Rancher instance open to the public and anyone can access your API. This is **not** recommended.
+如果您决定不再需要访问控制，请单击**禁用访问控制**按钮。 这将使您的Rancher实例向公众开放，任何人都可以访问您的API。 这是**不**推荐。
 
-### Configuring Session Timeouts
+### 配置会话超时
 
-By default, session tokens expire 16 hours after creation. If this is too long for your needs, you can update the expiration time of the session token. 
+默认情况下，会话在其创建后16小时到期。 如果您觉得时间太长，可以更新会话到期时间。
 
-1. Under **Admin** -> **Setting** -> **Advanced Settings**, click on the **I understand that I can break things by changing advanced settings**.
-2. Find the **api.auth.jwt.token.expiry** setting and click on the edit icon.
-3. Update the timeout session value and click on **Save**. The value is in milliseconds.
+1. 点击**系统管理** -> **系统设置** -> **Advanced Settings**, 点击 **I understand that I can break things by changing advanced settings**。
+2. 找到 **api.auth.jwt.token.expiry**设置，然后点击edit按钮。
+3. 更新超时会话值后，然后单击**保存**按钮。 值以毫秒为单位。
+

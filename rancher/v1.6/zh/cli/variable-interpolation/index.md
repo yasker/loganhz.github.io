@@ -2,23 +2,23 @@
 title: Variable Interpolation in Rancher CLI
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
 redirect_from:
   - rancher/cli/environment-interpolation
 ---
 
-## Variable Interpolation
+## 变量添写
 ---
 
-Using `rancher up`, environment variables from the machine running `rancher` can be used within the `docker-compose.yml` and `rancher-compose.yml` files. This is only supported in `rancher` commands and not in the Rancher UI.  
+使用`rancher up'，运行`rancher`的机器的环境变量可以在`docker-compose.yml`和`rancher-compose.yml`文件中使用。 这仅仅在`rancher`命令中支持，在Rancher UI中不支持。
 
-### How to use it
+### 如何使用
 
-With the `docker-compose.yml` and `rancher-compose.yml` files, you can reference the environment variables on your machine. If there are no environment variables on the machine, it will replace the variable with a blank string. `Rancher` will provide a warning on which environment variables are not set.  If using environment variables for image tags, please note that `rancher` will not strip the `:` from the image to fetch the latest image. Since the image name, i.e. `<imagename>:` is an invalid image name, no container will be deployed. It's up to the user to ensure that all environment variables are present and valid on the machine.
+通过使用`docker-compose.yml`和`rancher-compose.yml`文件，您可以引用机器上的环境变量。 如果机器上没有环境变量，它将用空白字符串替换。 `Rancher`将会提示一个警告，指出哪些环境变量没有设置。 如果使用环境变量作为镜像标签，请注意，`rancher`不会从镜像中剥离`：`来获取latest镜像。 因为镜像名，比如`<镜像名>：`是一个无效的镜像名，所有不会部署在容器中。由用户来决定机器中所有的环境变量的有效性。
 
-#### Example
+#### 例子
 
-On our machine running `rancher`, we have an environment variable, `IMAGE_TAG=14.04`.
+在我们运行`rancher`的机器上，我们有一个环境变量`IMAGE_TAG = 14.04`。
 
 ```bash
 # Image tag is set as environment variable
@@ -28,7 +28,7 @@ IMAGE_TAG=14.04
 $ rancher up
 ```
 
-**Example `docker-compose.yml`**
+**例子： `docker-compose.yml`**
 
 ```yaml
 version: '2'
@@ -41,11 +41,11 @@ services:
 
 <br>
 
-In Rancher, an `ubuntu` service will be deployed with an `ubuntu:14.04` image.
+在Rancher中，一个`ubuntu`服务将使用`ubuntu:14.04镜像来部署。
 
-### Variable Interpolation Formats
+### 变量添写格式
 
-`Rancher` supports the same formats as `docker-compose`.
+`Rancher`支持与'docker-compose'相同的格式。
 
 ```yaml
 version: '2'
@@ -72,17 +72,18 @@ services:
     command: "$${ESCAPED}"
 ```
 
-### Templating
+### 模板
 
-Inside the `docker-compose.yml`, Rancher supports the ability to use conditional logic by using the [Go template system](https://golang.org/pkg/text/template/).
+在`docker-compose.yml`里面，Rancher能够支持使用 [Go模板系统](https://golang.org/pkg/text/template/)的能力，这样我们可以在`docker-compose.yml`里面使用逻辑条件语句。
 
-Templating can be used with the Rancher CLI or combined with [Rancher Catalog]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/) allow you to be able to configure your catalog templates to answer questions and change your files based on the answers.
 
-> **Note:** Currently we only support evaluating `string` comparisons.
+模板可以与Rancher CLI一起使用，也可以与 [Rancher 应用商店]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/)组合使用，这样可以让您配置您根据问题配置您的应用商店模板，也可以让您根据答案来改变您的模板文件。
 
-#### Example
+> **注意：**目前我们只支持评估`string`比较。
 
-If you wanted to have the ability to produce a service that publishes ports externally versus internally, you would be able to set conditional logic to support this. In the example, port `8000` will be published under `ports` if the `public` variable is `true`. Otherwise, the ports will be published under `expose`. Using the catalog ability to answer [questions]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/#questions-in-the-rancher-composeyml) is how the user will answer. In our example, the default value is true.
+#### 例子
+
+如果您希望能够生成一个外部到内部端口开放的服务，那么您可以设置逻辑条件来支持这一点。 在这个例子中，如果`public`变量设置为`ture`,那么`ports`下面的`8000`端口将对外开放。 否则，这些端口将在`expose`下开放。 使用catalog的能力来回答 [问题]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/#questions-in-the-rancher-composeyml) 取决于用户如何回答.在我们的示例中，默认值为true。
 
 `docker-compose.yml`
 
@@ -124,9 +125,9 @@ name: "Nginx Application"
 version: v0.0.1
 ```
 
-#### Escaping Double Brackets
+#### 双括号使用
 
-With the introduction to templating to Rancher, double brackets {% raw %}(`{{` or `}}`){% endraw %} will now be treated as part of a template. If you need to require these characters without having it be converted to a template, you can add `# notemplating` to the top of your compose files that contain the characters.
+随着对Rancher的模板介绍，双括号 {% raw %}(`{{` or `}}`){% endraw %} 将被视为模板的一部分。 如果您需要将这些字符转换为模板，您可以在包含字符的compose文件的顶部添加`＃notemplating`。
 
 {% raw %}
 ```yaml

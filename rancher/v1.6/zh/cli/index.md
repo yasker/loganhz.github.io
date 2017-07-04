@@ -2,31 +2,33 @@
 title: Rancher Command Line Interface (CLI)
 layout: rancher-default-v1.6
 version: v1.6
-lang: en
+lang: zh
+redirect_from:
+  - /rancher/latest/en/configuration/access-control/
 ---
 
-## Rancher Command Line Interface
+## Rancher命令行界面
 ---
 
-The Rancher Command Line Interface (CLI) is a unified tool to manage your Rancher server. With this tool, you can control your [environments]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/), [hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/), stacks, services and containers.
+Rancher的命令行界面（CLI）是用来管理您的Rancher服务器的一个统一的工具。 使用此工具，您可以控制你的[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/), [主机]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/), 堆栈，服务和容器。
 
-### Installation
+### 安装
 
-The binary can be downloaded directly from the UI. The link can be found in the right hand side of the footer in the UI. We have binaries for Windows, Mac, and Linux. You can also check the [releases page for our CLI](https://github.com/rancher/cli/releases) for direct downloads of the binary.
+二进制文件可以直接从UI下载。 该链接可以在UI中的页脚右侧找到。 我们有Windows，Mac和Linux的二进制文件。 你还可以查看 [我们CLI的发布页面](https://github.com/rancher/cli/releases) ，您可以从该页面直接下载二进制文件。
 
-### Configuring the Rancher Command Line Interface
+### 配置Rancher命令行界面
 
-There are several methods you can configure the settings that the Rancher CLI uses when interacting with Rancher, i.e. Rancher URL and account [API keys]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/api-keys/). Account API keys can be created in **API**.
+有几种方法可以配置Rancher命令行界面与Rancher进行交互时使用的设置，即Rancher URL和帐户 [API密钥]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/api-keys/). 帐户的API密钥可以在 **API**中创建.
 
-There is a specific load order for what will be used.
+这儿有将被使用的指定加载顺序
 
-1. During `rancher config`, you'll set the Rancher URL and API keys. If there are multiple environments, then you will select a specific environment.
-2. You can set environment variables for the same values, which would override the values set in `rancher config`.
-3. If you decide to pass in values directly into the Rancher command, those values would be used for the Rancher command over any other values.
+1. 在执行`rancher config`期间，您将设置Rancher URL和API密钥。 如果您有多个环境，那么您将选择一个特定的环境。
+2. 您可以为环境变量设置相同的值，这将覆盖`rancher config`中设置的值。
+3. 如果您决定将值直接传递给Rancher命令，那么这些值将覆盖其他值用于Rancher命令。
 
-#### Using Rancher Config
+#### 使用Rancher配置
 
-You can run `rancher config` to set up your configuration with Rancher server.
+您可以在rancher server中运行`rancher config`来设置您的配置
 
 ```bash
 $ rancher config
@@ -42,9 +44,9 @@ Select: 1
 INFO[0017] Saving config to /Users/<username>/.rancher/cli.json
 ```
 
-#### Using Environment Variables
+#### 使用环境变量
 
-You can set the following environment variables, `RANCHER_URL`, `RANCHER_ACCESS_KEY` and `RANCHER_SECRET_KEY`.
+您可以设置以下环境变量`RANCHER_URL`，`RANCHER_ACCESS_KEY`和`RANCHER_SECRET_KEY`。
 
 ```bash
 # Set the url that Rancher is on
@@ -57,24 +59,24 @@ $ export RANCHER_SECRET_KEY=<secretKey_of_account_api_key>
 
 <br>
 
-If there is more than one environment in your Rancher server you'll also need to set an environment variable to select the specific environment, i.e. `RANCHER_ENVIRONMENT`.
+如果您的Rancher服务器中有多个环境，您还需要设置一个环境变量来选择特定的环境，即“RANCHER_ENVIRONMENT”。
 
 ```bash
 # Set the environment to use, you can use either environment ID or environment name
 $ export RANCHER_ENVIRONMENT=<environment_id>
 ```
 
-#### Passing Options
+#### 可选参数传递
 
-If you choose not to run `rancher config` or set environment variables, you can pass the same values as options as part of any `rancher` command.
+如果您选择不运行`rancher config`或设置环境变量，那么您可以传递相同的值作为`rancher`命令参数选项的一部分。
 
 ```bash
 $ rancher --url http://server_ip:8080 --access-key <accessKey_of_account_api_key> --secret-key <secretKey_of_account_api_key> --env <environment_id> ps
 ```
 
-### Debugging with Rancher CLI
+### 使用Rancher命令行界面调试
 
-When working with Rancher CLI, you can set the environment variable, `RANCHER_CLIENT_DEBUG`, to `true`, which will have all CLI commands print out verbose messages of the API calls being made.
+当您使用Rancher 命令行界面时，可以将环境变量“RANCHER_CLIENT_DEBUG”设置为“true”，这样当API被调用时，所有的CLI命令将打印出详细信息。
 
 ```bash
 # Print verbose messages for all CLI calls
@@ -82,29 +84,29 @@ $ export RANCHER_CLIENT_DEBUG=true
 ```
 <br>
 
-If you don't want the verbose response on every CLI command, set the environment variable `RANCHER_CLIENT_DEBUG` to `false` and pass in `--debug` to the specific command to get the verbose messages.
+如果您不想每个CLI命令都打印详细信息，请将环境变量“RANCHER_CLIENT_DEBUG”设置为“false”，然后将`--debug`传递给指定命令来获取详细消息。
 
 ```bash
 $ rancher --debug env create newEnv
 ```
 
-### Working with Environments
+### 使用环境变量
 
-If you use an account API key, you will be able to create and update environments. If you use an environment API key, you will not be able to create or update other environments and you will only be able to see your existing environment.
+如果您使用API密钥账户，您将能够创建和更新环境。 如果您使用一个环境的API密钥，您将无法创建或更新其他环境，您将只能看到现有的环境。
 
 ```bash
 $ rancher env ls
 ID        NAME        STATE     CATALOG                           SYSTEM    DETAIL
-1e1       zookeeper   healthy   catalog://community:zookeeper:1   false     
-1e2       Default     healthy                                     false     
-1e3       App1        healthy                                     false     
+1e1       zookeeper   healthy   catalog://community:zookeeper:1   false
+1e2       Default     healthy                                     false
+1e3       App1        healthy                                     false
 ```
 
-### Working with a Specific Host
+## 使用指定的主机
 
-There are some commands (e.g. `rancher docker` and `rancher ssh`) that require selecting a specific host to use. You can either set up an environment variable to select a host, i.e. `RANCHER_DOCKER_HOST`, or pass in the ` --host` to specify a host.
+有一些命令(比说说`rancher docker`和`rancher ssh`)需要选择指定的主机来使用。您可以设置一个环境变量来选择一个主机，即RANCHER_DOCKER_HOST，或者传递 --host参数来指定主机。
 
-Before selecting a host, you can list out all the hosts in the environment.
+选择主机之前，您可以列出环境中的所有主机。
 
 ```
 $ rancher hosts
@@ -116,7 +118,7 @@ ID        HOSTNAME      STATE     IP
 
 <br>
 
-Now, you can set the environment variable, `RANCHER_DOCKER_HOST`, or pass in `--host` using either the host ID or host name to select a different host.
+现在您可以设置`RANCHER_DOCKER_HOST`环境变量，或者使用--host参数传入主机ID或主机名来选择不同的主机
 
 ```bash
 # Set the host to always select host-1 (1h1)
@@ -127,65 +129,65 @@ $ rancher docker ps
 $ rancher --host host-2 docker ps
 ```
 
-### Working with Services and Containers
+### 使用服务和容器
 
-#### Listing all Services
+#### 列出所有的服务
 
-In your selected environment, you can view all the services running in an environment.
+在您选择的环境中，您可以查看在环境中运行的所有服务。
 
 ```bash
 $ rancher ps
 ID   TYPE                 NAME                IMAGE                       STATE     SCALE   ENDPOINTS            DETAIL
-1s1  service              zookeeper/zk        rawmind/alpine-zk:3.4.8-4   healthy   3                              
-1s2  service              Default/nginxApp    nginx                       healthy   1                              
-1s4  service              App1/db1            mysql                       healthy   1                              
-1s5  service              App1/wordpress      wordpress                   healthy   4                              
-1s6  loadBalancerService  App1/wordpress-lb                               healthy   1       111.222.333.444:80   
+1s1  service              zookeeper/zk        rawmind/alpine-zk:3.4.8-4   healthy   3
+1s2  service              Default/nginxApp    nginx                       healthy   1
+1s4  service              App1/db1            mysql                       healthy   1
+1s5  service              App1/wordpress      wordpress                   healthy   4
+1s6  loadBalancerService  App1/wordpress-lb                               healthy   1       111.222.333.444:80
 ```
 
-#### Listing all Containers
+#### 列出所有的容器
 
-Instead of specific services, you can view all the containers in the environment.
+同样您可以查看环境中的所有容器。
 
 ```bash
 $ rancher ps -c
 ID      NAME                       IMAGE                              STATE     HOST   IP              DOCKER         DETAIL
-1i1     zookeeper_zk_zk-volume_1   rawmind/alpine-volume:0.0.1-1      stopped   1h1                    a92b6d3dad18   
-1i2     zookeeper_zk_zk-conf_1     rawmind/rancher-zk:0.3.3           stopped   1h1                    2e8085a4b517   
-1i3     zookeeper_zk_1             rawmind/alpine-zk:3.4.8-4          healthy   1h1    10.42.150.2     e3ef1c6ff70e   
-1i5     zookeeper_zk_zk-volume_2   rawmind/alpine-volume:0.0.1-1      stopped   1h2                    e716f562e0a4   
-1i6     zookeeper_zk_zk-conf_2     rawmind/rancher-zk:0.3.3           stopped   1h2                    5cd1cebea5a3   
-1i7     zookeeper_zk_2             rawmind/alpine-zk:3.4.8-4          healthy   1h2    10.42.88.102    21984a4445d1   
-1i9     zookeeper_zk_zk-volume_3   rawmind/alpine-volume:0.0.1-1      stopped   1h3                    7c614003f08c   
-1i10    zookeeper_zk_zk-conf_3     rawmind/rancher-zk:0.3.3           stopped   1h3                    53fb77cd8ae0   
-1i11    zookeeper_zk_3             rawmind/alpine-zk:3.4.8-4          healthy   1h3    10.42.249.162   84a80eb8e037   
-1i13    Default_nginxApp_1         nginx                              running   1h1    10.42.107.28    e1195a563280   
-1i15    App1_db1_1                 mysql                              running   1h3    10.42.116.171   0624e0a7f2fc   
-1i16    App1_wordpress_1           wordpress                          running   1h1    10.42.66.199    4bb77abebc08   
-1i17    App1_wordpress-lb_1        rancher/lb-service-haproxy:v0.4.2  healthy   1h2    10.42.199.163   5d3a005278d3   
-1i18    App1_wordpress_2           wordpress                          running   1h2    10.42.88.114    01ec967c49ac   
-1i19    App1_wordpress_3           wordpress                          running   1h3    10.42.218.81    3aae3fc6163a   
-1i20    App1_wordpress_4           wordpress                          running   1h1    10.42.202.31    0b67ef86db22   
+1i1     zookeeper_zk_zk-volume_1   rawmind/alpine-volume:0.0.1-1      stopped   1h1                    a92b6d3dad18
+1i2     zookeeper_zk_zk-conf_1     rawmind/rancher-zk:0.3.3           stopped   1h1                    2e8085a4b517
+1i3     zookeeper_zk_1             rawmind/alpine-zk:3.4.8-4          healthy   1h1    10.42.150.2     e3ef1c6ff70e
+1i5     zookeeper_zk_zk-volume_2   rawmind/alpine-volume:0.0.1-1      stopped   1h2                    e716f562e0a4
+1i6     zookeeper_zk_zk-conf_2     rawmind/rancher-zk:0.3.3           stopped   1h2                    5cd1cebea5a3
+1i7     zookeeper_zk_2             rawmind/alpine-zk:3.4.8-4          healthy   1h2    10.42.88.102    21984a4445d1
+1i9     zookeeper_zk_zk-volume_3   rawmind/alpine-volume:0.0.1-1      stopped   1h3                    7c614003f08c
+1i10    zookeeper_zk_zk-conf_3     rawmind/rancher-zk:0.3.3           stopped   1h3                    53fb77cd8ae0
+1i11    zookeeper_zk_3             rawmind/alpine-zk:3.4.8-4          healthy   1h3    10.42.249.162   84a80eb8e037
+1i13    Default_nginxApp_1         nginx                              running   1h1    10.42.107.28    e1195a563280
+1i15    App1_db1_1                 mysql                              running   1h3    10.42.116.171   0624e0a7f2fc
+1i16    App1_wordpress_1           wordpress                          running   1h1    10.42.66.199    4bb77abebc08
+1i17    App1_wordpress-lb_1        rancher/lb-service-haproxy:v0.4.2  healthy   1h2    10.42.199.163   5d3a005278d3
+1i18    App1_wordpress_2           wordpress                          running   1h2    10.42.88.114    01ec967c49ac
+1i19    App1_wordpress_3           wordpress                          running   1h3    10.42.218.81    3aae3fc6163a
+1i20    App1_wordpress_4           wordpress                          running   1h1    10.42.202.31    0b67ef86db22
 ```
 
-#### Listing Containers of a Specific Service
+#### 列出指定服务的容器
 
-If you wanted to view the containers of a specific service, you can list out all the containers running in a service by adding in the service ID or service name.
+如果要查看特定服务的容器，可以通过添加服务ID或服务名称列出运行服务的所有容器。
 
 ```bash
 $ rancher ps 1s5
 ID      NAME               IMAGE       STATE     HOST      IP             DOCKER         DETAIL
-1i16    App1_wordpress_1   wordpress   running   1h1       10.42.66.199   4bb77abebc08   
-1i18    App1_wordpress_2   wordpress   running   1h2       10.42.88.114   01ec967c49ac   
-1i19    App1_wordpress_3   wordpress   running   1h3       10.42.218.81   3aae3fc6163a   
+1i16    App1_wordpress_1   wordpress   running   1h1       10.42.66.199   4bb77abebc08
+1i18    App1_wordpress_2   wordpress   running   1h2       10.42.88.114   01ec967c49ac
+1i19    App1_wordpress_3   wordpress   running   1h3       10.42.218.81   3aae3fc6163a
 1i20    App1_wordpress_4   wordpress   running   1h1       10.42.202.31   0b67ef86db22
 ```
 
-### Launching a Simple Service using Docker Compose Files
+### 使用docker compose文件启动简单的服务
 
-To start adding services into Rancher, you can create a simple `docker-compose.yml` file and optionally a `rancher-compose.yml` file. If there is no `rancher-compose.yml` file, then all services will start with a scale of 1 container.
+要开始向Rancher添加服务时，您可以创建一个简单的`docker-compose.yml`文件，以及可选的`rancher-compose.yml`文件。 如果没有`rancher-compose.yml`文件，则所有服务都将运行在一个容器中。
 
-Sample `docker-compose.yml`
+docker-compose.yml示例
 
 ```yaml
 version: '2'
@@ -194,7 +196,7 @@ services:
     image: nginx
 ```
 
-Sample `rancher-compose.yml`
+rancher-compose.yml示例
 
 ```yaml
 version: '2'
@@ -204,7 +206,7 @@ services:
     scale: 2
 ```
 
-After your files are created, you can launch the services into Rancher server.
+创建文件后，您可以在Rancher服务器中启动对应的服务。
 
 ```bash
 # Creating and starting a service without environment variables and selecting a stack
@@ -222,15 +224,15 @@ $ rancher scale Default/service1=3
 $ rancher scale 1s4=5
 ```
 
-### Launching a Service using `Rancher run`
+### 使用`Rancher run`来启动一个服务
 
-If you have been using the Docker CLI to add in services, you can also add containers into Rancher using `rancher run`.
+如果您使用Docker CLI添加服务，您还可以使用`rancher run`将容器添加到Rancher中。
 
 ```bash
 # Services should be stackName/service_name
 $ rancher run --name stackA/service1 nginx
 ```
 
-### Command Reference
+### 命令参考
 
-To read more about all the supported commands, please read our [rancher command]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cli/commands/) documentation.
+要了解更多的命令行支持，请查看我们的 [rancher命令]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cli/commands/)文档.
