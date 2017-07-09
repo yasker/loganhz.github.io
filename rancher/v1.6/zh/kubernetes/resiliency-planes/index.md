@@ -1,6 +1,6 @@
 ---
 title: Kubernetes - 弹性平面
-layout: rancher-default-v1.6
+layout: rancher-default-v1.6-zh
 version: v1.6
 lang: zh
 ---

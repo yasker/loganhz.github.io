@@ -1,6 +1,6 @@
 ---
 title: FAQS about Rancher Server
-layout: rancher-default-v1.6
+layout: rancher-default-v1.6-zh
 version: v1.6
 lang: en
 redirect_from:

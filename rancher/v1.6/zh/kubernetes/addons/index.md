@@ -1,6 +1,6 @@
 ---
 title: Rancher中的Kubernetes插件
-layout: rancher-default-v1.6
+layout: rancher-default-v1.6-zh
 version: v1.6
 lang: zh
 ---

@@ -1,6 +1,6 @@
 ---
 title: 在Rancher中搭配Kubernetes使用私有仓库
-layout: rancher-default-v1.6
+layout: rancher-default-v1.6-zh
 version: v1.6
 lang: zh
 ---

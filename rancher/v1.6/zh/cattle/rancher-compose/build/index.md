@@ -1,6 +1,6 @@
 ---
 title: Building with AWS S3 in Rancher Compose
-layout: rancher-default-v1.6
+layout: rancher-default-v1.6-zh
 version: v1.6
 lang: en
 ---
