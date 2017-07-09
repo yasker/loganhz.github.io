@@ -2,16 +2,16 @@
 title: Infrastructure Services in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 redirect_from:
-  - /rancher/latest/en/rancher-services/
+  - /rancher/latest/zh/rancher-services/
 ---
 
-## Infrastructure Services
+## 基础架构服务
 ---
 
-When starting Rancher, each [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) is based on an [environment template]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template) and in the environment template, you select which infrastructure service you'd like to start when creating an environment. These infrastructure services include type of orchestration, [external DNS]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/), [networking]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/), [storage]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/storage-service/), and framework services (i.e. [internal dns]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/dns-service/),   [metadata]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/metadata-service), and [health check]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks)).
+当启动Rancher时，每一个[environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)都是基于[environment template]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template) 同时在environment template，在启动一个环境时，你可以选在需要启动的基础架构服务。这些基础架构服务包括编排引擎，[external DNS]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/), [networking]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/), [storage]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/storage-service/)，框架服务 (i.e. [internal dns]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/dns-service/)，[metadata]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/metadata-service)，和[health check]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks))。
 
-These infrastructure services are based on the templates in the `infra-templates` folder of our [Rancher catalog](https://github.com/rancher/rancher-catalog) and [community catalog](https://github.com/rancher/community-catalog). By default, both the Rancher catalog and community catalog are enabled, which provide a basic list of infrastructure services that can be used in an environment template.
+基础架构服务基于[Rancher catalog](https://github.com/rancher/rancher-catalog)和[community catalog](https://github.com/rancher/community-catalog)中的`infra-templates`文件夹中的模版。默认开启Rancher catalog和community catalog，它们提供了一系列可以在环境模版中使用的基础服务
 
-When creating new environment templates, the default set of infrastructure services that are required to have a working environment are automatically enabled.
+当创建一个环境模版时，运行一个环境所需的一系列基础服务会默认开启。

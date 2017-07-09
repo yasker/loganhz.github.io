@@ -2,25 +2,26 @@
 title: Metadata Service in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 redirect_from:
   - /rancher/rancher-services/metadata-service/
 ---
 
-## Metadata Service
+## Metadata 服务
 ---
 
-Rancher offers data for both your services and containers through our metadata infrastructure service. This data can be used to manage your running Docker instances in the form of a metadata service accessed directly through a HTTP based API.  These data can include static information when creating your Docker containers, Rancher Services, or runtime data such as discovery information about peer containers within the same service.
 
-With Rancher's metadata service, you can exec into any container using the Rancher managed network and retrieve information about containers in Rancher. The metadata could be related to the container, the service or stack that the container is part of, or the host that the container is on. The metadata is in a JSON format.
+Rancher通过基础架构中的metadata服务为你的services和contianer提供数据。 可以通过直接调用基于HTTP的API的形式访问这些数据，来管理你运行中的docker实例。 这些数据包括创建docker contianers，Rancher services的静态数据，或者运行时数据，例如：在同一个服务里的discovery information about peer containers. TODO
 
-Containers can be launched in the Rancher managed network in several ways. Read more about how [networking]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking) works in Rancher.
+通过Rancher的metadata服务，你可以操作任何使用Rancher托管网络的容器，并且在Rancher中取回容器的信息。通过metadata可以获取container，service，包含container的stack，container所在的主机。metadata是JSON格式的。
 
-### How to Get the Metadata
+有多重方式运行Rancher托管的containers。Rancher网络的原理详见[networking]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking)。
 
-From the Rancher UI, you can execute into shell of the container by selecting **Execute Shell** from the drop down of the container. The drop down can be found by hovering over the container.
+### 如何获取Metadata
 
-To obtain the metadata, you'll run a curl command.
+通过Rancher UI，你可以通过container的下拉菜单 **执行命令行** 进入运行命令界面。The drop down can be found by hovering over the container。TODO
+
+你可以通过curl命令获取metadata信息。
 
 ```bash
 # If curl is not installed, install it
@@ -28,84 +29,84 @@ $ apt-get install curl
 # Basic curl command to obtain a plaintext response
 $ curl http://rancher-metadata/<version>/<path>
 ```
-The path can be changed depending on what metadata you want to retrieve as well as the response format.
+curl请求的path取决于你想要获取的metadata信息和格式。
 
-Metadata | path  | Description
+Metadata | path  | 描述
 ----|---- | ---
-Container | `self/container` | Provides metadata on the container that you are executing the command in
-Service that container is part of | `self/service` | Provides metadata on the service of the container that you are executing the command in
-Stack that container is part of | `self/stack` | Provides metadata on the stack of the container that you are executing the command in
-Host that container is deployed on | `self/host` | Provides metadata on the host of the container that you are executing the command in
-Other Containers | `containers` | Provides metadata on all containers. In plaintext, it provides an indexed response of all containers. In JSON format, it provides all the metadata for all  containers. Using either the index number or name in the path, you can obtain metadata on a specific container.
-Other Services | `services` | Provides metadata on all services. In plaintext, it provides an indexed response of all services. In JSON format, it provides all the metadata for all services. Using either the index number or name in the path, you can obtain metadata on a specific service. If drilling down to containers, in V1 (`2015-07-25`), only container name(s) are returned, but in V2 (`2015-12-19`), container object(s) are returned.
-Other Stacks | `stacks/<stack-name>` | Provides metadata on all stacks. In plaintext, it provides an indexed response of all stacks. In JSON format, it provides all the metadata for all stacks. Using either the index number or name in the path, you can obtain metadata on a specific stack. When drilling down to container details, in V1 (`2015-07-25`), only container name(s) are returned, but in V2 (`2015-12-19`), container object(s) are returned.
+Container | `self/container` | 提供运行命令的container的metadata信息
+Service that container is part of | `self/service` | 提供运行命令的container对应service的metadata信息
+Stack that container is part of | `self/stack` | 提供运行命令的container对应stack的metadata信息
+Host that container is deployed on | `self/host` | 提供运行命令的container对应host的metadata信息
+Other Containers | `containers` | 提供所有containers的metadata信息。在plaintext格式，提供了带上索引序号的所有容器。在JSON格式，提供了所有containers的所有metadata信息。使用序号或者名字。都可以获取指定container的metadata信息。
+Other Services | `services` | 提供了所有services的metadata信息。在plaintext格式，提供了带上索引序号的所有services。在JSON格式，提供了所有services的所有metadata信息。在路径中使用序号或者名字，都可以获取指定service的metadata信息。当访问container详细信息时，在V1 (`2015-07-25`)只返回container name(s)，但是在V2 (`2015-12-19`)，container object(s) 也会返回。
+Other Stacks | `stacks/<stack-name>` | 提供了所有stack的metadata信息。在plaintext格式，提供了带上索引序号的所有stack。在JSON格式，提供了所有stack的所有metadata信息。使用序号或者名字。都可以获取指定容器的metadata信息。在路径中使用序号或者名字，都可以获取指定stack的metadata信息。当访问container详细信息时，在V1 (`2015-07-25`)只返回container name(s)，但是在V2 (`2015-12-19`)，container object(s) 也会返回。
 
-### Versioning of Metadata
+### Metadata的版本
 
-In the `curl` commands, we strongly recommend using a specific version, but you could also choose `latest`.
+在`curl`命令中，我们强烈建议使用确定的版本号，但是你也可以选者`latest`。
 
-> **Note:** As we make changes to our `latest` version, the data returned may change in any release and become incompatible with your code.
+> **注意:** 因为`latest`版本会包含最新的代码变动，各个版本的返回的数据可能不同，需要确认是否和你之前的代码能够兼容。
 
-The version of the metadata service is based on date.
+metadata的版本是基于日期的。
 
 Version Reference | Version|
 ---- | ----
 V2 | 2015-12-19 |
 V1 | 2015-07-25 |
 
-#### Differences in Versions
+#### 版本变化
 
 ##### V1 vs. V2
 
-When drilling down to containers using the http path ending in `/services/<service-name>/containers` or `/stacks/<stack-name>/services/<service-name>/containers`, V1 returns container name(s) and V2 returns container object(s). More information is provided with V2 of the metadata service.
+当通过http请求访问路径 `/services/<service-name>/containers`或者`/stacks/<stack-name>/services/<service-name>/containers`时, V1 返回container name(s)，V2返回container object(s)。更多详细信息在V2 metadata服务中提供。
 
-##### Example
+##### 范例
 
-In Rancher, there is a stack called `foostack` and it contains a service called `barservice` with 3 containers.
+在Rancher中，名为`foostack`的stack包含一个有三个容器的service `barservice`。
 
 ```bash
-# Using V1 returns only container names of the service
+# 在V1只返回service的container names
 $ curl --header 'Accept: application/json' 'http://rancher-metadata/2015-07-25/services/barservice/containers'
 ["foostack_barservice_1", "foostack_barservice_2", "foostack_barservice_1"]
 
-# Using V2 returns container objects of the service
+# 在V2中返回service的container objects
 $ curl --header 'Accept: application/json' 'http://rancher-metadata/2015-12-19/services/barservice/containers'
 [{"create_index":1, "health_state":null,"host_uuid":...
 ...
-# Lists all metadata for all containers of the service
+# 获取service中所有容器的metadata信息
 ...
 ...}]
 
-# Using V2, you can drill down to a specific container's object
+# 在V2，可以获取指定的container object
 $ curl --header 'Accept: application/json' 'http://rancher-metadata/2015-12-19/services/barservice/containers/foostack_barservice_1'
 [{"create_index":1, "health_state":null,"host_uuid":...
 ...
-# Lists all metadata for all containers of the service
+# 获取service中所有容器的metadata信息
 ...
 ...}]
 
-# Using /stacks/<service-name>, you can drill down to services and containers
+# 通过路径 /stacks/<service-name>，可以访问services和containers
 
-# Using V1 returns only container names of the service
+# 使用V1只返回service的container names
 $ curl --header 'Accept: application/json' 'http://rancher-metadata/2015-07-25/stacks/foostack/services/barservice/containers'
 ["foostack_barservice_1", "foostack_barservice_2", "foostack_barservice_1"]
 
-# Using V2 returns container objects of the service
+# 使用V2返回service的container objects
 $ curl --header 'Accept: application/json' 'http://rancher-metadata/2015-12-19/stacks/foostack/services/barservice/containers'
 [{"create_index":1, "health_state":null,"host_uuid":...
 ...
-# Lists all metadata for all containers of the service
+# 获取service中所有容器的metadata信息
 ...
 ...}]
 ```
 
 ### Plaintext vs JSON
 
-The metadata can be returned in either plaintext or JSON format. Depending on how you want to use your metadata, you can pick either format.
+Metadata返回有plaintext和JSON两种格式，根据需要选择相应格式.
 
 #### Plaintext
 
-When executing the curl command, you'll receive plaintext for the path that was requested. You can start at the top level of the path and continue to update the path based on available keys until your metadata service provides the data you were looking for.
+通过curl命令，会获得请求路径的plaintext格式返回。你可以通过从第一层路径开始，层层推进，找到你需要的信息。
 
 ```bash
 $ curl 'http://rancher-metadata/2015-12-19/self/container'
@@ -136,26 +137,26 @@ state
 system
 uuid
 $ curl 'http://rancher-metadata/2015-12-19/self/container/name'
-# Note: Curl will not provide a new line, so single values will be on same line as the command prompt
+# Note: Curl 不会返回新的行，只有一个数据时返回会输出在同一行
 Default_Example_1$root@<container_id>
 $ curl 'http://rancher-metadata/2015-12-19/self/container/label/io.rancher.stack.name'
 Default$root@<container_id>
-# Arrays can use either the index or name to go get the values
+# Arrays可以通过序号或者名字访问
 $ curl 'http://rancher-metadata/2015-12-19/services'
 0=Example
-# You can either user the index or name as a path
+# 使用序号或者名字
 $ curl 'http://rancher-metadata/2015-12-19/services/0'
 $ curl 'http://rancher-metadata/2015-12-19/services/Example'
 ```
 
 #### JSON
 
-The JSON format can be retrieved by adding an `Accept: application/json` header to your curl command.
+JSON格式的返回可以通过在curl命令中增加header `Accept: application/json`
 
 ```bash
 $ curl --header 'Accept: application/json' 'http://rancher-metadata/2015-12-19/self/container'
 $ curl --header 'Accept: application/json' 'http://rancher-metadata/2015-12-19/self/stack'
-# Retrieve the metadata for another service in the stack
+# 获取stack中另一个service的信息
 $ curl --header 'Accept: application/json' 'http://rancher-metadata/2015-12-19/services/<service-name>'
 ```
 
@@ -165,86 +166,86 @@ $ curl --header 'Accept: application/json' 'http://rancher-metadata/2015-12-19/s
 
 | Fields | Description |
 | ----| ----|
-| `create_index` | The order number of which the container was launched in the service, i.e. 2 means it was the second container launched in the service. Note: Create_index is never reused. If you had a service with 2 containers and deleted the 2nd container, the next container that gets launched for the service would have a `create_index` of 3 even though there are only 2 containers in the service.
-| `dns` | The container's DNS server.
-| `dns_search` | Search domains for the container.
-| `external_id`  | The Docker container ID on the host
-| `health_check_hosts` | List of the host UUIDs where the containers that run health checks are.
-| `health_state` | The state of health for the container if a [health check]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks/) was enabled.
-| `host_uuid` | Unique host identifier that Rancher server assigns to hosts
-| `hostname` | The hostname of the container.
-| `ips` | When multiple NICs are supported, it will be the list of IPs.
-| `labels` | List of [Labels on Container]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#labels). Format for labels is `key`:`value`.
-| `memory_reservation` | The soft limit of the amount of memory that the container can use.
-| `milli_cpu_reservation` | The soft limit of the amount of CPU container can use. The value is an integer representing 1/1000 of a CPU. So, 1000 would equal 1 CPU and 500 would equal half a CPU.
-| `name` | Name of Container
-| `network_from_container_uuid` | The container's UUID where the network is from.
-| `network_uuid` | Unique network identifier that Rancher assigns to networks
-| `ports` | List of [Ports used in the container]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#port-mapping). Format for ports is `hostIP:publicIP:privateIP[/protocol]`.
-| `primary_ip` | IP of container
-| `primary_mac_address` | The primary MAC address of the container
-| `service_index` | The last number in the container name of the service
-| `service_name` | Name of service (if applicable)
-| `stack_name` | Name of stack that the service is in (if applicable)
-| `stack_uuid` |  Unique stack identifier that Rancher assigns to stacks
-| `start_count` | The number of times the container was started.
-| `state` | The state of the container
-| `system` | Whether or not the container is an [infrastructure service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)
-| `uuid` | Unique container identifier that Rancher assigns to containers
+| `create_index` | container启动的序号 i.e. 2 代表的是service中启动的第二个container。Note: Create_index不会被重用。 如果你的service包含2 containers，删除了第二个container，下一个启动的container的`create_index`会是3，即使service中只包含2个container
+| `dns` | container的DNS server。
+| `dns_search` | container的搜索域。
+| `external_id`  | 在host上的Docker container ID。
+| `health_check_hosts` | 列出运行health checks的host的UUIDs。
+| `health_state` | 开启health check的container的健康状态 [health check]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks/)。
+| `host_uuid` | Rancher server分配给hosts的唯一标识。
+| `hostname` | container的hostname。
+| `ips` | 支持多NICs时的IP列表
+| `labels` | [container 标签]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#labels)列表。格式为`key`:`value`。
+| `memory_reservation` | container可以使用内存的软限制。
+| `milli_cpu_reservation` | container可以使用CPU的软限制，值为正整数，1代表1/1000CPU。所以，1000 代表1个CPU，500代表半个CPU。
+| `name` | container的名字。
+| `network_from_container_uuid` | （TODO）container's UUID where the network is from.
+| `network_uuid` | Rancher分配的network唯一标识
+| `ports` | 列出 [contaienr使用的ports]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#port-mapping)。格式为： `hostIP:publicIP:privateIP[/protocol]`.
+| `primary_ip` | container IP
+| `primary_mac_address` | container的primary MAC地址
+| `service_index` | service中container name的最后一个数字
+| `service_name` | service name(if applicable) （TODO）
+| `stack_name` | service所在的stack的名字(if applicable) （TODO）
+| `stack_uuid` | Rancher分配的stacks的唯一标识
+| `start_count` | container启动的次数
+| `state` | container状态
+| `system` | container是否是Rancher基础架构[infrastructure service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)
+| `uuid` | Rancher分配containers唯一标识
 
 #### Service
 
  Fields | Description
 ----|----
-`containers` | List of container names in the service
-`create_index` | Create_index of the last container created of the service. Note: Create_index is never reused. If you had a service with 2 containers and deleted the 2nd container, the create_index will be 2. The next container that gets launched for the service would update the create_index to 3 even though there are only 2 containers.
-`expose` | The ports that are exposed on the host without being published on the host.
-`external_ips` | List of External IPs for [External Services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-external-services/)
-`fqdn` | Fqdn of the service
-`health_check` | The [health check configuration]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks/) on the service
-`hostname` | CNAME for [External Services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-external-services/)
-`kind` | Type of Rancher Service
-`labels` | List of [Labels on Service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#labels). Format for labels is `key:value`.
-`lb_config` | The configuration of the [load balancer]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/)
-`links` | List of linked services. Format for links is `stack_name/service_name:service_alias`. The `links` would show all the keys (i.e. `stack_name/service_name` for all links) and to retrieve the `service_alias`, you would need to drill down to the specific key.
-`metadata` | [User added metadata]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/metadata-service/#adding-user-metadata-to-a-service)
-`name` | Name of Service
-`ports` | List of [Ports used in the Service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#port-mapping). Format for ports is `hostIP:publicIP:privateIP[/protocol]`.
-`primary_service_name` | The name of the primary service if there are sidekicks
-`scale` | Scale of Service
-`sidekicks` | List of service names that are [sidekicks]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#sidekick-services)
-`stack_name` | Name of stack the service is part of
-`stack_uuid` | Unique stack identifier that Rancher assigns to stacks
-`system` | Whether or not the service is an [infrastructure service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)
-`uuid` | Unique service identifier that Rancher assigns to services
+`containers` | 列出service中的container names
+`create_index` | container启动的序号 i.e. 2 代表的是service中启动的第二个container。Note: Create_index不会被重用。 如果你的service包含2 containers，删除了第二个container，下一个启动的container的`create_index`会是3，即使service中只包含2个container
+`expose` | 对主机暴露，但是不对外暴露的端口
+`external_ips` | [内部服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-external-services/) 的IP列表
+`fqdn` | service的全称域名
+`health_check` | 服务的 [健康检查配置]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks/)
+`hostname` | [内部服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-external-services/)的CNAME
+`kind` | Rancher Service类型
+`labels` | [服务标签]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#labels)列表，格式为 `key:value`.
+`lb_config` | [负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/)的配置
+`links` | 列出服务的链接，格式为`stack_name/service∂_name:service_alias`. `links`(i.e. `stack_name/service_name` 获取所有链接)根据返回的`service_alias`,获取进一步的详细信息。
+`metadata` | [用户添加 metadata]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/metadata-service/#adding-user-metadata-to-a-service)
+`name` | 服务名称
+`ports` | [Service使用的端口]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#port-mapping)。格式`hostIP:publicIP:privateIP[/protocol]`.
+`primary_service_name` | 主service名，如果有sidekicks
+`scale` | Service的scale
+`sidekicks` | [sidekicks]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#sidekick-services)服务的名称列表
+`stack_name` | service所有的stack的名称
+`stack_uuid` | Rancher分配的stacks唯一标识
+`system` | 是否是[基础架构服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)
+`uuid` | Rancher分配的services唯一标识
 
 #### Stack
 
 Fields | Description
 ----|----
-`environment_name` | Name of [Environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) that the Stack is in
-`environment_uuid` | Unique stack identifier that Rancher assigns to stacks
-`name` | Name of [Stack]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/stacks/)
-`services` | List of Services in the Stack
-`system` | Whether or not the stack is an [infrastructure service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)
+`environment_name` | stack所在的[Environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) 的名字
+`environment_uuid` | Rancher分配的stacks唯一标识
+`name` | [Stack]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/stacks/)名字
+`services` | Stack中的Services列表
+`system` | stack是否是[基础架构服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)
 `uuid` | Unique stack identifier that Rancher assigns to stacks
 
 #### Host
 
 Fields | Description
 ----|----
-`agent_ip` | IP of the Rancher Agent, i.e. the value of the `CATTLE_AGENT_IP` environment variable.
-`hostname` | Name of [Host]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/)
-`labels` | List of [Host Labels]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels). Format for labels is `key:value`.
-`local_storage_mb` | Amount of storage on the host in MB
-`memory` | Amount of memory on the host in MB
-`milli_cpu` | Amount of CPU on the host. The value is an integer representing 1/1000 of a cpu. So, 1000 would equal 1 CPU.
-`name` | Name of [Host]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/)
-`uuid` | Unique host identifier that Rancher server assigns to hosts
+`agent_ip` | Rancher Agent的IP，i.e. `CATTLE_AGENT_IP`环境变量值。
+`hostname` | [Host]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/)的名字
+`labels` | [Host Labels]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels)列表。格式为`key:value`.
+`local_storage_mb` | host的存储数值，单位为MB
+`memory` | host的内存数值，单位为MB
+`milli_cpu` | host的CPU. 数值为整数，1代表1/1000的cpu。所以，1000代表1 CPU.
+`name` | [Host]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/)的名字
+`uuid` | Rancher server分配的hosts唯一标识
 
-### Adding User Metadata To a Service
+### 为Service添加用户Metadata
 
-Rancher allows users to add in their own metadata to a service. Currently, this is only supported through [Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/rancher-compose/) and the metadata is part of the `rancher-compose.yml` file. In the `metadata` key, the yaml will be parsed into JSON format to be used by the metadata-service.
+Rancher支持为服务添加用户metadata。现在只支持通过[Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/rancher-compose/) 添加，metadata是`rancher-compose.yml`的一部分。`metadata` key对应的部分，yaml会被转化成JSON格式在metadata-service中使用
 
 #### Example `rancher-compose.yml`
 
@@ -262,10 +263,10 @@ service:
 
 ```
 
-After the service is up, you can find metadata using the metadata service in `.../self/service/metadata` or in `.../services/<service_id>/metadata`.
+服务启动后，可以在`.../self/service/metadata` or in `.../services/<service_id>/metadata`看到metadata使用metadata service
 
 
-#### JSON Query
+#### JSON查询
 
 ```bash
 $ curl --header 'Accept: application/json' 'http://rancher-metadata/latest/self/service/metadata'
@@ -273,7 +274,7 @@ $ curl --header 'Accept: application/json' 'http://rancher-metadata/latest/self/
 
 ```
 
-#### Plaintext Queries
+#### Plaintext查询
 
 ```bash
 $ curl 'http://rancher-metadata/latest/self/service/metadata'
@@ -282,6 +283,6 @@ $ curl 'http://rancher-metadata/latest/self/service/metadata/example'
 name
 value
 $ curl 'http://rancher-metadata/latest/self/service/metadata/example/name'
-# Note: Curl will not provide a new line, so single values will be on same line as the command prompt
+# # Note: Curl 不会返回新的行，只有一个数据时返回会输出在同一行
 hello$root@<container_id>
 ```
