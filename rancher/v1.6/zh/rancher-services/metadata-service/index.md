@@ -11,7 +11,7 @@ redirect_from:
 ---
 
 
-Rancher通过基础架构中的metadata服务为你的services和contianer提供数据。 可以通过直接调用基于HTTP的API的形式访问这些数据，来管理你运行中的docker实例。 这些数据包括创建docker contianers，Rancher services的静态数据，或者运行时数据，例如：在同一个服务里的discovery information about peer containers. TODO
+Rancher通过基础架构中的metadata服务为services和contianer提供数据。 可以通过直接调用基于HTTP的API的形式访问这些数据，来管理你运行中的docker实例。 这些数据包括创建docker containers，Rancher services的静态数据，或者运行时数据，例如：在同一个服务里的discovery information about peer containers. TODO
 
 通过Rancher的metadata服务，你可以操作任何使用Rancher托管网络的容器，并且在Rancher中取回容器的信息。通过metadata可以获取container，service，包含container的stack，container所在的主机。metadata是JSON格式的。
 
@@ -19,7 +19,7 @@ Rancher通过基础架构中的metadata服务为你的services和contianer提供
 
 ### 如何获取Metadata
 
-通过Rancher UI，你可以通过container的下拉菜单 **执行命令行** 进入运行命令界面。The drop down can be found by hovering over the container。TODO
+通过Rancher UI，你可以通过container的下拉菜单 **执行命令行** 进入运行命令界面。当鼠标悬停在容器上时，会显示容器名和右侧的下拉菜单
 
 你可以通过curl命令获取metadata信息。
 
@@ -228,7 +228,7 @@ Fields | Description
 `name` | [Stack]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/stacks/)名字
 `services` | Stack中的Services列表
 `system` | stack是否是[基础架构服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)
-`uuid` | Unique stack identifier that Rancher assigns to stacks
+`uuid` | Rancher分配的stacks唯一标识
 
 #### Host
 
@@ -241,7 +241,7 @@ Fields | Description
 `memory` | host的内存数值，单位为MB
 `milli_cpu` | host的CPU. 数值为整数，1代表1/1000的cpu。所以，1000代表1 CPU.
 `name` | [Host]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/)的名字
-`uuid` | Rancher server分配的hosts唯一标识
+`uuid` | Rancher分配的hosts唯一标识
 
 ### 为Service添加用户Metadata
 

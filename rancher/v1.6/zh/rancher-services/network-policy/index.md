@@ -5,7 +5,7 @@ version: v1.6
 lang: zh
 ---
 
-## Network Policy
+## 网络策略
 ---
 
 Rancher允许用户在[environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)中配置网络策略。网络策略允许你在一个环境中定义特定的网络规则。所有的container默认可以互相通信，但是在需要加入你的container时或许会有限制。
@@ -16,7 +16,7 @@ Rancher允许用户在[environment]({{site.baseurl}}/rancher/{{page.version}}/{{
 
 如果你已经有一个启动的Rancher环境，你可以从[Rancher catalog]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/)启动 **Network Policy Manager**
 
-> **Note:** Network Policy Manager现在只能在使用_Cattle_ container 编排引擎的时候使用。Environment templates基于编排引擎确定哪些组件可用，Rancher支持几乎所有的编排引擎。
+> **Note:** Network Policy Manager现在只能在使用 Cattle container 编排引擎的时候使用。Environment templates基于编排引擎确定哪些组件可用，Rancher支持几乎所有的编排引擎。
 
 ### 通过UI管理网络策略规则
 网络策略规则可以在每个environment设置页面中配置。点击下拉列表中的 **Manage Environments**，然后在需要配置的enviroment右侧点击edit按钮
@@ -28,7 +28,7 @@ Rancher允许用户在[environment]({{site.baseurl}}/rancher/{{page.version}}/{{
 * **Within Stack**: 这个选项用来控制相同stack中不同service
 * **Everything Else**: 这个选项用来控制上面不包含的情况
 
-通常的配置为在**Everything Else**选择 Deny`，其他的都选择`Allow`。
+通常的配置为在**Everything Else**选择 `Deny`，其他的都选择`Allow`。
 
 > **Note:** 规则的顺序为从左至右
 
@@ -37,7 +37,7 @@ Rancher允许用户在[environment]({{site.baseurl}}/rancher/{{page.version}}/{{
 
 对于[network]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/v2-beta/resources/network/) 资源，`defaultPolicyAction`和`policy` 字段定义了container间通信的工作规则。`policy`字段是内容为[network policy rules]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/v2-beta/resources/networkPolicyRule/)的有序数组。通过Rancher's [API]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/v2-beta/)，可以配置环境的网络策略
 
-#### 查到Network的API Endpoint
+#### 获取Network的API Endpoint
 
 要配置网络策略，需要找到相应的**Network**资源。network是environment的一部分，找到网络的URL为:
 
@@ -47,7 +47,7 @@ http://<RANCHER_SERVER_IP>/v2-beta/projects/<PROJECT_ID>/networks/<NETWORK_ID>`
 
 怎么查找需要配置的网络的URL:
 
-1. 点击啊**API**打开**Advanced Options**。In the **Environment API Keys**，点击 **Endpoint (v2-beta)**.
+1. 点击啊**API**打开**Advanced Options**。在 **Environment API Keys**，点击 **Endpoint (v2-beta)**.
   > **Note**: 在UI上是`Environment`，在API是`project`。
 2. 在environment links中查找**networks**，点击链接。
 3. 查询你环境中启动的networking driver的名字。例如：可能为 `ipsec`。点击network的 **self**
@@ -66,7 +66,7 @@ http://<RANCHER_SERVER_IP>/v2-beta/projects/<PROJECT_ID>/networks/<NETWORK_ID>`
 
 #### 有链接的services内的containers
 
-Assumption: Service A链接service B.
+假设: Service A链接service B.
 
 开启service A和service B之间的通信:
 
@@ -87,12 +87,11 @@ Assumption: Service A链接service B.
 }
 ```
 
-在environment内任一链接services的网络策略规则应用到所有有链接的services
+在environment内任一链接services的网络策略规则适用于所有有链接的services
 
 
 #### 同一service中的containers
 
-开通service A和service B之间的通信:
 开通同一service内containers的通信:
 
 ```json
