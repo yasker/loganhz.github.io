@@ -2,21 +2,22 @@
 title: Environment Interpolation in Rancher Compose
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Environment Interpolation
+## 环境插值
 ---
 
-Using Rancher Compose, environment variables from the machine running Rancher Compose can be used within the `docker-compose.yml` and `rancher-compose.yml` files. This is only supported in Rancher Compose commands and not in the Rancher UI.  
+在使用 Rancher Compose 时，`docker-compose.yml` 和 `rancher-compose.yml` 文件中可以使用运行 Rancher Compose 的机器中的环境变量。
+这个特性只在 Rancher Compose 命令中有效，在 Rancher UI 中是没有这个特性的。
 
-### How to use it
+### 怎么使用
 
-With the `docker-compose.yml` and `rancher-compose.yml` files, you can reference the environment variables on your machine. If there are no environment variables on the machine, it will replace the variable with a blank string. Rancher Compose will provide a warning on which environment variables are not set.  If using environment variables for image tags, please note that Rancher Compose will not strip the `:` from the image to fetch the latest image. Since the image name, i.e. `<imagename>:` is an invalid image name, no container will be deployed. It's up to the user to ensure that all environment variables are present and valid on the machine.
+在 `docker-compose.yml` 和 `rancher-compose.yml` 文件中，您可以引用您机器中的环境变量。如果没有该环境变量，它的值会被替换为空字符串，请注意的是 Rancher Compose 不会自动去除 `:` 两侧的空字符来适配相近的镜像。例如 `<imagename>:` 是一个非法的镜像名称，不能部署出容器。它需要用户自己来保证环境变量在该机器上是存在并有效的。
 
-#### Example
+#### 例子
 
-On our machine running Rancher Compose, we have an environment variable, `IMAGE_TAG=14.04`.
+在我们运行 Rancher Compose 的机器上有一个这样的环境变量，`IMAGE_TAG=14.04` 。
 
 ```bash
 # Image tag is set as environment variable
@@ -26,7 +27,7 @@ IMAGE_TAG=14.04
 $ rancher-compose up
 ```
 
-**Example `docker-compose.yml`**
+**样例文件 `docker-compose.yml`**
 
 ```yaml
 version: '2'
@@ -39,11 +40,11 @@ services:
 
 <br>
 
-In Rancher, an `ubuntu` service will be deployed with an `ubuntu:14.04` image.
+在 Rancher 里，一个 `ubuntu` 服务会使用镜像 `ubuntu:14.04` 部署。
 
-### Environment Interpolation Formats
+### 环境插值格式
 
-Rancher Compose supports the same formats as Docker Compose.
+Rancher Compose 支持和 Docker Compose 一样的格式。
 
 ```yaml
 version: '2'

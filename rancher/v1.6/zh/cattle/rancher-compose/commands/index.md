@@ -2,54 +2,54 @@
 title: Commands and Options in Rancher Compose
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Command and Options
+## 指令与参数
 ---
 
-The Rancher Compose tool works just like the popular Docker Compose and supports the V1 version of  `docker-compose.yml` files. To enable features that are supported in Rancher, you can also have a `rancher-compose.yml` which extends and overwrites the `docker-compose.yml`. For example, scale of services and health checks would be in the `rancher-compose.yml` file.
+Rancher Compose 工具的工作方式是跟 Docker Compose 的工作方式是相似的，并且支持版本V1的 `docker-compose.yml` 文件。为了启用 Rancher 的特性，您需要额外一份`rancher-compose.yml`文件，这份文件扩展并覆盖了`docker-compose.yml`文件。例如，服务缩放和健康检查这些特性就会在`rancher-compose.yml`中体现。
 
-### Rancher-Compose Commands
+### Rancher-Compose 命令
 
-Rancher Compose supports any command that Docker Compose supports.
+Rancher Compose 支持所有 Docker Compose 支持的命令。
 
 Name | Description
 ----|-----
-`create`	| Create all services but do not start
-`up`		| Bring all services up
-`start`	| Start services
-`logs`	| 	Get service logs
-`restart`	| Restart services
-`stop`, `down` |	Stop services
-`scale`	| Scale services
-`rm`		| Delete services
-`pull` | Pulls images for services
-`upgrade`	| Perform rolling upgrade between services
-`help`, `h`	| Shows a list of commands or help for one command
+`create`	| 创建所有服务但不启动
+`up`		| 启动所有服务
+`start`	| 启动服务
+`logs`	| 	输出服务日志
+`restart`	| 重启服务
+`stop`, `down` |	停止服务
+`scale`	| 缩放服务
+`rm`		| 删除服务
+`pull` | 拉取所有服务的镜像
+`upgrade`	| 开始服务之间滚动升级
+`help`, `h`	| 输出命令列表或者指定命令的帮助列表
 
-### Rancher Compose Options
+### Rancher Compose 选项
 
-Whenever you use the Rancher Compose command, there are different options that you can use.
+无论何时您使用 Rancher Compose 命令，这些不同的选项您都可以使用
 
 Name | Description
 --- | ---
-`--verbose`, `--debug`	|		
-`--file`, `-f` [--file option --file option]|	Specify an alternate compose file (default: `docker-compose.yml`) [$COMPOSE_FILE]
-`--project-name`, `-p` 		|	Specify an alternate project name (default: directory name)
-`--url` 				| Specify the Rancher API endpoint URL [$RANCHER_URL]
-`--access-key` 			| Specify Rancher API access key [$RANCHER_ACCESS_KEY]
-`--secret-key` 		|	Specify Rancher API secret key [$RANCHER_SECRET_KEY]
-`--rancher-file`, `-r` 	|		Specify an alternate Rancher compose file (default: `rancher-compose.yml`)
-`--env-file`, `-e` 		|	Specify a file from which to read environment variables
-`--help`, `-h`			|	show help
-`--version`, `-v`		|	print the version
+`--verbose`, `--debug`	|
+`--file`, `-f` [--file option --file option]|	指定一个compose 文件 (默认: `docker-compose.yml`) [$COMPOSE_FILE]
+`--project-name`, `-p` 		|	指定一个项目名称 (默认: directory name)
+`--url` 				| 执行 Rancher API接口 URL [$RANCHER_URL]
+`--access-key` 			| 指定 Rancher API access key [$RANCHER_ACCESS_KEY]
+`--secret-key` 		|	指定 Rancher API secret key [$RANCHER_SECRET_KEY]
+`--rancher-file`, `-r` 	|		指定一个 Rancher Compose 文件 (默认: `rancher-compose.yml`)
+`--env-file`, `-e` 		|	指定一个环境变量配置文件
+`--help`, `-h`			|	输出帮助文本
+`--version`, `-v`		|	输出 Rancher Compose 版本
 
-#### Examples
+#### 例子
 
-To get started, you can create a simple `docker-compose.yml` file and optionally a `rancher-compose.yml` file. If there is no `rancher-compose.yml` file, then all services will start with a scale of 1 container.
+准备开始后，你需要创建一个 `docker-compose.yml` 文件和一个可选的 `rancher-compose.yml` 文件，如果没有 `rancher-compose.yml` 文件，那么所有服务默认只分配1个容器
 
-##### Example `docker-compose.yml`
+##### 样例文件 `docker-compose.yml`
 
 ```yaml
 version: '2'
@@ -59,10 +59,10 @@ services:
   db:
     image: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: test    
+      MYSQL_ROOT_PASSWORD: test
 ```
 
-##### Example `rancher-compose.yml`
+##### 样例文件 `rancher-compose.yml`
 
 ```yaml
 # Reference the service that you want to extend
@@ -73,6 +73,8 @@ services:
   db:
     scale: 1
 ```
+
+当您的这些文件创建好后，您就可以启动这些服务到 Rancher 服务了
 
 After your files are created, you can launch the services into Rancher server.
 
@@ -93,19 +95,19 @@ $ rancher-compose -p stack1 up web
 
 <br>
 
-> **Note:** If you don't pass in `-p <STACK_NAME>`, the stack name will be the directory that you are running the Rancher Compose command in.
+> **提示:** 如果您没有传入 `-p <STACK_NAME>`If you don't pass in `-p <STACK_NAME>`, the stack name will be the directory that you are running the Rancher Compose command in.
 
-#### Using the `--env-file` Option
+#### 使用 `--env-file` 选项
 
-You can pass in a file of environment variables using `--env-file` while running a Rancher Compose command.
+当您运行 Rancher Compose 命令时，可以使用`--env-file` 选项传入一个环境变量配置文件。
 
-##### Example `secrets` file
+##### 样例 `secrets` 文件
 
 ```
 MYSQL_ROOT_PASSWORD=test
 ```
 
-##### Example `docker-compose.yml`
+##### 样例文件 `docker-compose.yml`
 
 ```yaml
 version: '2'
@@ -118,32 +120,32 @@ services:
       MYSQL_ROOT_PASSWORD:
 ```
 
-You can launch your service and pass in the `secrets` file.
+您可以启动服务时传入 `secrets` 文件
 
 ```bash
 $ rancher-compose --env-file secrets up -d
 ```
 
-By passing in a file and having an environment variable with only a key, Rancher Compose resolves to the value in the file or on the machine that Rancher Compose is running on. If the environment variable is set in the file and on the machine, Rancher Compose will use the value in the file.  
+在传入一个文件并一个环境变量只含一个key，Rancher Compose 将从这个文件或者从运行 Rancher Compose 命令的机器中的系统环境变量中提取这个值。当在文件和系统环境变量中同时存在同一个变量时，Rancher Compose 使用文件中的值。
 
-### Command Options
+### 命令选项
 
 #### Up Command
 
 Name | Description
 ---|----
-`--pull`, `-p` |				Before doing the upgrade do an image pull on all hosts that have the image already
-`-d` |					Do not block and log
-`--upgrade`, `-u`, `--recreate` |		Upgrade if service has changed
-`--force-upgrade`, `--force-recreate` |	Upgrade regardless if service has changed
-`--confirm-upgrade`, `-c` |		Confirm that the upgrade was success and delete old containers
-`--rollback`, `-r` |			Rollback to the previous deployed version
-`--batch-size "2"`	 |		Number of containers to upgrade at once
-`--interval "1000"`	 |		Update interval in milliseconds
+`--pull`, `-p` |				升级前先在各个已有这个镜像的主机拉取最新镜像
+`-d` |					不要阻塞或输出日志
+`--upgrade`, `-u`, `--recreate` |		当服务改变时升级
+`--force-upgrade`, `--force-recreate` |	强制升级服务，不管服务是否改变
+`--confirm-upgrade`, `-c` |		确认升级成功并删除老容器
+`--rollback`, `-r` |		回滚到上一个已部署的版本
+`--batch-size "2"`	 |	每次升级多少个容器
+`--interval "1000"`	 |	升级间隔
 
 <br>
 
-When you run the `up` command with Rancher Compose, after all the tasks are complete, the process continues to run. If you want the process to exit after completion, you'll need to add in the `-d` option, which is to not block and log.
+当您运行 Rancher Compose 的 `up` 命令时，在所有任务完成后进程会继续运行。如果您希望任务完成后进程退出，那么您需要传入 `-d` 选项，防止阻塞和输出日志。
 
 ```bash
 # If you do not use the -d flag, Rancher Compose will continue to run until you Ctrl+C to quit
@@ -153,40 +155,41 @@ $ rancher-compose up
 $ rancher-compose up -d
 ```
 
-Read more about [upgrading using Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/upgrading/#upgrading-services-with-rancher-compose).
+阅读更多关于 [利用Rancher Compose升级服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/upgrading/#upgrading-services-with-rancher-compose).
 
-#### Start Command
+#### 启动命令
 
 Name | Description
 ---|----
-`-d` |	Do not block and log
+`-d` |	防止阻塞或输出日志
 
 <br>
 
-If you want the start process to exit after completion, you'll need to add in the `-d` option, which is to not block and log.
+
+如果您希望任务完成后进程退出，那么您需要传入 `-d` 选项，防止阻塞和输出日志。
 
 #### Logs Command
 
 Name | Description
 ---|----
-`--follow` | Follow log output
+`--follow` | 持续输出日志
 
-#### Restart Command
+#### 重启命令
 
 Name | Description
 ---|----
-`--batch-size` `"1"` |	Number of containers to retart at once
-`--interval` `"0"` |	Restart interval in milliseconds
+`--batch-size` `"1"` |	每次重启多少个容器
+`--interval` `"0"` |	重启间隔
 
 <br>
 
-By default, restarting services will restart the containers individually and immediately sequentially. You can set the batch size and interval of the restart policy.
+缺省情况下，Rancher Compose 会顺序地逐个重启服务。您可以设置批量大小和重启间隔。
 
-#### Stop/Down & Scale Command
+#### 停止 与 扩展命令
 
 Name | Description
 ---|----
-`--timeout`, `-t` `"10"` |	Specify a shutdown timeout in seconds.
+`--timeout`, `-t` `"10"` |	指定停止超时秒数
 
 <br>
 
@@ -195,26 +198,26 @@ Name | Description
 $ rancher-compose -p stack1 scale service1=3
 ```
 
-#### Rm Command
+#### 移除 Command
 
 Name | Description
 ---|----
-`--force`, `-f`	| Allow deletion of all services
-`-v`	| Remove volumes associated with containers
+`--force`, `-f`	| 允许删除所有服务
+`-v`	| 同时移除关联的容易
 
 <br>
 
-When removing services, Rancher Compose will only delete the services that are found in the `docker-compose.yml`. If there are more services within the stack in Rancher, they will not be deleted as Rancher Compose will not know they exist.
+当移除服务时，Rancher Compose 仅移除在 `docker-compose.yml` 文件中出现的服务。如果有其他的服务在Rancher 的 stack 里，他们不会被移除，因为 Rancher Compose 不知道他们的存在。
 
-Also, the stack will not be deleted as Rancher Compose will not be aware if there are any remaining services.
+所以 stack 不会被移除，因为 Rancher Compose 不知道stack 里是否还有其他容器。
 
-By default, volumes attached to containers will not be removed. You can see all volumes with `docker volume ls`.
+缺省情况下，附加到容器的卷不会被移除。您可以通过 `docker volume ls` 查看所有的卷。
 
 #### Pull Command
 
 Name | Description
 ---|----
-`--cached`, `-c` |	Only update hosts that have the image cached, don't pull new
+`--cached`, `-c` |	只更新存在该镜像缓存的主机，不要拉取新的
 
 <br>
 
@@ -228,13 +231,13 @@ $ rancher-compose pull --cached
 
 <br>
 
-> **Note:** Unlike `docker-compose pull`, you will not be specifying which service to pull. Rancher Compose looks at all services in the `docker-compose.yml` and pulls images for all services found in the file.
+> **提示:** 不同于 `docker-compose pull`, 您不可以指定拉取哪些服务的镜像，Rancher Compose 会拉取所有在 `docker-compose.yml` 里的服务镜像。
 
-#### Upgrade Command
+#### 升级 Command
 
-You can upgrade your services in Rancher using Rancher Compose. Please read more about when and how to [upgrade your services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/upgrading/#upgrading-services-with-rancher-compose).
+您可以使用 Rancher Compose 升级在 Rancher 里的服务。请阅读更多关于在何时和怎样[更新您的服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/upgrading/#upgrading-services-with-rancher-compose).
 
 
-### Deleting Services/Container
+### 删除 Services/Container
 
-Rancher Compose will not delete things by default.  This means that if you do two `up` commands in a row, the second `up` will do nothing.  This is because the first up will create everything and leave it running.  Even if you do not pass `-d` to `up`, Rancher Compose will not delete your services.  To delete a service you must use `rm`.
+默认情况下，Rancher Compose 不会删除任何东西。 这意味着如果您在一行里有两个 `up` 命令，第二个 `up` 是不会做任何事情的。这是因为第一个 `up` 会创建所有东西并保持运行。甚至您没有传 `-d` 给 `up`，Rancher Compose 也不会删除您的服务。要删除服务，您只能使用 `rm` 。

@@ -2,22 +2,22 @@
 title: Building with AWS S3 in Rancher Compose
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Building with AWS S3
+## 利用 AWS S3 构建
 ---
 
-Docker builds are supported in two ways.  First is to set `build:` to a git or HTTP URL that is compatible with the using the [Docker Remote API](https://docs.docker.com/reference/api/docker_remote_api_v1.18/#build-image-from-a-dockerfile). The second approach is to set `build:` to a local directory and the build context will be uploaded to S3 and then built on demand on each node.
+构建 docker 镜像可以有两种方法。第一种方法是通过给 build 命令一个 git 或者 http URL参数来利用远程资源构建，另一种方法则是让 build 利用本地目录，那么会上传构建上下文到 S3 并在需要时在各个节点执行
 
-### Requirements
+### 前置条件
 
 * Docker
 * Rancher Compose
-* AWS account
-* Rancher Server running with 1 Host
+* AWS 账户
+* Rancher Server 和1台主机
 
-In our example, we'll define our application in the `docker-compose.yml` and place the file in a `composetest` directory. The compose file defines a service called `web`, that opens port `5000` of the container to be exposed on the host. There is also a link to a service called `redis`. The application running inside the `web` container will also be able to reach the `redis` container by its hostname `redis`.
+在我们这个例子里，我们会在`docker-compose.yml`里定义我们的应用，并且把这个文件放在`composetest`下。这个`compose`文件会定义个`web`服务，它会打开`5000`端口并映射到主机上，还会链接`redis`服务，这样可以让在`web`中运行的服务可以通过`redis`这个主机名来访问`redis`容器
 
 ```yaml
 version: '2'
@@ -33,7 +33,7 @@ services:
     image: redis
 ```
 
-We'll also add a `rancher-compose.yml` file to the same `composetest` directory to be able use the `scale` attribute for Rancher. By default, if there is no `rancher-compose.yml` file or the service is not defined, the scale of the service will be one container.
+我们还会添加一个 `rancher-compose.yml` 到同一个 `composetest` 目录下来使用 Rancher的`缩放`能力。缺省情况下，如果没有`rancher-compose.yml`文件或者服务在`rancher-compose.yml`中没有定义，那么容器数量默认为1个。
 
 ```yaml
 version: '2'
@@ -42,9 +42,9 @@ services:
     scale: 3
 ```
 
-Once the files are set for Rancher Compose, the next step is to write the application itself and steps to build it.
+当提供给 Rancher Compose 的这些文件准备好后，下一步就是实现这个程序并按照步骤来构建它。
 
-Using the example from the `docker-compose` documentation, we'll create a filed named `app.py`. The application talks to a host called `redis`, which is expected to be running a redis KV store. It increments the value of a key in the store called `hits` and retrieves it.
+使用`docker-compose`文档中的例子，我们会创建一个名为`app.py`的文件。这个应用会访问一个名为`redis`的主机，这个主机会运行 redis KV 存储服务。它会递增redis 中的键为 `hits` 的键值，然后取回这个值。
 
 ```yaml
 from flask import Flask
@@ -62,14 +62,15 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
 ```
 
-The application is dependent on two libraries, so we will also create a file called `requirements.txt`.
+这个应用会依赖两个库，所以我们同时会创建一个名为 `requirements.txt` 的文件。
 
 ```
 flask
 redis
 ```
 
-Now, let's define the steps to build the application using a `Dockerfile`. Inside the `Dockerfile`, the instruction define how the application container should be built.
+现在我们会在`Dockerfile`文件中定义应用的构建步骤。在`Dockerfile`文件里的指令会定义出要怎么构建出这个应用容器。
+
 
 ```
 FROM python:2.7
@@ -79,7 +80,7 @@ RUN pip install -r requirements.txt
 CMD python app.py
 ```
 
-Since you already have Rancher server running, you need to set up your AWS credentials and just run Rancher Compose with your Rancher server URL and [API key]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/api-keys/).
+因为您已经运行着Rancher server了，所以您只需要配置好您 AWS 认证信息，然后用您的 Rancher server URL 和[API key]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/api-keys/)来运行 Rancher Compose 。
 
 ```bash
 # Set up your AWS credentials
@@ -92,11 +93,11 @@ Default output format [None]:
 $ rancher-compose --url URL_of_Rancher --access-key username_of_API_key --secret-key password_of_API_key up
 ```
 
-With the command, the web container should be started on a host in your Rancher server. It will first upload the current directory to S3, which can be verified by going to S3 UI and checking for a new upload. After the image is uploaded, it will download it to the host and build a container using the files that were provided.
+根据上面的指令，这个 web 容器会在一台 Rancher Server 管理的主机上运行起来。`rancher-compose` 会先上传当前目录到 S3，而您可以到 S3的 UI 上检索到这个目录。当镜像上传成功后，它会下载这个些文件到主机上构建起一个容器。
 
-### Troubleshooting S3 Builds
+### 问题解答
 
-If you are having issues with your S3 builds, you can test out your builds in Docker to make sure that your image can be built and the container can run. In the same location as you'd run your Rancher Compose command, use the following commands to test if it would work in Docker.
+如果您在利用 S3构建时出现了一些问题，您可以先在本机测试一下是否可以构建并运行。在您运行`rancher-compose`的同一目录下，使用下面的命令来校验是否在 docker 中可以正常工作。
 
 ```bash
 # Test building locally to see if works
