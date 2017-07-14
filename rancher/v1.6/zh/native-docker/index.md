@@ -2,36 +2,34 @@
 title: Using Native Docker CLI with Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Using Native Docker CLI with Rancher
+## 以原生 Docker 命令行的形式使用 Rancher
 ---
 
-Rancher integrates with the native docker CLI so that it can be used alongside other DevOps and Docker tools. At a high level, this means that if you start, stop, or destroy containers outside of Rancher, Rancher will detect those changes and update accordingly.
+Rancher 整合了原生 Docker CLI，所以 Rancher 可以和 其它 DevOps 和Docker 工具同时使用。从高层次上，这意味着如果你在 Rancher 外启动、停止、或销毁一个容器，Rancher 能检测到相应的变化和更新。
 
-### Docker Event Monitoring
+### Docker 事件监控
+Rancher 通过实时监控所有主机上 Docker 事件来更新自己的状态。因此，当容器在 Rancher 外启动、停止、或销毁时(比如，直接在host上执行 `docker stop sad_einstein`)，Rancher 能检测到这些变化和更新，并且相应地更新自己的状态。
 
-Rancher updates in real time by monitoring Docker events on all hosts. So when a container is started, stopped, or destroyed outside of Rancher (for example by executing `docker stop sad_einstein` directly on a host), Rancher will detect that change and update its states accordingly.
+> **注意:** 目前的一个局限是：我们要等到容器启动(而不是创建)才能把容器导入到 Rancher。 运行 `docker create ubuntu` 不会使相应的 container 出现在 Rancher UI，但运行 `docker start ubuntu` 或 `docker run ubuntu` 会.
 
-> **Note:** One current limitation is that we wait until containers are started (not created) to import them to Rancher. Running `docker create ubuntu` will not cause the container to appear in the Rancher UI, but running `docker start ubuntu` or `docker run ubuntu` will.
+你可以观察到和 Rancher 正在监控的,通过在主机上运行 `docker events`产生的相同的 Docker 事件流。
 
-You can observe the same Docker event stream that Rancher is monitoring by executing `docker events` on the command line of a host.
+### 添加 Docker 直接启动的容器到 Rancher 的网络
 
-### Joining natively started containers to the Rancher network
-
-You can start containers outside of Rancher and still have them join the Rancher managed network. This means that these containers can participate in cross-host networking. To enable this feature, add the `io.rancher.container.network` label with a value of `true` to the container when you create it. Here's an example:
+你可以在 Rancher 外启动容器，然后把它们添加到 Rancher 管理的网络中。 这意味着这些容器可以参与夸主机网络。要激活这个功能，创建容器时把 `io.rancher.container.network` 标签设为 `true` 。下面是一个例子:
 
 ```bash
 $ docker run -l io.rancher.container.network=true -itd ubuntu bash
 ```
 
-To read more about the Rancher managed network and cross-host networking, please read about [networking in Rancher]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/).
+请查阅 [Rancher 中的网络]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/) 了解更多关于 Rancher 管理的网络和夸主机网络的详情。
 
-### Importing Existing Containers
+### 导入已有容器
 
-Rancher also supports importing existing container upon host registration. When you register a host using the [custom command]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/) from the UI, any containers currently on the host will be detected and imported into Rancher.
+Rancher 支持在注册主机的时候倒入已有的容器。当你用 [自定义命令]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/) 从 Rancher UI 中注册主机时， 任何当前在 host 上的主机都能被检测到，并且会被导入到 Rancher。
 
-### Periodically Syncing State
-
-In addition to monitoring docker events in real time, Rancher periodically syncs state with the hosts. Every five seconds, hosts report all containers to Rancher to ensure the expected state in Rancher matches the actual state on the host. This protects against things like network outages or server restarts that might cause Rancher to miss Docker events. When syncing state in this fashion, the state of the container on the host will always be the source of truth. So, for example, if Rancher thinks a container is running, but it is actually stopped on the host, Rancher will update the container's state to stopped. It will not attempt to restart the container.
+### 周期性同步状态
+除了实时监控 docker 事件，Rancher 还会周期性地和 host 同步状态。每5秒钟主机就会向 Rancher 报告主机上的所有容器，以保证Rancher 的状态和主机的状态同步。这能够防止由于网络中断或 服务器重启而导致 Rancher 遗漏 Docker 事件。 用这种方式来保持同步，主机上的容器的状态会一直数据的唯一来源。比如, 如果 Rancher 认为一个容器正在运行，但它实际上是停止的，Rancher 会把容器的状态更新为 `停止`，但 Rancher 不会尝试重启容器。

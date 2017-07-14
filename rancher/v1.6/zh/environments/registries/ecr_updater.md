@@ -2,37 +2,37 @@
 title: ECR Credential Updater
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## AWS Elastic Container Registry (ECR) Credential Updater
+## AWS ECR（Elastic Container Repository）证书更新器
 
-The ECR Credential Updater is a container service that periodically polls the AWS ECR API to fetch a
-new Docker registry credential. The updater authenticates to AWS with an IAM credential, which provides it the rights to request the Docker credential. The Docker credential assumes the same repository rights as the requesting IAM user. The IAM user is required to minimally have read access to all the ECR repositories that a user will be using to pull images in Rancher. Please see the [Amazon ECR IAM Policies and Roles](http://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_IAM_policies.html) for more details on permissions.
+ECR 证书更新器是一个容器服务，它会间歇性自动测验 AWS ECR API 并拉取新的 Docker 注册证书. 更新器通过 IAM 证书向 AWS 验证，IAM 证书能让更新器获取请求 Docker 证书的权限。Docker 证书假设发起请求的IAM用户有相同的镜像仓库权限。IAM 用户至少要有对所有ECR镜像库的读权限用户才能在 Rancher 中从代码库拉取镜像. 请查阅 [Amazon ECR IAM Policies and Roles](http://docs.aws.amazon.com/AmazonECR/latest/userguide/ECR_IAM_policies.html) 获取关于许可权的详情。
 
-> **Note**: Without launching this ECR updater catalog item, any ECR registries added to Rancher will have their token expired and no longer have the ability to pull images.
+> **注意**: 如果不启动 ECR 更新器。任何添加到 Rancher 的注册 token 都会过期，以至不能再拉取镜像.
 
-### Installing ECR Updater
+### 安装 ECR 更新器
 
-#### Existing Environments
+#### 已存在环境(Environment)
 
-If you already have a Cattle environment running, go to **Catalog** -> **Library** to find the catalog item **Rancher ECR Credential Updater**. When launching the catalog item, you will need to configure the service with your AWS access keys. These keys should be for the user which you have provided the appropriate access policies to.
+如果你已经有一个正在运行的 Cattle 环境，到
+**应用商店** -> **官方认证** 下找到 **Rancher ECR 证书更新器**. 启动这个应用商店应用时, 你需要配置服务的 AWS 访问密钥。
+这些你已经提供了合适的访问策略密钥因该给用户使用。
 
-> **Note:** If you will be using Kubernetes, it is recommended to edit your environment templates to include this catalog template before creating an envirronment. If you already have Kubernetes, you can delete the Kubernetes stack to convert it to Cattle to launch the catalog item and re-launch the Kubernetes stack from the catalog.
+> **注意:** 如果你要用 Kubernetes, 我们推荐你编辑环境模版，并在创建环境前把这个模版添加到环境模版中。如果你已经有了一个 Kubernetes, 你可以删除这个 Kubernetes 应用， 这样就可以把它转成 Cattle 来启动应用商店应用，同时在应用商店中重新启动这个 Kubernetes。
 
-#### New Environments
+#### 新环境
 
-When creating a new environment, you can use an [environment template]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template), which already has the **Rancher ECR Credential Updater** enabled for the template. This would allow the updater to be deployed on any environment that uses that template.
+你可以用[环境模版]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template)创建一个新环境。这个新创建的环境已经有激活了的 **Rancher ECR 证书更新器** 模版。这样可就以用这个模版在任何环境中部署这个更新器了。
 
-### Launching Images from ECR
+### 从 ECR 中启动镜像
 
-In the environment, you should add ECR as a [registry]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/registries/). Once you have launched the service, your credentials to the ECR registry will never expire and you will always be able to launch images from ECR.
+在这个环境中，你需要添加 ECR 作为一个 [镜像库]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/registries/). 一旦你启动了这个服务，你的 ECR 证书将永远不会失效，这样就可以永远从 ECR 中启动镜像了。
 
-When specifying the image name in Rancher, use the fully qualified address AWS provides such as: `aws-account-number.dkr.ecr.us-west-2.amazonaws.com/my-repo:latest`.
+在 Rancher 中指定镜像名时，使用 AWS 提供完整的限定地址。 比如 `aws-account-number.dkr.ecr.us-west-2.amazonaws.com/my-repo:latest`。
 
-### IAM Policy Example
-
-The following is an example of a broad scope of access you might give in a pre-production account to this service. This would allow Rancher to pull from any repo within the respective AWS account.
+### IAM 策略示例：
+下面是一个你可能在服务的准生产遇到的泛例。这个示例中，Rancher 能够在各自的 AWS 账号中拉取镜像。
 
 ```
 {

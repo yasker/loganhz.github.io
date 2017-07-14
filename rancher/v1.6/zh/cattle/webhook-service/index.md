@@ -2,63 +2,64 @@
 title: Webhooks in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
 ##  Webhooks
 ---
 
-In Rancher, you can create receiver hooks, which provides a URL that can be used to trigger an action inside of Rancher. For example, the receiver hooks can be integrated with an external monitoring systems to increase or decrease containers of a service. In **API** -> **Webhooks**, you can view and create new receiver hooks.
+在 Rancher 中，你可以创建接收器钩子。 这些钩子提供了一个可以在Rancher 中触发事件的 URL。比如，接收器钩子可以和监控系统整合来增加或减少服务的容器数量。 在 **API** -> **Webhooks** 页面， 你可以查看或创建一个接收钩子。
 
-### Adding Receiver Hooks
+### 添加接收器钩子
 
-To create a receiver hook, navigate to **API** -> **Webhooks**. Click on **Add Receiver**.
+要创建一个接收器钩子，导航到，**API** -> **Webhooks**，点击 **添加接收器**
 
-* Provide a **Name** for the receiver, which will allow you to easily identify it.
-* Select the **Kind** of receiver that you'd like to create.
-* Determine the action of the receiver based on the type of receiver.
+* 填写接收器 **名称** 以方便识别。
+* 选择你要创建的接收器 **类型**。
+* 基于接收器的类型确定接收器事件。
 
-Click on **Create**. After it's created, the URL is provided next to the newly added receiver hook.
+点击 **创建**。创建成功后，就可以在新创建接收器钩子旁边看到相应的URL。
 
-### Using a Receiver Hook
+### 使用接收器钩子
 
-To use the trigger URL, you'll need to do a `POST` to the specific URL. There is no authentication or body needed to `POST` to the URL.
+要使用触发 URL，你需要先发一个 `POST` 请求到这个 URL。
+向这个 URL `POST` 请求不需要在验证头和 body 信息。
 
-### Kinds of Receiver Hook
+### 接收器钩子的类型
 
-* [Scale a Service](#scaling-a-service)
-* [Scale the number of Hosts](#scaling-hosts)
-* [Upgrade a Service based on DockerHub Tag Updates](#upgrading-a-service-based-on-docker-hub-webhooks)
+* [服务扩缩容](#scaling-a-service)
+* [主机数量增减](#scaling-hosts)
+* [基于 DockerHub 标签的更新来更新一个服务](#upgrading-a-service-based-on-docker-hub-webhooks)
 
 <a id="scaling-service-example"></a>
 
-#### Scaling a Service
+#### 服务扩缩容
 
-For scaling a service, you must configure your webhook:
+要扩缩容一个服务，你必须先配置你的 webhook：
 
-* Scale up/down a service (i.e. add or remove containers in a service)
-* Select from the list of services in the environment
-* Scale up/down by how many containers at a time
-* The minimum/maximum amount of containers for the service
+* 扩大／缩小一个服务(即，添加或移除一个服务中的容器)
+* 在环境中选择服务
+* 一次投放／移除多少容器
+* 服务的最大／最小容器数量
 
 <a id="autoscaling-example"></a>
 
-##### Example of Using a Receiver Hook for Autoscaling of a service
+##### 一个用接收器钩子来自动扩缩服容务的示例
+使用接收器钩子来扩缩容服务，你可以通过整合外界服务来实现自动扩缩容。
+在这个示例中，我们使用 Prometheus (普罗米修斯) 来监控服务，通过报警管理程序来发送 `POST` 请求到触发 URL.
 
-By using a receiver hook to scale services, you can implement autoscaling by integrating with external services. In our example, we'll use Prometheus to monitor the services and Alertmanager to `POST` to the URL.
+##### 安装 Prometheus
 
-##### Installing Prometheus
-
-Prometheus is offered through the [Rancher Catalog]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/) and can be found under the **Catalog**. Select **Prometheus** and launch the catalog entry. Within the Prometheus stack, find the service called `prometheus`, which is exposed on port `9000`. Exec into the container and go to `/etc/prom-conf`. The prometheus configuration file, `prometheus.yml` would be present there. In order to add alerts, create a separate file for alerts, and provide the path to this file in `prometheus.yml`. For example if the alerts file you created is called `rules.conf`, add it to `prometheus.yml` at the end by adding these two lines:
+[Rancher 应用商店]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/) 提供了 Prometheus 监控服务，在 **应用商店** 中可以找到这个服务。选中**Prometheus** 然后启动应用商店入口。 在 Prometheus 应用中找到一个名为 `prometheus` 的服务，这个服务暴露了 `9000` 端口。在容器中找到 `/etc/prom-conf`。 Prometheus 的配置文件`prometheus.yml` 就在 `/etc/prom-conf` 目录。为了添加警报， 单独创建一个警报文件，在 `prometheus.yml` 中提供文件的路径。 比如，如果你创建了一个名为 `rules.conf` 的警报文件，把它加入到 `prometheus.yml`，在 `prometheus.yml` 末尾加入如下两行:
 
 ```
 rule_files:
   - rules.conf
 ```
 
-The file `rules.conf` can have multiple alerts, following is an example of an alert
+`rules.conf` 可以有多个报警配置，下面就是一个报警的配置
 
-###### Example Alert in `/etc/prom-conf/rules.conf`
+###### `/etc/prom-conf/rules.conf` 中的警报配置例子
 
 ```yaml
 ALERT CpuUsageSpike
@@ -72,13 +73,13 @@ ANNOTATIONS {
   description = "CPU usage is above 70%"
 }
 ```
-After the alerts have been added, restart the service.
+加入报警配置后，重启服务。
 
-##### Adding Alertmanager
+##### 添加警管理程序
 
-In order to call the receiver hook, Alertmanager will need to be launched. You can add it to the Prometheus stack. Click on **Add Service** in the Prometheus stack. Use the `prom/alertmanager` to add a service. Make sure to map port `9093:9093` when adding the service. After the service has started, exec into the container to update the `etc/alertmanager/config.yml`. In the file, add the URL of the webhook so that it will send a `POST` request to the URL when the alert is fired. After the file is updated with the URL information, restart the service.
+要调用接受器钩子， 报警管理程序需要先启用。 你可以把它加入到 Prometheus 应用. 在 Prometheus 应用中点击 **添加服务**。用 `prom/alertmanager` 添加服务。添加服务的时记得映射端口`9093:9093`。服务启动后，在容器中执行命令，更新 `etc/alertmanager/config.yml`。 在 `etc/alertmanager/config.yml` 中添加 webhook 的 URL 。这样，当警报被触发时报警管理程序就会向这个 URL 发送 `POST` 请求。在 `etc/alertmanager/config.yml` 添加 URL 信息后需要重启服务。
 
-###### Example `etc/alertmanager/config.yml`
+###### 示例 `etc/alertmanager/config.yml`
 
 ```yaml
 route:
@@ -101,45 +102,47 @@ receivers:
     send_resolved: true
 ```
 
-##### Autoscaling
+##### 自动扩缩容
+Prometheus 和警报管理程序随警报钩子更新后，重启服务器，以确保配置处于最新的激活状态。对于已经添加了警报的服务，服务会自动根据创建的更新器钩子自动扩容或缩容。
 
-After Prometheus and Alertmanager have been updated with alerts and hooks, make sure the services were restarted in order to have the configurations updated and active. For the services that alerts have been added, the services will automatically be scaled up or down based on the receiver hook that was created.
+#### 主机弹性伸缩
+Rancher 可以通过克隆用 Rancherc 创建的， 并且已经存在的主机来增加主机的数量。(即 Docker Machine)。这意味这通过 [自定义命令]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/) 添加的主机不能比例伸缩。
 
-#### Scaling Hosts
+使用 [主机上的标签]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels)，
+主机可以被分组到一起组成一个弹性伸缩组。我们推荐在主机上使用唯一的标签来方便区分弹性伸缩组。任何标签相同的主机，不管它是如何被添加到Rancher的，都会被当作是同一个弹性伸缩组的一部分。创建 webhook 时, 主机上不要求有标签，但是当在弹性伸缩组中使用webhook时，至少要有一个主机带有标签，这样 webhook 才能有一个可以克隆的主机。总之， Rancher 会选择一台在弹性伸缩组中的可克隆主机
 
-Rancher is able to scale hosts by cloning an existing host, which were created through Rancher (i.e. Docker Machine). This means that hosts added using the [custom command]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/) cannot be scaled.
+要弹性伸缩主机，你必须配置你的 webhook：
 
-Using [labels on the host]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels), hosts can be grouped together in a scaling group. We recommend using unique labels on hosts to help differentiate scaling groups. Any hosts with the same label, regardless of how the host was added into Rancher, will be counted as part of a scaling group. When creating the webhook, the label is not required to be on any host, but when using the webhook, there must be at least 1 host with the label so that the webhook would have a host to clone in order to scale up. When scaling up hosts, Rancher will use a clone-able host that has been in the scaling group the longest.
+* 扩增／减少主机(即，添加或移除主机)
+* 添加一个主机选择器标签。这个标签是用来把主机分组成一个弹性伸缩组的标签。
+* 选择单次要伸缩的主机数量。
+* 选择主机数量伸缩的上下限。添加主机时，主机数量不能超过上线， 减少时不能低于下限。
+* 如果你创建了一个 webhook 来缩小主机的数量，你可以选者移除主机的优先顺序。
 
-For scaling a host, you must configure your webhook:
+##### 主机弹性伸缩注意事件
 
-* Scale up/down a host (i.e. add or remove hosts)
-* Add a host selector label. This label is the label on the hosts that will group hosts into a scaling group.
-* Select the amount of hosts to add or remove at a time.
-* Select the minimum and maximum number of hosts allowed in a host scaling group. If adding hosts, the number of hosts in the scaling group cannot exceed the maximum number. If removing hosts, the number of hosts in the scaling group cannot be lower than the minimum number.
-* If you are creating a webhook to scale down hosts, you can choose the priority of the order of how to remove hosts (i.e. start removing by oldest or newest).
+* **主机标签:** 标签被用把主机划分为不同的弹性伸缩组。因为这些标签是由用户添加的，在选择，添加，编辑，标签时必须要非常小心。任何添加在主机上的标签都会自动地把这台主机到添加到一个弹性伸缩组。如果这台主机是可克隆的，它可能会被用于克隆出更多主机。任何主机标签的移除都会自动地把相应的主机从弹性伸缩组移除，这台主机也将不再能够被 webhook 服务克隆或移除。
 
-##### Notes on Scaling Hosts
+* **[自定义主机]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/):** 任何类型的主机都可以被添加到弹性伸缩组中，你只需要在主机上添加一个标签。Rancher 不能用这些主机来克隆或创建出更多主机。
+* **主机克隆:** 因为主机扩增既是主机克隆，所有配置，包括资源分配，Docker 引擎等都会在新主机被复制。Rancher 总是会用克隆最旧的主机。
+* **处于错误状态的主机:** 任何处于 `Error` 状态的主机都不会被添加到弹性伸缩组中.
+* **移除主机的顺序:** 从 Rancher 中删除主机时，Rancher会根据主机的状态，按一下的顺序删除弹性伸缩组中的主机(`Inactive`， `Deactivating`，`Reconnecting` 或 `Disconnected`)，最后才会删除处于 `active` 状态的主机
 
-* **Host Labels:** Labels are used to differentiate hosts into different scaling groups. Since these are added by the user, labels need to be selected, added and edited carefully. Any labels added on a host will automatically add the host into a scaling group and if the host is clone-able, it could be used for to clone to add more hosts.  Any labels removed on a host will automatically remove the host from the scaling group and will not be eligible to be cloned or deleted from the webhook service.
-* **[Custom Hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/):** Any type of host can be added into a scaling group as you only need to add a label to the host. Rancher will not be able to use these hosts to clone and create more hosts.
-* **Cloning Hosts:** Since scaling up is cloning a host, all configurations including resource allocation, Docker engine, etc. will be duplicated on any new host. Rancher will always use the oldest host for cloning.
-* **Hosts in Error State:** Any hosts in `Error` state will not be considered in the count for a scaling group.
-* **Order of Deleting Hosts:** When deleting hosts from Rancher, any hosts in a scaling group will first delete hosts in these states (`Inactive`, `Deactivating`, `Reconnecting` or `Disconnected`) before starting to delete `Active` hosts.
+#### 基于 Docker Hub Webhooks 升级服务
 
-#### Upgrading a service based on Docker Hub Webhooks
+利用 Docker Hub 的 webhooks, 你可以加入 Rancher 的接收器钩子。这样，每当push一个镜像，一个 `POST` 请求就会被发送到 Rancher 来触发这个触发器钩子。使用这种 webhooks 组合, 你可以实现自治。 这样，每当在 Docker Hub push一个 `image:tag`， 所有使用了匹配这个镜像版本的服务都会自动被升级。你需要用一个选择器标签来选择匹配的服务，然后再升级选中的服务。标签应该在服务创建时添加。如果服务没有标签，你需要在Rancher中升级服，然后添加供 webhook 使用的标签。
 
-Utilizing Docker Hub's webhooks, you can add in Rancher's receiver hook so that when a specific image has been pushed, a `POST` will be sent to Rancher to trigger the receiver hook. Using this combination of webhooks, you can automate so that when a specific `image:tag` is pushed in Docker Hub, any services using a matching versions will automatically get upgraded. To select the group of services to be upgraded, you would use a selector label that will pick up any services that contain the matching label. Labels should be added to a service when creating the service. If the label doesn't exist, you will need to upgrade the service in Rancher to add the label for the webhook.
 
-In order to upgrade a service, you must configure your webhook:
+为了升级服务，你必须配置自己的 webhook：
 
-* Select the tag that will be upgraded
-* Select the label to find the services to be upgraded
-* Determine the number of containers to be upgraded at a time (i.e. Batch Size)
-* Determine the number of seconds between starting the next container during upgrade (i. e. Batch Interval)
-* Select whether or not the new container should start before the old container was stopped
+* 选择要升级的标签
+* 选择标签来找到要升级的服务
+* 确定单次要升级的容器数量(即，批量大小)
+* 确定在升级期间启动下一个容器的秒数(即，批量间歇)
+* 选择是否新容器应该在旧容器停止前启动。
 
-After the receiver hook is created, you need to use the **Trigger URL** in your your Docker Hub webhook. When the Docker Hub triggers its webhook, services picked up by the Rancher receiver hook will be upgraded. By default, the  Rancher receiver hook expects specific information that the Docker Hub webhook provides. To use Rancher's receiver hook with another webhook, the `POST` would need to contain these fields:
+创建接受器钩子后，你需要在你的 Docker Hub webhook 中使用
+**触发 URL**。当Docker Hub 触发自己的 webhook, 被 Rancher 触发器钩子选中的服务会被升级。Rancher 触发器钩子默认需要 Docker Hub webhook 提供的特定信息。同时使用 Rancher's 接受器钩子和其它webhook，`POST` 请求中需要包含以下字段:
 
 ```json
 {

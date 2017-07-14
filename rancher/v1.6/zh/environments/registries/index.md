@@ -2,104 +2,97 @@
 title: Registries in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Registries
+## 镜像库
 ---
 
-With Rancher, you can add credentials to access private registries from DockerHub, Quay.io, or any address that you have a private registry. By having the ability to access your private registries, it enables Rancher to use your private images. In each [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/), you can only use one credential per registry address. This makes it a simple request to launch images from private addresses. If you have added multiple credentials for the same address, Rancher will always use the most recently added one.
+你可以在Rancher添加仓库的认证信息来访问DockerHub, Quay.io和其他私有镜像库。这样Rancher就可以使用你的私有镜像。
+在每一个[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)，你可以每个私有仓库地址只配置一个认证信息，这样拉取镜像就是一个简单的请求。如果你给同个地址添加了多个认真信息，那么Rancher只会使用最近添加的一个。 Rancher对Cattle和Kubernetes等容器编排类型支持不同的镜像库。
 
-Rancher supports different registries for Cattle and Kubernetes container orchestration types.
+### 添加镜像库
 
-### Adding Registries
+在**基础架构** -> **镜像库** 页面, 点击 **添加镜像库**.
 
-On the **Infrastructure** -> **Registries** page, click on **Add Registry**.
+对于不同的镜像库，你都需要提供**邮箱地址**, **用户名**, and **密码**。 对于一个 **自定义** 镜像库, 你还需要提供**镜像库地址**。 点击 **创建**。
 
-For all registries, you'll need to provide the **e-mail address**, **username**, and **password**. For a **Custom** registry, you'll need to also provide the **registry address**. Click on **Create**.
+> **注意:** 对于自定义的镜像库`地址`，不需要加上 `http://` 或 `https://`，我们假设地址只是一个IP或者主机名。
 
-> **Note:** For the `Address` in the custom registry, please do not pre-fix with `http://` or `https://` as we are expecting just the IP or Hostname.
+如果你对已经存在的地址添加了认证信息，Rancher会开始使用新的认证信息。
 
-If you add a credential for an address that already exists, Rancher will start using the new credentials.
+#### 不安全的镜像库
 
-#### Insecure Registries
-
-In order to access an insecure registry, you'll need to configure your Docker daemon on your host(s). `DOMAIN` and `PORT` are the domain and port where the private registry is hosted.
+为了访问不安全的镜像库，你需要配置主机上的Docker守护进程。`DOMAIN` 和 `PORT` 是私有镜像库的域名和端口。
 
 ```bash
-# Edit the config file "/etc/default/docker"
+# 编辑配置文件"/etc/default/docker"
 $ sudo vi /etc/default/docker
-# Add this line at the end of file. If there are already options, make sure you append it to the current option list.
+# 将这行添加到文件最后，如果已经存在选项，确定你将它添加到当前选项的列表中。
 $ DOCKER_OPTS="$DOCKER_OPTS --insecure-registry=${DOMAIN}:${PORT}"
-# Restart the docker service
+# 重启docker服务
 $ sudo service docker restart
 ```
 
-#### Self Signed Certificates
+#### 自签名证书
 
-In order to use a self signed certificate with a registry, you'll need to configure your Docker daemon on your host(s). `DOMAIN` and `PORT` are the domain and port where the private registry is hosted.
+为了在镜像库使用自签名证书，你需要配置主机上的Docker后台进程。 `DOMAIN` 和 `PORT` 是私有镜像库的域名和端口。
 
 ```bash
-# Download the certificate from the domain
+# 下载域名的证书
 $ openssl s_client -showcerts -connect ${DOMAIN}:${PORT} </dev/null 2>/dev/null|openssl x509 -outform PEM >ca.crt
-# Copy the certificate to the appropriate directories
+# 拷贝证书到合适的目录
 $ sudo cp ca.crt /etc/docker/certs.d/${DOMAIN}/ca.crt
-# Append the certificate to a file
+# 将证书添加到文件中
 $ cat ca.crt | sudo tee -a /etc/ssl/certs/ca-certificates.crt
-# Restart the docker service to have the changes take affect
+# 重启docker服务，让改动生效
 $ sudo service docker restart
 
 ```
 
-#### Using Amazon's ECR Registry
-Using Amazon's [EC2 Container Registry](https://aws.amazon.com/ecr/) with Rancher requires an extra configuration step. ECR uses AWS's native authentication service, IAM, to manage access. AWS provides an API which allows a user to generate a temporary credential for Docker based on the rights of the IAM user making the request. Since the credential expires after 12 hours, a new credential needs to be created every 12 hours. You can use the [AWS ECR Credential Updater]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/registries/ecr_updater/) to launch a service that will update the credential automatically.
+#### 使用亚马逊的ECR镜像库
+在Rancher使用亚马逊的 [EC2 容器镜像库](https://aws.amazon.com/ecr/) 需要额外的配置。ECR使用AWS的原生认证服务IAM去管理访问权限。AWS提供了API，让用户可以基于请求的IAM权限为Dokcer生成临时的认证信息。由于认证信息在12小时后会无效，每12小时需要生成一个新的认证信息。你可以使用[AWS ECR 认证更新器]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/registries/ecr_updater/) 来发布一个自动更新认证信息的服务。
 
-When specifying the image name in Rancher, use the fully qualified address AWS provides:
+当指定了镜像名，使用AWS提供的全名地址
 
 `aws-account-number.dkr.ecr.us-west-2.amazonaws.com/my-repo:latest`.
 
-### Using Registries
+### 使用镜像库
 
-As soon as the registry is created, you will be able to use these private registries when launching services and containers. The syntax for the image name is the same as what you would use for the `docker run` command.
+当一个镜像库创建了，你可以使用这个私有镜像库来发布服务和容器。镜像名字的格式和使用`docker run`命令时一样。
 
 `[registry-name]/[namespace]/[imagename]:[version]`
 
-By default, we are assuming that you are trying to pull images from `DockerHub`.
+我们默认假设你尝试从`DockerHub`拉取镜像。
 
-### Editing Registries
+### 编辑镜像库
 
-All options for a registry are accessible through the dropdown menu on the right hand side of the listed registry.
+一个镜像库的所有操作选项可以通过镜像库列表右边的下拉菜单看到。 对于任意 **启用中**的镜像库，你可以**停用**它，停用后会禁止访问，不会再有新的容器使用该镜像库的镜像。 对于任意**停用中**的镜像库，你有两个选项。 一个是**启用**，这会允许容器使用镜像库中的镜像。你的环境中的任何成员可以使用你的认证信息，而无需重新输入密码。如果你不想这样，你应该**删除**镜像库，这会从环境中同时删除认证信息。你可以**编辑**任意镜像库，可以改变认证信息。但不能改变镜像库的地址。密码不会出现在“编辑”页面中，所以你需要重新输入密码。
 
-For any **Active** registry, you can **Deactivate** the registry, which would prohibit access to the registry. No new containers can be launched with any images in that registry.
+> **注意:** 如果一个镜像库无效了（如停用、移除或被新的认证信息覆盖）(i.e. inactive, removed, or overridden due to a newer credential), 任何使用私有镜像的 [服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) 会继续运行。 由于镜像已经被拉取到主机上了，因此不会被镜像库的权限所影响到。因此，扩容的服务或者新的容器都能运行。 当运行容器时，Rancher不会检查认证信息是否有效，我们假设你已经给了该主机访问该镜像的权限。
 
-For any **Deactivated** registry, you have two options. You can **Activate** the registry, which will allow containers to access images from those registries. Any members of your environment will be able to activate your credential without needing to re-input the password. If you don't want anyone using your credential, you should **Delete** the registry, which will remove the credentials from the environment.
+### 更改默认的镜像库
 
-You can **Edit** any registry, which allows you to change the credentials to the registry address. You will not be able to change the registry address. The password is not saved in the "Edit" page, so you will need to re-input it in order to save any changes.
+任何没有指定镜像库的镜像，Rancher会默认从DockerHub中拉取。通过在API中更新配置，可以把默认镜像库从DockerHub改到另外一个。
 
-> **Note:** If a registry is invalid (i.e. inactive, removed, or overridden due to a newer credential), any [service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) using a private registry image will continue to run. Since the image has already been pulled onto the host, there will be no restrictions on usage of the image regardless of registry permissions. Therefore, any scaling up of services or additional containers using the image will be able to run. Rancher does not check if the credentials are still valid when running containers as we assume that you've already given the host permissions to access the image.
+1. 在 **系统管理** -> **系统设置** -> **高级设置**, 点击 **我确认已经知道修改高级设置可能导致问题**.
+2. 找到**registry.default** 设置然后点击编辑按钮。
+3. 添加镜像库的值然后点击 **保存**.
 
-### Changing the Default Registry
+一旦 **registry.default** 设置被更新，任何没有镜像库前缀的镜像（如 `ubuntu:14.0.4`）会从新的缺省镜像库拉取。
 
-By default, Rancher automatically assumes any image without a registry prefix should be pulled from DockerHub. You can change the default registry from DockerHub to another registry by updating a setting in the API.
+如果你使用的私有镜像库需要认证信息，为了使缺省镜像库生效，你需要把该镜像库添加到Rancher中。
 
-1. Under **Admin** -> **Setting** -> **Advanced Settings**, click on the **I understand that I can break things by changing advanced settings**.
-2. Find the **registry.default** setting and click on the edit icon.
-3. Add the registry value and click on **Save**.
+> **注意：** 在已存在的环境中的任何服务依然使用原来的缺省镜像库 (如 DockerHub)。为了使基础架构应用使用新的默认镜像库，需要删除它们然后使用新的镜像库来重启。应用可以通过 **应用商店** -> **官方认证**重启。
 
-Once the **registry.default** setting has been updated, any images without a registry prefix (e.g. `ubuntu:14.0.4`) will be pulled from the default registry instead of DockerHub.
+### 限制镜像库的使用
 
-If you are using a private registry requiring credentials, you will need to add the registry to Rancher in order for the default registry to be valid.
+默认的，任何添加到Rancher的镜像库可以被用于拉取镜像。一个管理员可能想要限制哪个镜像库允许被使用。 你可以通过API更新配置，来限制哪些镜像库可以用于拉取镜像。
 
-> **Note:** Any services in an existing environment will still be using the original default registry (e.g. DockerHub). For infrastructure stacks to start using the new default registry, it will need to be deleted and re-launched to start using the updated default registry. The stacks can be deployed from **Catalog** -> **Library**.
+1. 在 **系统管理** -> **系统设置** -> **高级设置**, 点击**我确认已经知道修改高级设置可能导致问题**。
+2. 找到 **registry.whitelist** 设置然后点击编辑按钮。
+3. 把你想加到白名单中的镜像库加上，如果多于一个，那么镜像库间用逗号分隔。
 
-### Limiting which Registries can be used
+一旦**registry.whitelist** 设置被更新，在拉取镜像前，会确认镜像所在的镜像库是否在白名单中，如果不是那么拉取会失败。
 
-By default, any registry added into Rancher can be used to pull images. An admin of Rancher may want to limit which registries are approved. You can limit which registries are approved for pulling images by updating a setting in the API.
-
-1. Under **Admin** -> **Setting** -> **Advanced Settings**, click on the **I understand that I can break things by changing advanced settings**.
-2. Find the **registry.whitelist** setting and click on the edit icon.
-3. Add the list of registries that you want to whitelist. If there is more than one registry, the registries should be separated by commas.
-
-Once the **registry.whitelist** setting has been updated, prior to pulling the image, the registry for the image will confirm that it is on the list of approved registries before it proceeds with pulling the image. If the registry is not on the approved list, then the image pull will fail.
-
-> **Note:** Once you add any registry to this value, DockerHub will automatically no longer be valid. To include DockerHub, you will need to add `index.docker.io` as one of the registries.
+> **注意：** 一旦你添加了任何镜像库，DockerHub将不再有效。 为了包含DockerHub， 你需要将`index.docker.io`加到设置中。

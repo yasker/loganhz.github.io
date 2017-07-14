@@ -2,100 +2,104 @@
 title: Environments in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Environments
+## 环境 (Environments)
 ---
 
-### What is an Environment?
+### 什么是一个 `环境`?
+Rancher 支持将资源分组归属到多个 Environment。每个 Environment 具有自己独立的基础架构资源及服务，并由一个或多个用户、团队或组织管理。例如，您可以创建独立的“开发”、“测试”及“生产” Environment 以确保环境之间的安全隔离，将“开发” Environment 的访问权限赋予全部人员，但限制“生产” Environment 的访问权限给一个小的团队。
 
-Rancher supports grouping resources into multiple environments. Each environment starts with a set of [infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/) defined by the [environment template](#what-is-an-environment-template) used to create the environment. Each environment has its own set of resources, and is owned by one or more users or groups. For example, you might create separate "dev", "test", and "production" environments to keep things isolated from each other, and give "dev" access to your entire organization but restrict the "production" environment to a smaller team.
+所有主机和 Rahcner 资源, 比如 容器, 基础架构服务等, 都在 Environment 创建, 并且属于一个 Environment。
 
-All hosts and any Rancher resources, such as containers, infrastructure services, and so on are created in and belong to an environment.
+### 添加 Environment
 
-### Adding Environments
+要添加一个 Environments，把鼠标移动到位于左上角的当前 Environment， 此时会出现一个带有所有可用的 Ｅnvironment 下拉框，以及一个 **环境管理** 连接。点击 **环境管理**。
 
-To add new environments, hover over the name of your current environment that you are in, which is in the upper left hand corner. A drop down of all available environments as well a link to **Manage Environments** will appear. Click on **Manage Environments**.
 
-After navigating to the **Environments** page, you will see a list of environments and a list of environment templates. If you are an [admin]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/accounts/#admin) of Rancher, you will see a list of everyone's environment, even if you are not invited to be a [part of]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#membership-roles) of that environment. For all users, all environment templates will be available.
+导航到 **环境** 页面后，你会看到一个环境列表和一个环境模板列表。如果你是 Rancher 的
+[admin]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/accounts/#admin) 用户，你会看到一个所有人的环境列表，即使你不是该环境的[一部分]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#membership-roles)。对于所有用户， 所有环境模板都可用。
 
-Click on **Add Environment**. Each environment will have its own name and description. You will select which environment template to use. In each environment template, you will be able to see which infrastructure services are enabled in the template.
+点击 **添加环境**。每个环境都有自己的名字和描述，你可以选择你要使用的环境模板。在环境模板中，你可以看到那个基础架构服务是启用的。
 
-> **Note:** If you have not configured [Access Control]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/), all environments will be available to anyone accessing Rancher. There will be no restriction of membership for any environments.
+> **注意:** 如果没有配置 [访问控制]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/)， 所有环境都可以被其它 Rancher 的用户访问到。 环境没有任何所属关系。
 
-There are two ways to add members to an environment. Provide the username and click on the **+** to add the name to the list of members. If the name is not on the list, then they will not be added to the environment. Alternatively, there is a dropdown button on the right side of the **+** button, which will show organizations/teams for certain authentication types.
+有两种方法可以添加成员到一个 环境:
 
-For each member (i.e. individual, team, or organization), you can define the role to be either an [owner](#owners), [member](#members), [restricted user](#restricted) or [read only user](#read-only). By default, they are added to the list as a member. You can change their role in the dropdown next to their name. As an owner, you can always change the list of members and their roles at any time, but only owners have the ability to change the membership and membership roles of the environment.
+-  提供用户名，点击 **+** 把用户添加到成员列表中。如果该用户名不在列表中，则不会被加入到环境中。
+-  右侧有一个 **+** 下拉框按钮，在某些授权类型下，这个下拉框会出现组织/团队。
 
-> **Note:** Only owners and admins will be able to see [infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/) of an environment.
 
-Click on **Create** and the environment will immediately be available to anyone on the member list. After the environment is created and hosts added, the infrastructure services enabled for the environment will begin to deploy.
+每个成员 (既 个人、团队、或组织)，你可以把自己定义成 [所有者(owner)](#owners)、 [成员(member)](#members)、 [受限制的成员( restricted user)](#restricted) 或 [只读用户(read only user)](#read-only) 中的一个角色。默认，这些角色都已经添加到了环境成员列表中。通过用户名旁边的下拉框，可以改变相应用户的角色. 对于owner 用户，你可以随时编辑成员列表以及成员角色。 只有环境的 owner 能编辑环境的成员以及其角色。
 
-### Deactivating and Deleting Environments
+> **注意:** 只有 owner 和 admin 才能查看环境的 [基础架构服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)。
 
-After creating environments, owners might want to deactivate or delete the environment.
+点击 **创建** 会创建一个环境，所有在成员列表中的用户都立即可以看到这个环境. 创建完环境添加主机后，已启用的基础架构服务会开始部署。
 
-Deactivating an environment will remove the viewing ability from any members of the environment. All owners will still be able to view and activate the environment. You will not be able to change the membership of the environment until it's been re-activated. Nothing will change with your services or infrastructure. Therefore, if you want to make any changes to your infrastructure services, you'll need to make these changes before your environment is deactivated.
+### 停用和删除环境
 
-In order to delete an environment, you will need to first deactivate it. All registries, balancers and API keys created in the environment will be removed from Rancher. Any hosts created through the Rancher UI, which launches hosts using Docker Machine, will also be removed from the cloud provider by using Docker Machine. If you have added a host using the [custom]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/) option, then the host will not be removed from the cloud provider.
+创建环境后，所有者可能想停用或删除该环境。
 
-### Editing Members
+环境被停用后，这个环境不再对环境成员可见，但环境的所有者还可以看到并启用这个环境。在环境停用后你不能变更环境的成员，直到该环境被再次启用。环境被停用后所有东西不能在变更，如果你要变更你的基础架构服务，你需要在环境停用之前变更。
 
-Only owners can change the membership to an environment. If an environment is in a deactivated state, owners can still edit the membership of it. In the **Manage Environments** page, they will be able to **Edit** the environment. In the edit page, they will be able to add additional members by finding their names and clicking on the **+** button or selecting a name from the dropdown menu.
 
-If there are any members that you want to delete, click on the **X** next to their name in the list of members. Remember that if you delete an individual user, they could still have access to the environment if they are part of a team or organization that is a member of the environment.  
+要删除一个环境，先要停用这个环境。环境删除后，这个环境所有的注册信息，分支，API keys 都会从 Rancher 移除。所有通过 Rancher UI 创建，用 Docker Machine 启用的主机也会在云提供商中被用 Docker Machine 移除。如果你已经通过[自定义]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/)的方式添加了一台主机，那么这台主机在云提供商中不会被移除.
 
-Owners can also change the roles of anyone on the member list. Just select the role that you want for the particular user.
+### 成员编辑
+只有环境的所有者可以编辑环境的成员。即使一个环境处于停用的状态，所有者也可以编辑该环境的成员。在**环境管理**页面，你可以点击**编辑**进入环境成员编辑页面， 在编辑页面，你可以通过下拉框添加环境成员。
 
-### Membership Roles
+如果要删除环境成员，可以点击成员列表旁边的**X**。注意，单个成员被删除时，如果被删除的成员所属的团队或组织是这个环境的成员，那么他们仍然可以访问这个环境，
 
-#### Owners
+所有者可以更改任何环境成员的角色，你只需要选择成员的相应角色。
 
-An owner of an environment has the ability to change the status or the membership of an environment. Within the membership list, the owner can also change the roles of other members of the environment.
+### 成员角色
 
-Owners have the ability to change [infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/) of an environment through the [catalog]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog), as there is no method to edit environment templates. Environment templates are only used when creating an environment.
+#### 所有者
+所有者有改变成员和环境之间关系的权限。在环境的成员列表中，所有者还可以改变环境成员的角色。
 
-#### Members
+由于无法环境模版编辑，所有者有通过[catalog]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog)改变环境的[基础架构服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)的权限。环境模版只有在环境环境时会被使用到。
 
-A member of an environment can perform any actions in Rancher that do not affect the environment. They will not be able to add/remove members or change the membership roles of existing members or view any of the [infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/).
+#### 成员
+一个环境的成员可以在Rancher里面做任何不影响环境本身的操作。成员不能添加／移除其他成员，不能改变其他已存在成员的角色，也不能查看任何[基础架构服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)。
 
-#### Restricted
+#### 受限
 
-A restricted role of an environment is able to perform all actions related to stacks/services. For any container of a service, they can perform all actions, i.e. start, stop, delete, upgrade, clone, and edit. There is nothing restricted regarding actions related to stacks, services, and containers.
+环境的受限成员只能够做与 应用(stacks)，服务(service)相关的操作。受限成员能能对于任意服务的容器做任何操作，即，启动、停止、删除、升级、克隆和编辑。从应用、 服务、和容器操作的角度来说，受限成员是不受限制的。
 
-The restriction of their role is regarding **Hosts**. They are only able to view hosts of an environment and will not be able to add/edit/remove hosts in the environment.
+对受限成员的限制体现在他们对主机的操作上。受限成员只能查看一个环境的主机，而不能添加，编辑，移除环境的主机。
 
-> **Note:** Restricted users will not be able to add/remove host labels and will need to request a member/owner to make any changes to host labels.
+> **注意:** 受限成员不能添加、移除主机标签，只有成员所有着才能改变主机的标签。
 
-#### Read Only
 
-A read only role of an environment is only able to view all resources in the environment. They can view hosts, stacks, services, containers, but they will be unable to perform any actions to create, edit, or remove them.
+#### 只读
+只读成员只能查看环境的资源。 他们可以查看 主机、应用、服务和容器。但只读成员不能对它们作任何创建、编辑、移除操作。
 
-> **Note:** With this role, they will still be able to view logs of a container.
 
-### What is an Environment Template
+> **注意:** 只读成员可以查看容器的日志。
 
-An environment template allows users to define a different combination of infrastructure services to be deployed. The infrastructure services includes but not limited to container orchestration (i.e. cattle, [kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/), [mesos]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/mesos/), [swarm]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/swarm/)), [networking]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/), rancher services (i.e [healthcheck]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks), [dns]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/dns-service/), [metadata]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/metadata/), [scheduling]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/), service discovery and [storage]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/storage-service/).
+### 什么是环境模版
 
-In Rancher, there are a set of default templates provided to leverage the various container orchestration options with the recommended infrastructure services. Some of these infrastructure services like our Rancher scheduler, will only be applicable to a cattle environment, but are required for other orchestration types as these services are used for launching other infrastructure services. Besides the default templates, you can create your own templates to choose what combination of infrastructure services that you would like to use in an environment. Only [owners](#owners) or [admins]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#admin) can view and manage these infrastructure resources in an environment.
+环境模版可以让用户定义需要部署的基础架构服务组合。基础架构服务包括（但不限于）容器编排 (即 cattle，[kubernetes]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/)、[mesos]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/mesos/)、[swarm]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/swarm/))、[网络]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/)、rancher 服务 (即 [健康检查]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks)、[dns]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/dns-service/)、[metadata]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/metadata/)、[调度]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/)、服务发现、[存储]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/storage-service/)。
 
-We recommend setting up [access control]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/) before you share environments with users. By adding users to your environment, they will also have the ability to create services and manage resources.
+容器的编排方式很多，Rancher 提供了一套默认的模版，以及推荐使用的基础架构服务用于容器编排。其中的一些基础架构服务，如 Rancher 调度器只能在cattle环境下使用，但其编排方式依赖这些基础架构服务。因为这些服务被用来启动其它基础架构服务。除了默认的模版，你也可以创建自己的模版。通过自己创建模版，你可以选者环境中任何你想要的基础架构服务组合。只有 [所有者](#owners) 或 [管理员]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#admin) 可以查看和编辑和管理环境的基础架构资源。
 
-> **Note:** Infrastructure resources cannot be shared across multiple environments. [Registries]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/registries/), [certificates]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/) and environment [API keys]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/api-keys/) are also environment specific.  
+在和其它用户共享环境前， 我们推荐先设置好[权限控制]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/)。用户被加入一个环境后, 他们就拥有了创建服务，和管理资源的权限。
 
-### Adding Environment Templates
+> **注意:** 基础架构资源不可以夸环境共享. [注册]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/registries/)、[证书]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/) 和 环境 [API keys]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/api/api-keys/) 也不能夸环境.
 
-To add new environments, hover over the name of your current environment that you are in, which is in the upper left hand corner. A drop down of all available environments as well a link to **Manage Environments** will appear. Click on **Manage Environments**.
+### 添加环境模版
 
-After navigating to the **Environments** page, you will see a list of environments and a list of environment templates. Click on **Add Template**
+要添加一个新环境，你可以把鼠标移动到左上角的环境下拉框。下拉框中会出现所有可用的环境以及**环境管理**的链接。 点击**环境管理**
 
-Pick a **Name** and **Description** for the template. Select how you want to share your template. Templates can either be private (i.e. only visible to yourself) or public (i.e. visible to admins).
+在**环境**页面后，你可以看到一个环境列表和一个环境模版列表。 点击**添加模版**
 
-[Infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/) include but not limited to selecting container orchestration, [storage]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/storage-service/), and [networking]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking). The default infrastructure services required to have a working environment are automatically enabled.
+为模版选择一个 **名称** 和 **描述**， 选择分享自己模版的方式。 模版可以是私有（只有自己可见）和公有（管理员可见）。
 
-### Editing & Deleting Environment Templates
+[基础架构服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/) 包括，但不限于容器编排、[存储]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/storage-service/)和[网络]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking)。默认的基础架构服务已自动启动，它要求有一个可用的环境。
 
-After creating an environment template, you can edit which infrastructure services are enabled in the template. Even though environment templates can be changed, the existing environments based on the templates will not be updated to the new template. They will continue to have the original infrastructure services enabled in the environment.
+### 编辑 & 删除环境模版
+创建环境模版后，你可以在模版中编辑启用哪个基础架构服务。虽然环境模版是可以编辑的，但已经存在的基于模版创建的环境不会随模版自动更新。
 
-At any time, you can delete the environment templates as they are only used when launching environments to indicate which infrastructure services should be launched. The templates are not directly tied to the environment so deleting them will not affect any environments.
+你可以在任何时候删除一个环境模版，因为它们只有在启动环境的时候才会被用到（用来指定哪些基础架构服务会被启用）。环境与环境模版没有直接绑定关系，所以删除环境模版不会影响环境。
+
