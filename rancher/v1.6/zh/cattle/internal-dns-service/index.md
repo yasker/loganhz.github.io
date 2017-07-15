@@ -2,56 +2,55 @@
 title: Internal DNS Service in Cattle Environments
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Internal DNS Service in Cattle Environments
+## Rancher Cattle环境中的内部DNS服务
 ---
+在Rancher中，我们拥有自己的内部DNS服务，允许同一个[cattle环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)中的任何服务都可以解析环境中的任何其他服务.
 
-Within Rancher, we have our own internal DNS service that allows all services within one [cattle environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) to resolve to any other in the environment.
+堆栈中的所有服务都可以通过`<服务名称>`解析，并且不需要在服务之间设置服务链接。 创建服务时，您可以定义`服务链接`以将服务链接在一起。 对于任何不同堆栈的服务，您可以通过`<服务名称>.<堆栈名称>`而不是`<服务名称>`来解析。 如果您想以不同的名称解析服务，您可以设置服务链接，以便服务可以由服务别名解析.
 
-All services in the stack are resolvable by `<service_name>` and there is no need to set a service link between the services. When creating services, you can define **Service Links** to link services together. For any services that are in a different stack, you'd resolve by `<service_name>.<stack_name>` instead of just `<service_name>`. If you would like to resolve a service by a different name, you could set a service link so that the service could be resolvable by the service alias.
+### 通过链接设置服务别名
 
-### Setting Service Alias via linking
+在UI中，[添加服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#adding-services-in-the-ui)时，展开**服务链接**部分，选择服务，并提供别名.
 
-In the UI, when [adding a service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#adding-services-in-the-ui), expand the **Service Links** section, select the service, and provide the alias name.
-
-If you're using Rancher Compose to [add the service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/services/#adding-services-with-rancher-compose), the `docker-compose.yml` would use either the `links` or `external_links` directive.
+如果您使用Rancher Compose[添加服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/services/#adding-services-with-rancher-compose)，`docker-compose.yml`将使用`links`或`external_links`指令.
 
 ```yaml
 version: '2'
 services:
   service1:
     image: wordpress
-    # If the other service is in the same stack
+    # 如果其他服务在同一个堆栈中
     links:
     # <service_name>:<service_alias>
     - service2:mysql
-    # If the other service is in a different stack
+    # 如果另一个服务是不同的堆栈
     external_links:
     # <stackname>/<service_name>:<service_alias>
     - Default/service3:mysql
 ```
 
-### Sidekicks and Linking
+### `从容器`和服务连接
 
-When launching a service, you may require services to be launched together on the same host all the time. Specific use cases include when trying to use a `volumes_from` or `net` from another service. When creating a [sidekick relationship]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#sidekick-services), the services are automatically resolvable to each other by their name. We currently do not support creating a service alias via links/external_links inside a sidekick service.
+在启动服务时，您可能需要指定只在同一台主机上一起启动服务。 具体的用例包括尝试使用另一个服务中的`卷来自`或`net`时。 当添加一个[从容器]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#sidekick-services)时，这些服务可以通过他们的名字自动地相互解析。 我们目前不支持通过从容器中的links/external_links来创建服务别名。
 
-When creating a sidekick relationship, there is always a primary service and sidekick service(s). Together, they are considered as a single launch configuration. This launch configuration would be deployed onto a host as a group of containers, 1 from the primary service and 1 from each sidekick defined. Within any service in the launch configuration, you can resolve the primary and sidekick(s) by their names. For any service outside of the launch configuration, the primary service is resolvable by name, but the sidekick services are only resolvable by `<sidekick_name>.<primary_service_name>`.
+当添加一个从容器时，总是有一个主服务和从容器。 它们一起被认为是单个启动配置。 此启动配置将作为一组容器部署到主机上，1个来自主服务器，另一个从每个从容器中定义。 在启动配置的任何服务中，您可以按其名称解析主服务和从容器。 对于启动配置之外的任何服务，主服务可以通过名称解析，但是从容器只能通过`<从容器名称>.<主服务名称>`来解析。
 
-### Container Names
+### 容器名称
 
-All containers are resolvable globally by their name as every service's container name is unique within each environment. There is no need to append service name or stack name.
+所有容器都可以通过其名称来全局解析，因为每个服务的容器名称在每个环境中都是唯一的。 没有必要附加服务名称或堆栈名称。
 
-### Examples
+#### 例子
 
-#### Pinging Services in the Same Stack
+##### 在同一堆栈中的pinging服务
 
-If you exec into the shell of a container, you are able to ping other services in the same stack by the service name.
+如果你执行一个容器的shell，你可以通过服务名称ping同一堆栈中的其他服务.
 
-In our example, there is a stack named `stackA` with two services, `foo` and `bar`.
+在我们的例子中，有一个名为`stackA`的堆栈，有两个服务，`foo`和`bar`.
 
-After execing into one of the containers in the `foo` service, you can ping the `bar` service.
+在执行`foo`服务中的一个容器之后，你可以ping通`bar`服务.
 
 ```bash
 $ ping bar
@@ -61,13 +60,13 @@ PING bar.stacka.rancher.internal (10.42.x.x) 58(84) bytes of data.
 64 bytes from 10.42.x.x: icmp_seq=3 ttl=62 time=1.07 ms
 ```
 
-#### Pinging Services in a Different Stack
+##### 在不同的堆栈中的Pinging服务
 
-For services that are in different stacks, you can ping the services in a different stack by using `<service_name>.<stack_name>`.
+对于不同堆栈的服务，您可以使用`<服务名称>.<堆栈名称>`在不同的堆栈中ping服务.
 
-In our example, we have a stack called `stackA`, which contains a service called `foo`, and we also have a stack called `stackB`, which contains a service called `bar`.
+在这个例子中，我们有一个名为`stackA`的堆栈，它包含一个名为`foo`的服务，我们有另一个名为`stackB`的堆栈，它包含一个名为`bar`的服务.
 
-If we exec into one of the containers in the `foo` service, you can ping the `bar` service with `bar.stackb`.
+如果我们执行`foo`服务中的一个容器，你可以用`bar.stackb`来ping.
 
 ```bash
 $ ping bar.stackb
@@ -77,16 +76,18 @@ PING bar.stackb (10.42.x.x) 56(84) bytes of data.
 64 bytes from 10.42.x.x: icmp_seq=3 ttl=62 time=1.27 ms
 ```
 
-#### Pinging Sidekick Services
+##### 在从容器中的pinging服务
 
 Depending on which service you ping from, you can reach a sidekick service by either `<sidekick_name>` or `<sidekick_name>.<primary_service_name>`.
 
-In our example, we have a stack called `stackA`, which contains a service called `foo`, which has a sidekick `bar` and a service called `hello`. We also have a stack called `stackB`, which contains a service `world`.
+取决于你从哪个服务ping，您可以通过`<从容器名称>`或`<从容器名称>.<主服务名称>`来访问从容器服务。
 
-If we exec into one of the containers in the `foo` service, you can ping the `bar` service directly by its name.
+在我们的例子中，我们有一个名为`stackA`的堆栈，它包含一个名为`foo`的服务，它有一个从容器`bar`和一个名为`hello`的服务。 我们也有一个堆栈叫`stackB`，它包含一个服务`world`。
+
+如果我们执行`foo`服务中的一个容器，你可以直接用`bar'命令ping它。
 
 ```bash
-# Inside  one of the containers in the `foo` service, which `bar` is a sidekick to.
+# 在`foo`服务中的一个容器中，`bar`是一个从容器。
 $ ping bar
 PING bar.foo.stacka.rancher.internal (10.42.x.x) 56(84) bytes of data.
 64 bytes from 10.42.x.x: icmp_seq=1 ttl=64 time=0.060 ms
@@ -96,15 +97,17 @@ PING bar.foo.stacka.rancher.internal (10.42.x.x) 56(84) bytes of data.
 
 If we exec into one of the containers in the `hello` service, which is in the same stack, you can ping the `foo` service by `foo` and the `bar` sidekick service by `bar.foo`.
 
+如果我们执行在同一个堆栈中的`hello`服务的一个容器，你可以通过`foo`来ping`foo`服务和`bar.foo`来ping`bar`服务.
+
 ```bash
-# Inside one of the containers in the `hello` service, which is not part of the service/sidekick service
-# Ping the primary service (i.e. foo)
+# 在`hello`服务中的一个容器内部，这不是服务/从容器的一部分
+# Ping主服务(i.e. foo)
 $ ping foo
 PING foo.stacka.rancher.internal (10.42.x.x) 56(84) bytes of data.
 64 bytes from 10.42.x.x: icmp_seq=1 ttl=62 time=1.04 ms
 64 bytes from 10.42.x.x: icmp_seq=2 ttl=62 time=1.40 ms
 64 bytes from 10.42.x.x: icmp_seq=3 ttl=62 time=1.07 ms
-# Ping the sidekick service (i.e. bar)
+# Ping从容器(i.e. bar)
 $ ping bar.foo
 PING bar.foo (10.42.x.x) 56(84) bytes of data.
 64 bytes from 10.42.x.x: icmp_seq=1 ttl=62 time=1.01 ms
@@ -112,17 +115,18 @@ PING bar.foo (10.42.x.x) 56(84) bytes of data.
 64 bytes from 10.42.x.x: icmp_seq=3 ttl=62 time=1.05 ms
 ```
 
-If we exec into one of the containers in the `world` service, which is in a different stack, you can ping the `foo` service by `foo.stacka` and the `bar` sidekick service by `bar.foo.stacka`.
+如果我们执行`world`服务中的一个容器，它是不同的堆栈，你可以通过`foo.stacka`来ping`foo`服务和`bar.foo.stacka`来ping从容器`bar`.
 
 ```bash
 # Inside one of the containers in the `world` service, which is in a different stack
-# Ping the primary service (i.e. foo)
+# 在`world`服务中的一个容器内，它们位于不同的堆栈中
+# Ping另一个堆栈`stacka`中的主服务(i.e. foo)
 $ ping foo.stacka
 PING foo.stacka (10.42.x.x) 56(84) bytes of data.
 64 bytes from 10.42.x.x: icmp_seq=1 ttl=62 time=1.13 ms
 64 bytes from 10.42.x.x: icmp_seq=2 ttl=62 time=1.05 ms
 64 bytes from 10.42.x.x: icmp_seq=3 ttl=62 time=1.29 ms
-# Ping the sidekick service (i.e. bar)
+# Ping另一个堆栈`stacka`中的从容器(i.e. bar)
 $ ping bar.foo.stacka
 PING bar.foo.stacka (10.42.x.x) 56(84) bytes of data.
 64 bytes from 10.42.x.x: icmp_seq=1 ttl=62 time=1.23 ms
@@ -130,13 +134,13 @@ PING bar.foo.stacka (10.42.x.x) 56(84) bytes of data.
 64 bytes from 10.42.x.x: icmp_seq=3 ttl=62 time=0.994 ms
 ```
 
-#### Pinging Container Name
+##### Ping容器名称
 
-From any container, you can ping another container in the environment by their name regardless if they are in a different stack or service.
+从同一个环境下的任何一个容器中，无论它们是否在相同的堆栈或服务中，您都可以用容器名称来ping其他容器，
 
-In our example, we have a stack called `stackA`, which contains a service called `foo`. We also have another stack called `stackB`, which contains a service called `bar`. The names of containers are `<stack_name>-<service_name>-<number>`.
+在我们的示例中，我们有一个名为`stackA`的堆栈，它包含一个名为`foo`的服务。 我们还有另一个堆栈叫`stackB`，它包含一个名为“bar”的服务。 容器的名称是`<stack_name>-<service_name>-<number>`。
 
-If we exec into one of the containers in the `foo` service, you can ping the container in the `bar` service.
+如果我们执行`foo`服务中的一个容器，你可以通过ping来访问`bar`服务中的相关容器.
 
 ```bash
 $ ping stackB-bar-1

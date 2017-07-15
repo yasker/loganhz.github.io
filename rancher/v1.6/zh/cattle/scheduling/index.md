@@ -2,123 +2,131 @@
 title: Scheduling Services in Cattle Environments
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Scheduling Services
+## 服务调度
 ---
 
-In Rancher, you can have the services to be scheduled on specific hosts based on strict and soft affinity/anti-affinity rules. These rules can compare the labels on a host or the labels on the container on a host to determine which host the container should be scheduled on.
+在Rancher中，您可以根据严格或宽松的关联与斥关联规则，在特定主机上安排服务。 这些规则可以比较主机上的标签或主机上容器上的标签，以确定容器应该安排在哪个主机上。
 
-By default, Rancher will detect port conflicts on a host and not schedule containers that require a port onto a host if the port is not available.
+默认情况下，Rancher将检测主机上的端口冲突，如果端口不可用，则不会将需要此端口的容器计划到这一主机上。
 
-This core scheduling logic is built into Rancher, but Rancher also supports additional scheduling abilities that are located in our [external scheduler]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/scheduler/), which is part of our [infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/). Additional scheduling abilities include:
+这个核心调度逻辑内置于Rancher，但Rancher还支持位于我们[外部调度器]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/scheduler/)中的其他调度能力，这是我们[基础设施服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)的一部分。其他调度能力包括：
 
-* [Ability to schedule against multiple IPs on a Host]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/scheduler/#multiple-ips)
-* [Ability to scheduler based on resource constraints (i.e. CPU and memory)]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/scheduler/#resource-constraints)
-* [Ability to restrict which services can be scheduled on a host]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/scheduler/#restrict-services-on-host)
+* [多个IP的主机调度能力]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/scheduler/#multiple-ips)
+* [基于资源约束的调度能力 (例如 CPU和内存)]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/scheduler/#resource-constraints)
+* [能够限制在主机上安排哪些服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/scheduler/#restrict-services-on-host)
 
-### Labels and Scheduling rules
+### 标签和调度规则
 
-When launching containers either through a [service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) or through a [load balancer]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/), we provide the option to create labels for the container(s) and the ability to schedule which host you want the container to be placed on. For the remaining part of this section, we'll use the term service, but these labels also apply to load balancers (i.e. a specific type of service).
+不管是通过[服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) 或者[负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/)来创建容器时，我们都提供了为容器创建标签的选项，并且可以安排您想要放置容器的主机。 对于本节的剩余部分，我们将使用术语服务，但这些标签也适用于负载平衡器（即特定类型的服务）
 
-The scheduling rules provide flexibility on how you want Rancher to pick which host to use. In Rancher, we use labels to help define scheduling rules. You can create as many labels on a container as you’d like. With multiple scheduling rules, you have complete control on which host you want the container to be created on. You could request that the container to be launched on a host with a specific host label, container label or name, or a specific service. These scheduling rules can help create blacklists and whitelists for your container to host relationships.
+调度规则提供了让Rancher选择要使用哪个主机的灵活性。 在Rancher中，我们使用标签来帮助定义调度规则。 您可以根据需要在容器上创建任意数量的标签。 通过多个调度规则，您可以完全控制容器基于主机的创建。 您可以要求在具有特定主机标签，容器标签或名称或特定服务的主机上启动该容器。 这些调度规则可以帮助您创建用于托管关系的容器的黑名单和白名单。
 
-### Adding Labels in the UI
+### 在UI中添加标签
 
-For [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/), labels can be added in the **Labels** tab. For load balancers, labels can be found in the **Labels** tab.
+对于[添加服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/)，可以在`标签`选项卡中添加标签。 对于添加负载均衡，也可以在`标签`选项卡中找到添加标签。
 
-By adding labels to a [load balancer]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/), every load balancer container will receive that label, which is a key value pair. In Rancher, we use these container labels to help define scheduling rules. You can create as many labels on a load balancer as you'd like. By default, Rancher already adds system related labels on every container.
+通过向[负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/)添加标签，每个负载均衡容器将接收该标签，该标签是一个键值对。 在Rancher中，我们使用这些容器标签来帮助定义调度规则。 您可以根据需要在负载均衡上创建任意数量的标签。 默认情况下，Rancher已经在每个容器上添加了系统相关的标签。
 
-### Scheduling Options in the UI
+### 在UI中调度选项
 
-For [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) and [load balancers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/), labels can be found in the **Scheduling** tab.
+对于[服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/)和[负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/)，标签可以在**调度**选项卡中找到。
 
-For [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/), there are 2 options provided to determine where to launch your container.
+对于 [服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/),
+我们提供了两个选项来确定在哪里启动容器。
 
-#### Option 1: Run _all_ containers on a specific host
-By selecting this option, the container/service will be started on a specific host. If your host goes down, then the container will also go down. If you create a container from the container page, even if there is a port conflict, the container will be started. If you create a service of scale greater than 1 and there is a port conflict, your service might get stuck in _Activating_ state until you edit the scale value of the service.
+#### 选项1：在指定主机上运行 _全部_ 容器
 
-#### Option 2: Automatically pick a host matching scheduling rules
-By selecting this option, you have the flexibility to choose your scheduling rules. Any host that follows all the rules is a host that could have the container started on. You can add rules by clicking on the **+** button.
+通过选择此选项，容器/服务将在特定主机上启动。 如果您的主机掉线，则容器也会下降。 如果您从容器页面创建一个容器，即使有端口冲突，容器将被启动。 如果创建一个比例大于1且服务端口冲突的服务，则您的服务可能会停留在_Activating_状态，直到您编辑正确的服务的比例值为止。
 
-For [load balancers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/), only option 2 is available due to port conflicts. You are only given the choice to add scheduling rules. Click on the **Scheduling** tab. You can add as many scheduling rules as you want by clicking on the **Add Scheduling Rule** button.
+#### 选项2：为每一个容器自动选择符合调度规则的主机
+通过选择此选项，您可以灵活地选择调度规则。 遵循所有规则的任何主机都是可以启动容器的主机。 您可以通过点击 **+** 按钮添加规则。
 
-For each rule, you select a **condition** of the rule. There are 4 different conditions, which define how strict the rule must be followed. The **field** determines which field you want the rule to be applied to. The **key** and **value** are the values which you want the field to be checked against. If you are launching a service or load balancer, Rancher will spread the distribution of containers on the applicable hosts based on the load of each host. Depending on the condition chosen will determine what the applicable hosts are.
+对于[负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/)，只有选项2可用，因为端口冲突。 您只能添加调度规则。 点击 **调度** 选项卡。 您可以通过点击 **添加调度规则** 按钮添加任意数量的调度规则。
 
-> **Note:** For [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/)/[load balancers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/), if you have selected the **Always run one instance of this container on every host** option for scale, then only the host labels will appear as a possible field.
+对于每个规则，您可以选择规则的**条件**。 有四种不同的条件，它们定义了遵守规则的严格程度。 **字段**确定要应用规则的字段。 **键**和**值**是要检查字段的值。 如果您启动了一个服务或负载均衡，Rancher将根据每个主机的负载来扩展容器在适用主机上的分发。 根据所选择的条件将确定适用的主机是什么。
 
-#### Conditions
+> **注意：** 对于[添加服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/)/[添加负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/)，如果您选择了 **总是在每台主机上运行一个此容器的实例** 选项用于缩放，则只有主机标签将显示为可能的字段。
 
-* **must** or **must not**: Rancher will only use hosts that match or do not match the field and value. If Rancher cannot find a host that meets all of the rules with these conditions, your service could get stuck in an _Activating_ state. The service will be continually trying to find a host for the containers. To fix this state, you can either edit the scale value of the service or add/edit another host that would satisfy all of these rules.  
-* **should** or **should not**: Rancher will attempt to use hosts that match the field and value. In the case of when there is no  host that matches all the rules, Rancher will remove one by one the soft constraints (should/should not rules) until a host satisfies the remaining constraints.
+#### 条件
 
-#### Fields
+* **必须** 或 **不能**：Rancher只会使用与字段和值匹配或不匹配的主机。 如果Rancher找不到符合这些条件的所有规则的主机，您的服务可能会停留在_Activating_状态。 该服务将不断尝试找到容器的主机。 要修复此状态，您可以编辑服务的比例值或添加/编辑将满足所有这些规则的其他主机。
+* **应该**或**不应该**：Rancher将尝试使用匹配字段和值的主机。 在没有匹配所有规则的主机的情况下，Rancher将逐个删除软约束（应该/不应该规则），直到主机满足剩余的约束。
 
-* **host label**: When selecting the hosts to use for the container/service, Rancher will check the labels on the host to see if they match the key/value pair provided. Since every host can have one or more labels, Rancher will compare the key/value pair against all labels on a host. When adding a host to Rancher, you can add labels to the host. You can also edit the labels on the hosts by using the **Edit** option in the host's dropdown menu. The list of labels on active hosts are available from the dropdown in the key field.
-* **container with label**: When selecting this field, Rancher will look for hosts that already have containers with labels that match the key/value pair. Since every container can have one or more labels, Rancher will compare the key/value pair against all labels on every container in a host. The container labels are in the **Labels** tab for a container. You will not be able to edit the container labels after the container is started. In order to create a new container with the same settings, you can **Clone** the container/service and add the labels before starting it. The list of user labels on running containers are available from the dropdown in the key field.
-* **service with the name**: Rancher will check to see if a host has a container from the specified service running on it. If at a later time, this service has a name change or is inactive/removed, the rule will no longer be valid. If you pick this field, the value will need to be in the format of `stack_name/service_name`. The list of running services are available from the dropdown in the value field.
-* **container with the name**: Rancher will check to see if a host has a container with a specific name running on it. If at a later time, the container has a name change or is inactive/removed, the rule will no longer be valid. The list of running containers are available from the dropdown in the value field.
+#### 字段
 
-### Adding Labels in Rancher Compose
+* **主机标签**：当选择要用于容器/服务的主机时，Rancher将检查主机上的标签，看它们是否与提供的键/值对匹配。 由于每个主机都可以有一个或多个标签，所以Rancher会将键/值对与主机上的所有标签进行比较。 将主机添加到Rancher时，可以向主机添加标签。 您还可以使用主机下拉菜单中的**编辑**选项来编辑主机上的标签。 活动主机上的标签列表可从关键字段的下拉列表中找到。
+* **容器标签**：选择此字段时，Rancher会查找已经具有与键/值对匹配的标签的容器的主机。 由于每个容器都可以有一个或多个标签，所以Rancher会将键/值对与主机中每个容器上的所有标签进行比较。 容器标签位于容器的`标签`选项中。 在容器启动后，您将无法编辑容器标签。 为了创建具有相同设置的新容器，您可以**克隆**容器或服务，并在启动之前添加标签。 运行容器上的用户标签列表可从关键字段的下拉列表中找到。
+* **服务名称**: Rancher将检查主机上是否有一个具有特定名称的服务。 如果在稍后的时间，该服务名称将更改或不活动/已删除，该规则将不再有效。 如果您选择此字段，则该值将需要以`堆栈名称/服务名称`的格式。 运行服务的列表可从值字段的下拉列表中获得。
+* **容器名称**: Rancher会检查一个主机是否有一个具有特定名称的容器。 如果稍后时间，容器有名称更改或不活动/已删除，该规则将不再有效。 运行容器的列表可从值字段的下拉列表中获得。
+
+###在Rancher Compose中添加标签
 
 Rancher determines how to schedule a service's containers based on the `labels` defined in the `docker-compose.yml` file. All of the labels with scheduling would be used in the `docker-compose.yml` file. Rancher defines the scheduling rules with 3 main components: conditions, fields and values. Conditions determine how strictly Rancher follows the rules. Fields are which items that are going to be compared against. Values are what you've defined on the fields. We'll talk broadly about these components before going into some examples.
 
-#### Scheduling Conditions
+Rancher根据`docker-compose.yml`文件中定义的`labels`来决定如何安排一个服务的容器。 所有带有调度的标签都将在`docker-compose.yml`文件中使用。 Rancher通过3个主要组件定义了调度规则：条件，字段和值。 条件决定了Rancher遵守规则的严格程度。 字段是要比较的项目。 价值是您在字段上定义的。 在介绍一些例子之前，我们将广泛讨论这些组件。
 
-When we write our scheduling rules, we have conditions for each rule, which dictates how Rancher uses the rule. An affinity condition is when we are trying to find a field that matches our value. An anti-affinity condition is when we are trying to find a field that does not match our value.
+####调度条件
 
-To differentiate between affinity and anti-affinity, we add `_ne` to the label name to indicate that the label is **not** matching the field and values.
+当我们编写我们的调度规则时，我们对每个规则都有条件，这说明了Rancher如何使用规则。亲和条件是当我们试图找到一个符合我们的价值的字段。反亲和条件是当我们试图找到一个不符合我们价值的字段时。
 
-There are also hard and soft conditions of a rule.
+为了区分亲和力和反亲和度，我们在标签名称中添加`_ne`来表示标签是**不**符合字段和值。
 
-A hard condition is the equivalent of saying **must** or **must not**. Rancher will only use hosts that match or do not match the field and value. If Rancher cannot find a host that meets all of the rules with these conditions, your service could get stuck in an _Activating_ state. The service will be continually trying to find a host for the containers. To fix this state, you can either edit the scale value of the service or add/edit another host that would satisfy all of these rules.
+规则也有硬条件和软条件。
 
-A soft condition is the equivalent of saying **should** or **should not**. Rancher will attempt to use hosts that match the field and value. In the case of when there is no  host that matches all the rules, Rancher will remove one by one the soft constraints (should/should not rules) until a host satisfies the remaining constraints.
+一个硬条件相当于说**必须**或**不能**。 Rancher只会使用匹配或不匹配字段和值的主机。如果Rancher找不到符合这些条件的所有规则的主机，您的服务可能会停留在_Activating_状态。该服务将不断尝试找到容器的主机。要修复此状态，您可以编辑服务的比例值或添加/编辑将满足所有这些规则的其他主机。
 
-To differentiate between the _must_ and _should_ conditions, we add `_soft` to our label name to indicate that the label is **should** try to match the field and values.
+一个软条件相当于**应该**或**不应该**。 Rancher将尝试使用与该字段和值相匹配的主机。在没有匹配所有规则的主机的情况下，Rancher将逐个删除软约束（应该/不应该规则），直到主机满足剩余的约束。
 
-#### Fields
+为了区分_must_和_should_条件，我们将“_soft”添加到我们的标签名称中，以表明标签是**应该**尝试匹配字段和值。
+
+#### 字段
 
 Rancher has the ability to compare values against host labels, container labels, container name, or service name. The label prefix is what Rancher uses to define which field will be evaluated.
 
-Field | Label Prefix
----|---
-Host Label | `io.rancher.scheduler.affinity:host_label`
-Container Label/Service Name | `io.rancher.scheduler.affinity:container_label`
-Container Name | `io.rancher.scheduler.affinity:container`
+Rancher能够与主机标签，容器标签，容器名称或服务名称的值进行比较。 标签前缀是Rancher用来定义哪个字段将被评估的用法。
 
-Notice how there is not a specific prefix for service name. When Rancher creates a service, system labels are added to all containers of the service to indicate the stack and service name.
+字段 | 标签前缀
+---|---
+主机标签 | `io.rancher.scheduler.affinity:host_label`
+容器标签/服务名称 | `io.rancher.scheduler.affinity:container_label`
+容器名称 | `io.rancher.scheduler.affinity:container`
+
+请注意，服务名称中没有特定的前缀。 当Rancher创建服务时，会将系统标签添加到服务的所有容器中，以指示堆栈和服务名称。
 
 To create the key of our label, we start with a field prefix (e.g. `io.rancher.scheduler.affinity:host_label`) and based on the condition that we are looking for, we append the type of condition we want. For example, if we want the containers to be launched on a host that must not equal (i.e. `_ne`) to a host label value, the label key would be `io.rancher.scheduler.affinity:host_label_ne`.
 
-#### Values
+当我们创建标签的关键字时，我们从一个字段前缀（例如`io.rancher.scheduler.affinity：host_label`）开始，根据我们正在寻找的条件，我们附加我们想要的条件类型。 例如，如果我们希望容器在不能等于（即`_ne`）主机标签值的主机上启动，则标签键将是“io.rancher.scheduler.affinity：host_label_ne”。
 
-You use the values to define what you want the field to be checked against. If you have a couple of values that you want to compare against for the same condition and field, you'll need to use only one label for the name of the label. For the value of the label, you'll need to use a comma separated list. If there are multiple labels with the same key (e.g. `io.rancher.scheduler.affinity:host_label_ne`), Rancher will overwrite any previous value with the last value that is used with the label key.
+#### 值
+
+您可以使用这些值来定义要检查的字段。 如果您有两个值要与同一条件和字段进行比较，则需要为标签名称使用一个标签。 对于标签的值，您需要使用逗号分隔列表。 如果有多个具有相同键的标签（例如`io.rancher.scheduler.affinity：host_label_ne`），则Rancher将使用与标签键一起使用的最后一个值覆盖任何先前的值。
 
 ```yaml
 labels:
   io.rancher.scheduler.affinity:host_label: key1=value1,key2=value2
 ```
 
-#### Global Service
+#### 全局服务
 
-Making a service into a global service is the equivalent of selecting **Always run one instance of this container on every host** in the UI. This means that a container will be started on any host in the [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/). If a new host is added to the environment, and the host fulfills the global service's host requirements, the service will automatically be started.
+将服务提供到全局服务中相当于在UI中的每个主机上选择**总是在每台主机上运行一个此容器的实例**。 这意味着将在[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)中的任何主机上启动一个容器。 如果将新主机添加到环境中，并且主机满足全局服务的主机要求，则该服务将自动启动。
 
-Currently, we only support global services with host labels fields that are using the hard condition. This means that only labels that are related to `host_labels` will be adhered to when scheduling and it **must** or **must not** equal the values. Any other label types will be ignored.
+目前，全局服务只支持使用硬条件的主机标签字段。 这意味着只有在调度时才会遵守与`主机标签`相关的标签，并且**必须**或**不能**等于该值。 任何其他标签类型将被忽略。
 
-##### Example `docker-compose.yml`
+##### 例子 `docker-compose.yml`
 
 ```yaml
 version: '2'
 services:
   wordpress:
     labels:
-      # Make wordpress a global service
+      # 使wordpress成为全局服务
       io.rancher.scheduler.global: 'true'
-      # Make wordpress only run containers on hosts with a key1=value1 label
+      # 使wordpress只在具有key1 = value1标签的主机上运行容器
       io.rancher.scheduler.affinity:host_label: key1=value1
-      # Make wordpress only run on hosts that do not have a key2=value2 label
+      # 使wordpress只在没有key2 = value2标签的主机上运行
       io.rancher.scheduler.affinity:host_label_ne: key2=value2
     image: wordpress
     links:
@@ -126,154 +134,153 @@ services:
     stdin_open: true
 ```
 
-#### Finding Hosts with Host Labels
+#### 使用主机标签查找主机
 
-When adding hosts to Rancher, you can add [host labels]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels). When scheduling a service, you can leverage these labels to create rules to pick the hosts you want your service to be deployed on.
+将主机添加到Rancher时，您可以添加[主机标签]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#host-labels)。 调度服务时，您可以利用这些标签来创建规则来选择要部署服务的主机。
 
-##### Example using Host Labels
+##### 使用主机标签的示例
 
 ```yaml
 labels:
-  # Host MUST have the label `key1=value1`
+  # 主机必须有`key1 = value1`的标签
   io.rancher.scheduler.affinity:host_label: key1=value1
-  # Host MUST NOT have the label `key2=value2`
+  # 主机不得有`key2 = value2`的标签
   io.rancher.scheduler.affinity:host_label_ne: key2=value2
-  # Host SHOULD have the label `key3=value3`
+  # 主机应该有`key3 = value3`的标签
   io.rancher.scheduler.affinity:host_label_soft: key3=value3
-  # Host SHOULD NOT have the label `key4=value4`
+  # 主机应该没有`key4 = value4`的标签
   io.rancher.scheduler.affinity:host_label_soft_ne: key4=value4
 ```
 
-##### Automatically Applied Host Labels
+##### 自动创建的主机标签
 
-Rancher automatically creates host labels related to linux kernel version and Docker Engine version of the host.
+Rancher会自动创建与主机的linux内核版本和Docker Engine版本相关的主机标签。
 
-Key | Value | Description
+Key | Value | 描述
 ----|----|----
-`io.rancher.host.linux_kernel_version` | Linux Kernel Version on Host (e.g, `3.19`) |  Version of the Linux kernel running on the host
-`io.rancher.host.docker_version` | Docker Engine Version on the host (e.g. `1.10.3`) | Docker Engine Version on the host
-`io.rancher.host.provider` | Cloud provider info | Cloud provider name (currently only applied for AWS)
-`io.rancher.host.region` | Cloud provider region | Cloud provider region (currently only applied for AWS)
-`io.rancher.host.zone` | Cloud provider zone | Cloud provider zone (currently only applied for AWS)
+`io.rancher.host.linux_kernel_version` | 主机上的Linux内核版本 (例如3.19) |  主机上运行的Linux内核的版本
+`io.rancher.host.docker_version` | 主机上的Docker版本（例如`1.10.3`） | 主机上运行的Docker Engine版本
+`io.rancher.host.provider` | 云提供商信息 | 云提供商名称（目前仅适用于AWS）
+`io.rancher.host.region` | 云提供商区域 | 云提供商区域（目前仅适用于AWS）
+`io.rancher.host.zone` | 云提供商可用区 | 云提供商可用区（目前仅适用于AWS）
 
 <br>
 
 ```yaml
 labels:
-# Host MUST be running Docker version 1.10.3
+# 主机必须运行Docker版本1.10.3
 io.rancher.scheduler.affinity:host_label: io.rancher.host.docker_version=1.10.3
-# Host MUST not be running Docker version 1.6
+# 主机必须不运行Docker 1.6版
 io.rancher.scheduler.affinity:host_label_ne: io.rancher.host.docker_version=1.6
 ```
 
 <br>
 
-> **Note:** Rancher does not support the concept of scheduling containers on a host that has `>=` a specific version. You can create specific whitelists and blacklists by using the host scheduling rules to determine if a specific version of Docker Engine is required for your services.
+> **注意：** Rancher不支持在具有`>=`特定版本的主机上调度容器的概念。 您可以使用主机调度规则来创建特定的白名单和黑名单，以确定您的服务是否需要特定版本的Docker Engine。
 
-#### Finding Hosts with Container Labels
+#### 用容器标签查找主机
 
-When adding containers or services to Rancher, you can add container labels. These labels can be used for the field that you want a rule to compare against. Reminder: This cannot be used if you set global service to true.
+向Rancher添加容器或服务时，可以添加容器标签。 这些标签可以用于您希望规则与之进行比较的字段。 提醒：如果将全局服务设置为true，则无法使用。
 
-> **Note:** If there are multiple values for container labels, Rancher will look at all labels on all containers on the host to check the container labels. The multiple values do not need to be on the same container on a host.
+> **注意：**如果容器标签有多个值，Rancher会查看主机上所有容器上的所有标签，以检查容器标签。 多个值不需要在主机上的同一容器上。
 
-##### Example using Container Labels
+##### 使用容器标签的示例
 
 ```yaml
 labels:
-  # Host MUST have a container with the label `key1=value1`
+  # 主机必须有一个标签为`key1=value1`的容器
   io.rancher.scheduler.affinity:container_label: key1=value1
-  # Host MUST NOT have a container with the label `key2=value2`
+  # 主机不能有一个标签为`key2=value2`的容器
   io.rancher.scheduler.affinity:container_label_ne: key2=value2
-  # Host SHOULD have a container with the label `key3=value3`
+  ＃主机应该有一个标签为`key3=value3`的容器
   io.rancher.scheduler.affinity:container_label_soft: key3=value3
-  # Host SHOULD NOT have a container with the label `key4=value4
+  # 主机应该没有一个标签为`key4=value4`的容器
   io.rancher.scheduler.affinity:container_label_soft_ne: key4=value4
 ```
 
-##### Service Name
+##### 服务名称
 
-When Rancher Compose starts containers for a service, it also automatically creates several container labels. Since checking for a specific container label is looking for a `key=value`, we can use these system labels as the key of our rules. Here are the system labels created on the containers when Rancher starts a service:
+当Rancher Compose启动服务的容器时，它也会自动创建多个容器标签。 因为检查一个特定的容器标签正在寻找一个`key=value`，所以我们可以使用这些系统标签作为我们规则的关键。 以下是在Rancher启动服务时在容器上创建的系统标签：
 
-Label | Value
+标签 | 值
 ----|-----
 io.rancher.stack.name | `$${stack_name}`
 io.rancher.stack_service.name | `$${stack_name}/$${service_name}`
 
 <br>
 
-> **Note:** When using the `io.rancher.stack_service.name`, the value must be in the format of `stack name/service name`.
+> **注意：** 使用`io.rancher.stack_service.name`时，该值必须为`堆栈名称/服务名称`的格式。
 
-The macros `$${stack_name}` and `$${service_name}` can also be used in the `docker-compose.yml` file in any other `label` and will be evaluated when the service is started.
+宏`$$ {stack_name}`和`$$ {service_name}`也可以在任何其他`标签`中的`docker-compose.yml`文件中使用，并在服务启动时进行评估。
 
-##### Example using Service Name
+##### 使用服务名称的示例
 
 ```yaml
 labels:
-  # Host MUST have a container from service name `value1`
+  # Host必须有一个服务名称为`value1`的容器
   io.rancher.scheduler.affinity:container_label: io.rancher.stack_service.name=stackname/servicename
 ```
 
-#### Finding Hosts with Container Names
+#### 查找具有容器名称的主机
 
-When adding containers to Rancher, you give each container a name. You can use this name as a field that you want a rule to compare against. Reminder: This cannot be used if you set global service to true.
+向Rancher添加容器时，可以给每个容器一个名称。 您可以使用此名称作为希望规则进行比较的字段。 提醒：如果将全局服务设置为true，则无法使用。
 
-##### Example using Container Names
+##### 使用容器名称的示例
 
 ```yaml
 labels:
-  # Host MUST have a container with the name `value1`
+  # 主机必须有一个名为`value1`的容器
   io.rancher.scheduler.affinity:container: value1
-  # Host MUST NOT have a container with the name `value2`
+  # 主机不能有一个名称为`value2`的容器
   io.rancher.scheduler.affinity:container_ne: value2
-  # Host SHOULD have a container with the name `value3`
+  # 主机应该有一个名称为`value3`的容器
   io.rancher.scheduler.affinity:container_soft: value3
-  # Host SHOULD NOT have a container with the name `value4
+  # 主机应该没有一个名为`value4`的容器
   io.rancher.scheduler.affinity:container_soft_ne: value4
 ```
 
-### Examples
+### 示例
 
-#### Example 1:
+#### 示例1:
 
-A typical scheduling policy may be to try to spread the containers of a service across the different available hosts.  One way to achieve this is to use an anti-affinity rule to itself:
+典型的调度策略可能是尝试在不同的可用主机之间部署服务的容器。 实现这一点的一个方法是使用反相关性规则来关联自身:
 
 ```yaml
 labels:
   io.rancher.scheduler.affinity:container_label_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
 ```
 
-Since this is a hard anti-affinity rule, we may run into problems if the scale is larger than the number of hosts available.  In this case, we might want to use a soft anti-affinity rule so that the scheduler is still allowed to deploy a container to a host that already has that container running.  Basically, this is a soft rule so it can be ignored if no better alternative exists.
-
+由于这是一个很强的反相关性规则，如果比例大于可用主机数量，我们可能会遇到问题。 在这种情况下，我们可能需要使用软反相关性规则，以便调度程序仍然允许将容器部署到已经具有该容器的主机。 基本上，这是一个软规则，所以如果没有更好的选择存在，它可以被忽略。
 ```yaml
 labels:
   io.rancher.scheduler.affinity:container_label_soft_ne: io.rancher.stack_service.name=$${stack_name}/$${service_name}
 ```
 
-#### Example 2:
+#### 示例2:
 
-Another example may be to deploy all the containers on the same host regardless of which host that may be.  In this case, a soft affinity to itself can be used.
+另一个例子可能是将所有容器部署在同一个主机上，而不考虑哪个主机。 在这种情况下，可以使用对其自身的软亲合力。
 
 ```yaml
 labels:
   io.rancher.scheduler.affinity:container_label_soft: io.rancher.stack_service.name=$${stack_name}/$${service_name}
 ```
 
-If a hard affinity rule to itself was chosen instead, the deployment of the first container would fail since there would be no host that currently has that service running.
+如果选择了自己的硬约束规则，则第一个容器的部署将失败，因为目前没有运行该服务的主机。
 
-### Table of Scheduling Labels
+### 调度标签表
 
-Label | Value | Description
+标签 | 值 | 描述
 ----|-----|-----
-io.rancher.scheduler.global | true | Specifies this service to be a global service
-io.rancher.scheduler.affinity:host_label | key1=value1,key2=value2, etc... | Containers **must** be deployed to a host with the labels `key1=value1` and `key2=value2`
-io.rancher.scheduler.affinity:host_label_soft | key1=value1,key2=value2 | Containers **should** be deployed to a host with the labels `key1=value1` and `key2=value2`
-io.rancher.scheduler.affinity:host_label_ne | key1=value1,key2=value2 | Containers **must not** be deployed to a host with the label `key1=value1` or `key2=value2`
-io.rancher.scheduler.affinity:host_label_soft_ne | key1=value1,key2=value2 | Containers **should not** be deployed to a host with the label `key1=value1` or `key2=value2`
-io.rancher.scheduler.affinity:container_label | key1=value1,key2=value2 | Containers **must** be deployed to a host that has containers running with the labels `key1=value1` and `key2=value2`.  NOTE: These labels do not have to be on the same container.  The can be on different containers within the same host.
-io.rancher.scheduler.affinity:container_label_soft | key1=value1,key2=value2 | Containers **should** be deployed to a host that has containers running with the labels `key1=value1` and `key2=value2`
-io.rancher.scheduler.affinity:container_label_ne | key1=value1,key2=value2 | Containers **must not** be deployed to a host that has containers running with the label `key1=value1` or `key2=value2`
-io.rancher.scheduler.affinity:container_label_soft_ne | key1=value1,key2=value2 | Containers **should not** be deployed to a host that has containers running with the label `key1=value1` or `key2=value2`
-io.rancher.scheduler.affinity:container | container_name1,container_name2 | Containers **must** be deployed to a host that has containers with the names `container_name1` and `container_name2` running
-io.rancher.scheduler.affinity:container_soft | container_name1,container_name2 | Containers **should** be deployed to a host that has containers with the names `container_name1` and `container_name2` running
-io.rancher.scheduler.affinity:container_ne | container_name1,container_name2 | Containers **must not** be deployed to a host that has containers with the names `container_name1` or `container_name2` running
-io.rancher.scheduler.affinity:container_soft_ne | container_name1,container_name2 | Containers **should not** be deployed to a host that has containers with the names `container_name1` or `container_name2` running
+io.rancher.scheduler.global | true | 将此服务指定为全局服务
+io.rancher.scheduler.affinity:host_label | key1=value1,key2=value2, etc... | 容器**必须**部署到具有标签`key1=value1`和`key2 = value2`的主机上
+io.rancher.scheduler.affinity:host_label_soft | key1=value1,key2=value2 | 容器**应该**被部署到具有标签`key1=value1`和`key2=value2”`的主机
+io.rancher.scheduler.affinity:host_label_ne | key1=value1,key2=value2 | 容器**不能**被部署到具有标签`key1=value1`或`key2=value2`的主机
+io.rancher.scheduler.affinity:host_label_soft_ne | key1=value1,key2=value2 | 容器**不应该**被部署到具有标签`key1=value1`或`key2=value2`的主机
+io.rancher.scheduler.affinity:container_label | key1=value1,key2=value2 | 容器**必须**部署到具有标签`key1=value1`和`key2=value2`的容器的主机上。 注意：这些标签不必在同一个容器上。 可以在同一主机内的不同容器上。
+io.rancher.scheduler.affinity:container_label_soft | key1=value1,key2=value2 | 容器**应该**部署到具有运行标签`key1=value1`和`key2=value2`的主机上
+io.rancher.scheduler.affinity:container_label_ne | key1=value1,key2=value2 | 容器**不能**部署到具有运行标签`key1=value1`或`key2=value2`的容器的主机上
+io.rancher.scheduler.affinity:container_label_soft_ne | key1=value1,key2=value2 | 容器**不应该**被部署到具有标签`key1=value1`或`key2=value2`的容器的主机上
+io.rancher.scheduler.affinity:container | container_name1,container_name2 | 容器**必须**部署到具有名称为`container_name1`和`container_name2`运行的容器的主机上
+io.rancher.scheduler.affinity:container_soft | container_name1,container_name2 | 容器**应该**被部署到具有名称为`container_name1`和`container_name2`运行的容器的主机上
+io.rancher.scheduler.affinity:container_ne | container_name1,container_name2 | 容器**不能**部署到具有名称为`container_name1`或`container_name2`运行的容器的主机上
+io.rancher.scheduler.affinity:container_soft_ne | container_name1,container_name2 | 容器**不应该**被部署到具有容器名称为`container_name1`或`container_name2`运行的主机
