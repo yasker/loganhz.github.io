@@ -2,52 +2,53 @@
 title: Adding Amazon EC2 Hosts
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Adding Amazon EC2 Hosts
+## 添加Amazon EC2主机
 ---
 
-Rancher supports provisioning [Amazon EC2](http://aws.amazon.com/ec2/) hosts using `docker machine`.
+Rancher支持使用`docker machine`部署[Amazon EC2](http://aws.amazon.com/ec2/)。
 
-### Finding AWS Credentials
+### 找到AWS凭据
 
-Before launching a host on AWS, you'll need to find your AWS account credentials as well as your security group information. The **Account Access** information can be found using Amazon's [documentation](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSGettingStartedGuide/AWSCredentials.html) to find the correct keys. When creating an **access key** and **secret key**, please be sure to save it somewhere as it will not be available unless you create a new key pair.
+在AWS上开启一台主机之前，你需要找到你的AWS账号凭证和你的安全组信息。通过亚马逊的[文档](http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSGettingStartedGuide/AWSCredentials.html)找到正确的密钥，从而找到你的**账号访问**信息。对新创建的密钥对**access key**和**secret key**，务必将它们保存好，一旦丢失将会不可用。
 
-### Launching Amazon EC2 Host(s)
+### 启动Amazon EC2主机
 
-Under the Infrastructure -> Hosts tab, click **Add Host**. Select the **Amazon EC2** icon. Select your desired **Region**. Provide your AWS **Access key** and **Secret Key**, click on **Next: Authenticate & select a network**. Rancher will use your credentials to determine what is available in AWS to launch instances.
+通过**基础架构** -> **主机**进入主机主界面，点击**添加主机**，选中**Amazon EC2**图标，选择你所在的**区域**，并提供你访问AWS的密钥对**Access key**和**Secret Key**，点击**下一步：验证及选择网络**。Rancher将会根据你提供的凭据决定是否在AWS上创建新的实例。
 
-You'll need to select the availability zone to create the instance. Depending on which zone that you select, the available VPC IDs and Subnet IDs will be displayed. Select a **VPC ID** or **Subnet ID**, and click on **Next: Select a Security Group**.
+为了创建实例，你需要选择一个可用的区域，根据你选择的区域，会显示可用的VPC IDs和Subnet IDs，选择一个**VPC ID**或者**子网ID**，并点击**下一步：选择一个安全组**.
 
-Next, you'll select a security group to use for the hosts. There are two choices for security groups. The **Standard** option will create or use the existing `rancher-machine` security group. If Rancher creates the `rancher-machine` security group, it will open up all the necessary ports to allow Rancher to work successfully. `docker machine` will automatically open up port `2376`, which is the Docker daemon port.
+接下来，为你的主机使用选择一个安全组，这里有两种模式可供选择。一种是**Standard**，该模式将会创建或者直接使用已经存在的`rancher-machine`安全组，这种安全组默认会开放所有必要的端口，以便Rancher能够正常工作。`docker machine`将会自动打开`2376`，该端口是Docker守护进程用到的端口。
 
-In the **Custom** option, you can choose an existing security group, but you will need to ensure that specific ports are open in order for Rancher to be working correctly.
+另一种是**Custom**，该模式下你可以选择一个存在的安全组，但是需要自己确定指定的端口已经打开，以便Rancher能够正常工作。
 
 <a id="EC2Ports"></a>
 
-### Required Ports for Rancher to work:
+### Rancher需要用到的端口：
 
- * From the rancher server to TCP port `22` (SSH to install and configure Docker)
- * If you are using the IPsec [networking driver]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/), from and to all other hosts on UDP ports `500` and `4500`
- * If you are using the VXLAN [networking driver]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/), from and to all other hosts on UDP ports `4789`
+* Rancher server访问的TCP端口 `22` (通过SSH安装和配置Docker)
+* 如果你正在使用IPsec [网络驱动]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/), 所有主机都需要打开UDP端口`500`和`4500`
+* 如果你正在使用VXLAN [网络驱动]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/), 所有主机需要打开UDP端口`4789`
 
-> **Note:** If you re-use the `rancher-machine` security group, any missing ports in the security group will not be re-opened. You will need to check the security group in AWS if the host does not launch correctly.
+> **注意：** 如果你再次使用`rancher-machine`安全组, 之前任何丢失的端口都不会再次打开。如果主机没有正常启动，你需要检查一下AWS上的安全组。
 
-After choosing your security option, click on **Next: Set Instance Options**.
+选择安全组选项之后，点击**下一步：设置实例选项**。
 
-Finally, you'll just need to finish filling out the final details of the host(s).
+最后，你只需要完成填写主机的的一些细节信息。
 
-1. Select the number of hosts you want to launch using the slider.
-2. Provide a **Name** and if desired, **Description** for the host.
-3. Select the **Instance Type** that you want launched.
-4. Select the **Root Size** of the image. The default in `docker machine` is 16GB, which is what we have defaulted in Rancher.
-5. (Optional) For the **AMI**, `docker machine` defaults with an Ubuntu 16.04 LTS image in the specific region. You also have the option to select your own AMI. If you select your own AMI, please make sure of the following:
-   1. It's available in your previously selected region
-   2. You define the correct **SSH User**. When using a [RancherOS AMI](https://github.com/rancher/os#amazon), this should be `rancher`.
-6. (Optional) Provide the **IAM Profile** to be used as an instance profile.
-7. (Optional) Add **[labels]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#labels)** to hosts to help organize your hosts and to [schedule services/load balancers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/) or to [program external DNS records using an IP other than the host IP]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/#using-a-specific-ip-for-external-dns).
-8. (Optional) In **Advanced Options**, customize your `docker-machine create` command with [Docker engine options](https://docs.docker.com/machine/reference/create/#specifying-configuration-options-for-the-created-docker-engine).
-9. When complete, click **Create**.
+1. 使用滚动条选择需要启动的主机的数量。
+2. 如果需要为主机提供一个**名字**和**描述**。
+3. 根据你的需要选择**实例类型**。
+4. 选择镜像的**根大小**，`docker machine`中默认大小为16G，这也是Rancher默认需要的大小。
+5. (可选) 对于**AMI**，`docker machine` 默认是该特定区域的一个Ubuntu 16.04 LTS镜像。你也可以选择你自己的AMI，但是如果你选择自己的AMI，请确保以下几点：
+   1. 在前面选中的区域中是可访问的；
+   2. 定义正确的**SSH User**。如果是使用的[RancherOS AMI](https://github.com/rancher/os#amazon)，SSH User就应该是`rancher`。
+6. (可选)提供用作实例概要的**IAM简介**。
+7. (可选)向主机添加**[标签]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#labels)**，以帮助组织主机并[调度服务/负载均衡器]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/)或者是[使用除主机IP之外的其他IP解析外部DNS记录]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/#using-a-specific-ip-for-external-dns)。
+8. (可选)在***高级选项**中，你可以定制`docker-machine create`命令[Docker引擎配置选项](https://docs.docker.com/machine/reference/create/#specifying-configuration-options-for-the-created-docker-engine)。
+9. 完成之后，点击**创建**。
 
-Rancher will create the EC2 instance(s) and launch the _rancher-agent_ container in the instance. In a couple of minutes, the host will be active and available for [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/).
+
+Rancher将会创建EC2的实例，并在实例中开启 _rancher-agent_ 容器。几分钟之后，主机将会启动并正常提供[服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/)。

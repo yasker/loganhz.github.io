@@ -2,38 +2,38 @@
 title: Accounts in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Accounts
+## 账户
 ---
 
-### What are Accounts?
+### 什么是账户?
 
-Every user who has access to Rancher has an account in Rancher. For local authentication setups, you create accounts for users, where as for other authentication providers, an account is created for the user when they have logged into Rancher.
+有权访问Rancher的每个用户都有Rancher帐号。对于本地身份验证设置，你可以为用户创建帐户，对于其他身份验证提供者，当用户登录到Rancher时，会为该用户创建一个帐户。
 
-#### Active Directory/GitHub/OpenLDAP Authentication
+#### AD域/GitHub/OpenLDAP验证
 
-When [Active Directory]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#active-directory), [Azure AD]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#azure-ad), [GitHub]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#github), or [OpenLDAP]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#openldap) authentication is enabled, the **Accounts** tab displays the list of users who have logged in and authenticated against Rancher. In order to log in, they must be either given the privilege to have the [site access]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#site-access) or added to an [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/).
+当[AD域]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#active-directory)，[Azure AD]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#azure-ad)，[GitHub]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#github)，或者[OpenLDAP]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#openldap)验证开启的时候，**帐户**选项卡显示已登录并针对Rancher进行身份验证的用户列表。为了登录，它们必须被赋予[访问站点]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#site-access)的权限或被添加到[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)中。
 
-#### Local Authentication
+#### 本地验证
 
-When [local authentication is enabled]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#local-authentication), accounts can be added to Rancher in the **Accounts** tab. Click the **Add Account** button to add accounts into the Rancher database. When creating accounts, the account type can be specified as an admin or user.
+[启用本地身份验证]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#local-authentication)后，帐户可以在**帐户**选项卡中添加到Rancher。点击**添加帐户**按钮将帐户添加到Rancher数据库。创建帐户时，帐户类型可以指定为管理员或用户。
 
-### Account Types
+### 账户类型
 
-The account type determines whether or not an account will have access to the admin tab. For each environment in Rancher, there are [membership roles]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#membership-roles) that provide different level of access for a specific environment.
+帐户类型确定帐户是否可以访问管理员选项卡。对于Rancher中的每个环境，都有一个[成员角色]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#membership-roles)，为特定环境提供不同的访问级别。
 
-#### Admin
+#### 管理员
 
-The first user that authenticates Rancher becomes an admin of Rancher. Only admins will have permissions to view the **Admin** tab.
+认证Rancher的第一个用户成为Rancher的管理员。只有管理员才有权查看**管理员**标签。
 
-When managing environment, admins have the ability to view all the [environments]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) in Rancher even if the admin is not added as a member to the environment. In an admin's environment drop-down menu, the members will only see the environments that they are on the membership list.
+管理环境时，管理员可以查看Rancher中的所有[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)，即使管理员未添加为环境成员。在管理员环境下拉菜单中，成员只会看到他们在成员资格列表中的环境。
 
-Admins can add other users to be an admin of Rancher. They can change a user's role on the **Admin** > **Accounts** page after the user has logged into Rancher. In the **Admin** > **Accounts** tab, click  **Edit** next to the account name and change the account type to _Admin_. Click **Save**.
+管理员可以将其他用户添加为Rancher管理员。在用户登录Rancher后，他们可以在**系统管理** > **账号设置**页面更改用户的角色。在**系统管理** > **账号设置**页面中，点击账号旁边的**编辑**，并将账号类型更改为_管理员_。点击**保存**。
 
-#### Users
+#### 用户
 
-Besides the user that authenticates Rancher, any other user will automatically be added with user permissions. They will not be able to see the **Admin** tab.
+除了认证Rancher的用户，任何其他用户都将自动添加用户权限。他们将无法看到**管理员**标签。
 
-They will only be able to view the environments that they are members of.
+他们只能查看他们所属的环境。

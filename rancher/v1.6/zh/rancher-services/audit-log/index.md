@@ -2,15 +2,15 @@
 title: Audit Logging in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Audit Logging
+## 审计日志
 ---
 
-Only [admins]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#admin) will have access to the audit logs. The audit log can be found under **Admin** -> **Audit Log**.
+只有[admins]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/#admin)用户有权限访问审计日志。审计日志在**系统管理**->**审计日志**。
 
-Rancher's audit logs are a compilation of different event types.
+Rancher的审计日志是不同事件类型的集合。
 
-* Anything prefixed with `api` is a call to our API. The event type will log the API action, who performed the action and how the API was called (i.e. through the UI, through an API key).
-* Any other events that are **not** prefixed with `api` are events that Rancher server is doing. For example, during reconciling of containers of a service, an instance may be created which would log an `instance.create` event.
+* 任何带有前缀`api`的事件是API的一次调用。事件类型将记录API操作，谁执行的操作以及API调用的方式（即通过UI，通过API密钥）。
+* 任何没有带`api`前缀的事件都是Rancher服务器正在做的事情。例如，在协调服务的容器期间，可能会创建一个将记录`instance.create`事件的实例。

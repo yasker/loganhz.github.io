@@ -2,20 +2,20 @@
 title: DNS Service in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## DNS Service
+## DNS服务
 ---
 
-Rancher provides an infrastructure service for a distributed DNS service by using its own lightweight DNS server coupled with a highly available control plane. Each healthy container is automatically added to the DNS service when linked to another service or added to a Service Alias. When queried by the service name, the DNS service returns a randomized list of IP addresses of the healthy containers implementing that service.
+Rancher通过使用自己的轻量级DNS服务器和高可用性的控制平面来为分布式DNS服务提供基础架构服务。 每个健康容器在链接到另一个服务或添加一个服务别名时将自动被添加到DNS服务。当使用服务名称查询时，DNS服务返回实施该服务的健康容器的IP地址的随机列表。
 
-* By default, all services within the same stack are added to the DNS service without requiring explicit service links, which can be set under **Service Links** in a service.
-* You can resolve containers within the same stacks by the service names.
-* If you need a custom DNS name for your service, that is different from your service name, you will be required to set a link to get the custom DNS name.
-* Links are still required if a Service Alias is used.
-* To make services resolvable that are in different stacks, you can use `<service_name>.<stack_name>` and are not required explicit links, which can be set under **Service Links** in a service.
+* 默认情况下，同一栈中的所有服务都将添加到DNS服务中，而不需要显示的服务链接，该链接可以在服务中的**服务链**下进行设置。
+* 您可以通过服务名称解析相同堆栈中的容器。
+* 如果你需要一个与服务名称不同的自定义的DNS名称，你需要设置一个链接以获取自定义的DNS名称。
+* 如果使用服务别名，则仍然需要链接。
+* 要使不同栈中的服务可解析，可以使用`<服务名>.<栈名>`，并且不需要显示链接，可以在服务中的**服务链接**下设置。
 
-Because Rancher’s overlay networking provides each container with a distinct IP address, you do not need to deal with port mappings and do not need to handle situations like duplicated services listening on different ports. As a result, a simple DNS service is adequate for handling service discovery.
+因为Rancher的overlay网络为每个容器提供了不同的IP地址，所以不需要处理端口映射，并且不需要处理像重复的服务在不同端口上侦听的情况。因此，简单的DNS服务足以处理服务发现。
 
-Learn more about the internal DNS service for [Cattle environments]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/internal-dns-service/).
+了解更多关于[Cattle环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/internal-dns-service/)的内部DNS服务。
