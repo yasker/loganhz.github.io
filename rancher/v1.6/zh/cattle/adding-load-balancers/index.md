@@ -2,65 +2,70 @@
 title: Load Balancers
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Load Balancers
+## 负载均衡
 ---
 
-Rancher provides the ability to use different load balancer drivers within Rancher. A load balancer can be used to distribute network and application traffic to individual containers by adding rules to target services. Any target service will have all its underlying containers automatically registered as load balancer targets by Rancher. With Rancher, it's easy to add a load balancer to your stack.
+Rancher支持使用多种负载均衡驱动，通过在它之上建立代理规则，可以将网络及应用流量分发至指定的容器中。任何同一组服务中的容器都已经被Rancher自动注册为负载均衡的目标。在Rancher中，将负载均衡加入到应用中是一件非常容易的事情。
 
-By default, Rancher has provided a managed load balancer using HAProxy that can be manually scaled to multiple hosts. The rest of our examples in this document will cover the different options for load balancers, but specifically referencing our HAProxy load balancer service. We are planning to add in additional load balancer providers, and the options for all load balancers will be the same regardless of load balancer provider.
+默认情况下，Rancher提供一个基于HAProxy的托管的负载均衡，它可以被手动拓展至多台主机。在接下来的例子中将会涉及到负载均衡中不同的配置项，这些配置项主要以HAProxy为参考。我们计划支持除HAProxy以外的其他负载均衡机制，但这些配置项都会是相同的。
 
-We use a round robin algorithm to distribute traffic to the target services. The algorithm can be customized in the [custom HAProxy configuration](#custom-haproxy-configuration). Alternatively, you can configure the load balancer to route traffic to target containers that are on the same host as the load balancer container. By adding a [specific label]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#target-service-labels) to the load balancer, it will configure the load balancer to target either only the container on the same host as the load balancer (i.e. `io.rancher.lb_service.target=only-local`) or prioritize these containers over containers on a different host (i.e. `io.rancher.lb_service.target=prefer-local`).
+我们使用round robin算法分发流量至目标服务。这个算法可在[custom HAProxy configuration](#custom-haproxy-configuration)中自主配置。
+另外，你可以配置负载均衡来将流量分发至与负载均衡容器处于同一台主机中的目标容器。通过给负载均衡一个特定的label({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#target-service-labels)，能够将负载均衡的目标限定在同一台主机中的目标容器（i.e. `io.rancher.lb_service.target=only-local`），或者优先转发至同一台主机中的目标容器(i.e. `io.rancher.lb_service.target=prefer-local`)。
 
-We'll review the options for our load balancer for the [UI](#load-balancer-options-in-the-UI) and [Rancher Compose](#load-balancer-options-in-rancher-compose) and show examples using the [UI]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/#adding-a-load-balancer-in-the-ui) and [Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/#adding-a-load-balancer-with-rancher-compose).
+我们将会对负载均衡的配置项在[UI](#load-balancer-options-in-the-UI) 和 [Rancher Compose](#load-balancer-options-in-rancher-compose)上做检查，并且给出[UI]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/#adding-a-load-balancer-in-the-ui) 和 [Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/#adding-a-load-balancer-with-rancher-compose) 的用例。
 
-### Adding a Load Balancer in the UI
+### 如何在UI上新增一个负载均衡
 
-We'll walk through how to set up a load balancer for our "letschat" application created earlier in the [adding services section]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#adding-services-in-the-ui).
+我们将为我们在[adding services section]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#adding-services-in-the-ui)中创建的“letschat”应用新增一个负载均衡.
 
-First, you start by creating a load balancer, by clicking on the dropdown icon next to "Add Service" and clicking **Add Load Balancer**. By default, the scale will be of 1 container. Provide a name like "LetsChatLB".
+首先，我们从添加一个负载均衡服务开始，点击”添加服务“旁边的下拉图标，找到**添加负载均衡**并点击它。
 
-For the port rules, use the default `Public` access, the default `http` protocol, a source port of `80`, select the "letschat" service, and use a target port of `8080`. Click on **Create**.
+进入添加页面后，容器`数量`默认是1，填入“名称”，如“LetsChatLB”。
 
-Now, let's see the load balancer in action. In the stack view, there is a link to  port `80` that you've used as the source port for your load balancer. If you click on it, it will automatically bring up a new tab in your browser and point to one of the hosts that has the load balancer launched. The request is re-directed to one of the "LetsChat" containers. If you were to refresh, the load balancer would redirect the new request to the other container in the "letschat" service.
+`端口规则`下，`访问`选择默认的`公开`，`协议`选择默认的`HTTP`。请求`端口`填入`80`，`目标`选择`letschat`服务， 并且端口填入`8080`。
 
-### Load Balancer Options in the UI
+点击**创建**。
 
-Rancher provides a load balancer running HAProxy software inside the container to direct traffic to the target services.
+现在，让我们来实际感受一下负载均衡。在stack视图下， 有一个连接到`80`端口的连接，这是你用在负载均衡中的源端口。如果你点击它，将会在你的浏览器中自动新开一个tab，并指向负载均衡服务所在的主机。请求将会被重定向到其中一个”LetsChat“容器。如果你刷新浏览器，负载均衡服务会把新的请求重定向到“LetsChat”服务下的其他容器中。
 
-> **Note:** Load balancers will only work for services that are using the managed network. If you select any other network choice for your target services, it will **not** work with the load balancer.
+### 页面上的负载均衡选项
 
-You add a load balancer by clicking the dropdown icon next to the **Add Service** button and selecting **Add Load Balancer**.
+Rancher提供一个基于HAProxy的容器来重定向流量至目标服务。
 
-You can use the slider to select the scale, i.e. how many containers of the load balancer. Alternatively, you can select **Always run one instance of this container on every host**. With this option, your load balancer will scale for any additional hosts that are added to your [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/). If you have scheduling rules in the **Scheduling** section, Rancher will only start containers on the hosts that meet the scheduling rules. If you add a host to your environment that does not meet the scheduling rules, a container will not be started on the host.
+> **注意** 负载均衡只会在那些使用`托管`网络的服务中生效，其他网络模式都不会生效。
 
-> **Note:** The scale of the load balancer cannot exceed the number of hosts in the environment, otherwise there will be a port conflict and the load balancer service will be stuck in an activating state. It will continue to try and find an available host and open port until you edit the scale of this load balancer or [add additional hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/).
+点击**添加服务**旁边的下拉图标，找到**添加负载均衡**并点击它。
 
-You will need to provide a **Name** and if desired, **Description** of the load balancer.
+你能使用滑块选择`数量`，就是负载均衡使用多少个容器。或者，你可以选择`总是在每台主机上运行一个此容器的实例`。使用这一个选项, 你的负载均衡容器数量将会随着你 [环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)下的主机数量增减而增减。如果你在**调度**部分设定了调度规则，Rancher将会在满足规则的主机上启动负载均衡。如果你的环境下新增了一台不满足调度规则的主机，负载均衡容器不会在这一台主机中启动。
 
-Next, you'll define the port rules for a load balancer. There are two types of port rules that can be created. There are service rules that target existing services and selector rules that will target services that match the selector criteria.
+> **注意:** 负载均衡容器的扩缩容不能超过环境下主机的数量，否则会造成端口冲突，负载容器服务将会被阻碍在`activating`状态。它会不断去尝试寻找可用的主机并开启端口，直到你修改它的数量或者[添加主机]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/).
 
-When creating service and selector rules, the hostname and path rules are matched top-to-bottom in the order shown in the UI.
+你需要提供负载均衡的**名称**，如果有需要的话，你可以添加**描述**。
 
-#### Service rule
+接下来，你可以定义负载均衡的端口规则。有两种规则类型可供创建。用于目标为特定的已存在的服务的`服务规则`和用于匹配一定选择规则的`选择器规则`。
 
-Service rules are port rules to target existing services in Rancher.
+当创建了多条服务和选择器规则的时候，请求头和路径规则将会自顶向下按显示在UI上的顺序匹配。
 
-In the **Access** section, you will decide if this load balancer port will be accessible publicly (i.e. accessible outside of the host) or only internally in the environment. By default, Rancher has assumed you want the port to be public, but you can select `Internal` if you want the port to only be accessed by services within the same environment.
+#### 服务规则
 
-Select the **Protocol**. Read more about our [protocol options](#protocol).  If you choose to select a protocol that requires SSL termination (i.e. `https` or `tls`), you will add in your certificates in the **SSL Termination** tab.
+服务规则指的是目标为Rancher中已有服务的端口规则。
 
-Next, you'll provide the **request host**, **source port** and **path** for where the traffic will be coming from.
+在**访问**选项栏中，你可以决定是否这个负载均衡端口可以被公网访问（就是说是否可以从主机以外访问）或者仅仅在环境内部访问。默认情况下，Rancher假定你希望被公网访问，但是如果你希望仅仅在环境内部被访问，你可以选择`内部`。
 
-> **Note:** Port `42` cannot be used as a source port for load balancers because Rancher uses this port for [health checks]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks).
+选择`协议`选项栏。获取更多关于我们[协议选项](#protocol)的信息。如果你选择了需要SSL终端（如 `https` or `tls`），你将需要在`SSL终端`标签页中新增你的认证信息。
 
-##### Request Host/Path
+接下来，你可以针对流量的来源填写**请求头信息**, **端口** 和 **路径**。
 
-The request host can be a specific HTTP host header for each service. The request path can be a specific path. The request host and request path can be used independently or in conjunction to create a specific request.
+> **注意:** `42` 端口 不能被用作负载均衡的源端口，因为它被用于[健康检查]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks)。
 
-###### Example:
+##### 请求头信息／路径
+
+请求头信息可以是一个特定的HTTP请求头中的host。请求路径可以是一段特殊的路径。你可以任意设置其中一个或者两者都设置。
+
+###### 例子:
 
 ```
 domain1.com -> Service1
@@ -70,58 +75,59 @@ domain3.com -> Service1
 domain3.com/admin -> Service2
 ```
 
-###### Wildcards
+###### 通配符
 
-Rancher supports wildcards when adding host based routing. The following wildcard syntax is supported.
+当基于路由添加源主机时，Rancher支持通配符。所支持的语法如下。
 
 ```
 *.domain.com -> hdr_end(host) -i .domain.com
 domain.com.* -> hdr_beg(host) -i domain.com.
 ```
 
-##### Target Service and Port
+##### 目标服务和端口
 
-For each service rule, you select the specific **target** service to direct traffic to. The list of services is based on all the services within that environment. Along with the service, you select which **port** to direct the traffic to on the service. This private port on the service is typically the exposed port on the image.
+每一个服务规则，你都可以选择你想要的**目标**服务。这些服务列表是基于该环境下所有的服务清单的。每一个服务，你还能选择与之配套的端口。服务上的私有端口通常就是镜像所暴露的端口。
 
-#### Selector rule
+#### 选择器规则
 
-For a selector rule, instead of targeting a specific service, you would provide a [selector value]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/labels/#selector-labels). The selector is used to pick up target services based on the labels of a service. When the load balancer is created, the selector rules will be evaluated against any existing services in the environment to see if there are any existing target services. Any additional services or changes to labels on a service would be compared against the selector values to see if the service should be a target service.
+在选择器规则中，你需要填写一个[选择器值]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/labels/#selector-labels)而不是特定的服务。选择器基于服务的标签来选择目标服务。当负载均衡被创建的时候，选择器规则将会针对环境下现有的任一一个服务来计算看是否有可匹配的服务。后面新增的服务或者对标签进行修改都会拿来与选择器值进行匹配。
 
-For each **source port**, you can add in **request host** and/or **path**. The [selector value]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/labels/#selector-labels) is provided under **target** and you can provide a specific **port** to direct the traffic to on the service. This private port on the service is typically the exposed port on the image.
+对于每一个**源端口**，你都可以添加相应的**请求头信息**或**路径**。[选择器值]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/labels/#selector-labels)是基于**目标**的，你能指定一个特定的**端口**接收转发到服务上的流量。服务上的私有端口通常就是镜像所暴露的端口。
 
-##### Example: 2 Selector Rules
+##### 例子: 2 选择器规则
 
-1. Source Port: `100`; Selector: `foo=bar`; Port: `80`
-2. Source Port: `200`; Selector: `foo1=bar1`; Port: `80`
+1. 源端口: `100`; 选择器: `foo=bar`; 端口: `80`
+2. 源端口: `200`; 选择器: `foo1=bar1`; 端口: `80`
 
-* Service A has a `foo=bar` label and would match the first selector rule. Any traffic to `100` would be directed to Service A.
-* Service B has a `foo1=bar` label and would match the second selector rule. Any traffic to `200` would be directed to Service B.
-* Service C has both `foo=bar` and `foo1=bar1` labels and match both selector rules. Traffic from either source port would be directed to Service C.
+* 服务A有一个 `foo=bar` 标签，它将会匹配第一条规则. 任何指向`100`的流量都会被转发到服务A。
+* 服务B有一个`foo1=bar` 标签，它将会匹配第二条规则. 任何指向`200`的流量都会被转发到服务B。
+* 服务C有`foo=bar`和`foo1=bar1`两个标签，它将会匹配两条规则. 任何指向`200`和`100`的流量都会被转发到服务C.
 
-> **Note:** Currently, if you want to use one selector source port rule for multiple hostnames/paths, you would need to use [Rancher Compose](#selector) to set the hostname/path values on the target services.
+> **注意:** 目前，如果你想要将一条选择器规则应用于多个主机名／路径上，你需要使用[Rancher Compose](#selector)在目标服务上去设置主机名／路径。
 
-#### SSL Termination
+#### SSL会话终止
 
-The **SSL Termination** tab provides the ability to add certificates to use for the `https` and `tls` protocols. In the **Certificate** dropdown, you can select the main certificate for the load balancers.
+**SSL会话终止**标签提供了添加用于`https`和`tls`协议证书的能力。在**证书**下拉框中，你可以为负载均衡选择主证书。
 
-To add a certificate to Rancher, please read about [how to add certificates in the **Infrastructure** tab]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/).
+添加证书前，请阅读[how to add certificates in the **Infrastructure** tab]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/).
 
+为负载均衡添加多个证书时可以实现的。这样相应的证书会基于请求主机名(查看 [Server Name Indication](https://en.wikipedia.org/wiki/Server_Name_Indication))展示给客户端。这个功能可能在那些不支持SNI(它会获取主要证书)的老客户端上失效。对于现代客户端，我们会在能匹配到的列表中提供证书，如果没有匹配成功，就会提供主证书。
 It is possible to provide multiple certificates for the load balancer such that the appropriate certificate is presented to the client based on the hostname requested (see [Server Name Indication](https://en.wikipedia.org/wiki/Server_Name_Indication)). This may not work with older clients, which don't support SNI (those will get the main certificate). For modern clients, they will be offered the certificate from the list for which there is a match or the main certificate if there is no match.
 
-#### Stickiness Policy for Load Balancers
+#### 负载均衡的会话粘性
 
-You can select the **Stickiness** of the load balancer. Stickiness is the cookie policy that you want to use for when using cookies of the website.
+你可以点击选择负载均衡的**会话粘性**。会话粘性就是你的cookie策略。
 
-The two options supported in Rancher are:
+Rancher支持以下两种选项：
 
-* **None**: This option means that no cookie policy is in place.
-* **Create new cookie**: This option means that the cookie will be defined outside of your application. This cookie is what the load balancer would set on requests and responses. This cookie would determine the stickiness policy.
+* **无**: 这个选项意味着不会设置cookie策略
+* **创建新的Cookie**: 这个选项意味着在你的应用之外会创建cookie。这个cookie就是负载均衡设置在请求与响应中的。这就是会话粘性策略。
 
-#### Custom HAProxy Configuration
+#### 自定义haproxy.cfg
 
-Since Rancher is using an HAProxy specific load balancer, you can customize the HAProxy configuration of the load balancer. Whatever you define in this section will be appended to the configuration generated by Rancher.
+由于Rancher基于HAProxy来搭建负载均衡，所以你能自定义HAproxy的配置。你在这里定义的配置都会覆盖Rancher生成的配置。
 
-##### Example of a Custom HAProxy Configuration
+##### 自定义HAProxy配置的例子
 
 ```
 global
@@ -147,19 +153,21 @@ backend customUUID
     server $IP <server parameters>
 ```
 
-#### Labels/Scheduling Load Balancers
+#### 标签／调度负载均衡
 
-We provide the ability to add labels to load balancers and schedule where the load balancer will be launched. Read more details about labels and scheduling [here]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#scheduling-options-in-the-ui).
+我们支持向向负载均衡添加标签并且调度负载均衡在哪启动。[撮这]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#scheduling-options-in-the-ui)查看更多关于标签和调度的信息。
 
-### Adding a Load Balancer with Rancher Compose
+### 用Rancher Compose 添加负载均衡
 
-We'll walk through how to set up a load balancer for our "letschat" application created earlier in the [adding services section]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#adding-services-with-rancher-compose).
+在这，我们将一步步为我们之前在[创建服务章节]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#adding-services-with-rancher-compose)创建的"letschat"应用设置一个负载均衡。
 
-Read more about how to [set up Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/rancher-compose/).
+[戳这]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/rancher-compose/)查看更多关于如何配置一个Rancher Compose。
 
 > **Note**: In our examples, we will use `<version>` as the image tag for our load balancers. Each version of Rancher will have a specific version of `lb-service-haproxy` that is supported for load balancers.
 
-We'll set up the same example that we used above in the UI example. To get started, you will need to create a `docker-compose.yml` file and a `rancher-compose.yml` file. With Rancher Compose, we can launch the load balancer.
+> **注意**: 在我们的例子中，我们会使用`<version>`作为负载均衡镜像的标签。每一个Rancher版本都有特定的，被负载均衡所支持的`lb-service-haproxy`版本。
+
+我们将会建立一个和我们上面在UI中所使用到的例子一样范例。首先你需要创建一个`docker-compose.yml`文件和一个`rancher-compose.yml`文件。使用Rancher Compose，我们可以启动一个负载均衡
 
 #### Example `docker-compose.yml`
 
@@ -192,23 +200,23 @@ services:
       response_timeout: 2000
 ```
 
-### Load Balancer Options in Rancher Compose
+### Rancher Compose 中的负载均衡配置
 
-Rancher provides a load balancer running HAProxy software inside the container to direct traffic to the target services.
+Rancher 提供一个基于HAProxy的容器来做负载均衡。
 
-> **Note:** Load balancers will only work for services that are using the managed network. If you select any other network choice for your target services, it will **not** work with the load balancer.
+> **注意:** 负载均衡仅仅在使用托管网络的服务中生效。其他的网络选择都不会生效。
 
-A load balancer can be scheduled like any other service. Read more about [scheduling]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#adding-labels-in-rancher-compose) load balancers using Rancher Compose.
+负载均衡可以像其他任何一个服务一样被调度。[戳这]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/#adding-labels-in-rancher-compose)获取更多关于在Rancher Compose中使用负载均衡的例子。
 
-Load balancing is configured with a combination of ports exposed on a host and a load balancer configuration, which can include specific port rules for each target service, custom configuration and stickiness policies.
+负载均衡由暴露在主机上的端口和负载均衡配置组成，这些配置包括针对不同目标服务的特定端口规则，自定义配置和会话粘性策略。
 
-When working with services that contain [sidekicks]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#sidekick-services), you need to use the [primary service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#primary-service) as a target service, which is the service that contains the `sidekick` label.
+当与含有[sidekicks]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#sidekick-services)的服务一起使用的时候，你需要将[primary service]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#primary-service)作为目标服务，就是那些含有`sidekick`标签的服务。
 
-### Source Ports
+### 源端口
 
-When creating a load balancer, you can add any ports you want exposed on the host. Any of these ports can be used as source ports in the port rules of a load balancer. If you want an internal load balancer, you would not expose any ports on the load balancer, and only add in port rules in the load balancer configuration.
+当创建一个负载均衡的时候，你可以将任意一个你想要的端口暴露在主机上。这些端口都可以被用做负载均衡的源端口。如果你想要一个内部的负载均衡，就不要暴露任何端口在负载均衡上，只需要在负载均衡配置中添加端口规则。
 
-> **Note:**  Port `42` cannot be used as a port for load balancers because it's internally used for [health checks]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks).
+> **注意:** `42` 端口 不能被用作负载均衡的源端口，因为它被用于[健康检查]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks)。
 
 #### Example `docker-compose.yml`
 
@@ -227,7 +235,7 @@ services:
 
 ### Load Balancer configuration
 
-All load balancer configuration options are defined in the `rancher-compose.yml` under the `lb_config` key.
+所有负载均衡的配置项都被定义在`rancher-compose.yml`的`lb_config`字段中
 
 ```yaml
 version: '2'
@@ -250,49 +258,49 @@ services:
     scale: 2
 ```
 
-#### Port rules
+#### 端口规则
 
-Port rules are defined in the `rancher-compose.yml`. Since port rules are defined individually, there may be multiple port rules defined for the same service. By default, Rancher will prioritize these port rules based on a specific priority ordering. If you would like to change the ordering of the prioritization, you can also set a specific [priority](#priority) order of the rules.
+端口规则是定义在`rancher-compose.yml`中的。因为端口规则是单独定义的，会有许多不同的端口指向同一个服务。默认情况下，Rancher将会优先使用那些基于特定的优先级顺序的端口。如果你想要改变这些优先级顺序，你需要设定特定的优先级规则。
 
-#### Default Priority Order
+#### 默认优先级顺序
 
-1. Hostname with no wildcards and URL
-2. Hostname with no wildcards
-3. Hostname with wildcards and URL
-4. Hostname with wildcards
+1. 没有通配符和URL的主机名
+2. 没有通配符的主机名
+3. 有通配符和URL的主机名
+4. 有通配符的主机名
 5. URL
-6. Default (no hostname, no URL)
+6. 默认(没有主机名，没有URL)
 
-##### Source Port
+##### 源端口
 
-The source port is one of the ports exposed on the host (i.e. a port that is in the `docker-compose.yml`).
+源端口是值暴露在主机上的某个端口（也就是定义在`docker-compose.yml`中的端口）。
 
-If you want to create internal load balancer, then the source port does not need to match any of the ports in the `docker-compose.yml` file.
+如果你想要创建一个内部负载均衡，那么源端口酒不需要与`docker-compose.yml`中定义的任意一个匹配。
 
-##### Target Port
+##### 目标端口
 
-The target port is the private port on the service. This port correlates to the port exposed on the image used to start your service.
+目标端口是服务内部端口。这个端口就是用于启动你容器的镜像所暴露的端口。
 
-##### Protocol
+##### 协议
+　　　
+Rancher 的负载均衡支持多种协议类型。
 
-There are multiple protocol types that are supported in the Rancher load balancer drivers.
+* `http` - 默认情况下，如果没有设置任何协议，负载均衡就会使用`http`。HAProxy 不会对流量做任何解析，仅仅是转发。
+* `tcp` - HAProxy 不会对流量做任何解析，仅仅是转发。
+* `https` - 需要设置SSL会话终结。流量将会被HAProxy使用[证书]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/)解密，这个证书必须在设定负载均衡之前被添加入Rancher。被流量负载均衡所转发的流量是没有加密的。
+* `tls` - 需要设置SSL会话终结。流量将会被HAProxy使用[证书]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/)解密，这个证书必须在设定负载均衡之前被添加入Rancher。被流量负载均衡所转发的流量是没有加密的。
+* `sni` - 流量从负载均衡到服务都是被加密的。多个证书将会被提供给负载均衡,这样负载均衡就能将合适的证书基于主机名展示给客户端。 戳[Server Name Indication](https://en.wikipedia.org/wiki/Server_Name_Indication) for more details）查看更多详情。
+* `udp` - Rancher 的HAProxy不支持.
 
-* `http` - By default, if no protocol is set, the load balancer uses `http`. HAProxy doesn't decrypt the traffic and passes the traffic directly through
-* `tcp` - HAProxy doesn't decrypt the traffic and passes the traffic directly through
-* `https` - SSL termination is required. Traffic is decrypted by HAProxy using the provided [certificates]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/), which must be added into Rancher before being used in a load balancer. Traffic from the load balancer to the target service is unencrypted.
-* `tls` - SSL termination is required. Traffic is decrypted by HAProxy using the provided [certificates]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/), which must be added into Rancher before being used in a load balancer. Traffic from the load balancer to the target service is unencrypted.
-* `sni` - Traffic is encrypted to the load balancer and to the services. Multiple certificates are provided for the load balancer such that the appropriate certificate is presented to the client based on the hostname requested. (see [Server Name Indication](https://en.wikipedia.org/wiki/Server_Name_Indication) for more details).
-* `udp` - This is not supported for Rancher's HAProxy provider.
+其他的负载均衡技术可能只支持以上的几种。
 
-Any additional load balancer providers might support only a subset of the protocols.
+##### 主机名路由
 
-##### Hostname Routing
+主机名路由只支持`http`, `https` 和 `sni`，只有`http` 和 `https`支持路径路由。
 
-Hostname routing is only supported for `http`, `https` and `sni`. Only `http` and `https` support path based routing as well.
+##### 服务
 
-##### Service
-
-The service name that you want the load balancer to direct traffic to. If the service is in the same stack, then you use the service name. If the service is in a different stack, then you would use `<stack_name>/<service_name>`.
+服务名就是你的负载均衡的目标。如果服务在同一个应用下，你可以使用服务名。如果服务在不同的应用下，你需要使用`<应用名>/<服务名>`。
 
 ###### Example `rancher-compose.yml`
 
@@ -321,9 +329,9 @@ services:
     scale: 2
 ```
 
-##### Hostname and Path
+##### 主机名和路径
 
-Rancher's HAProxy load balancer supports L7 load balancing by being able to specify host header and path in the port rules.
+Rancher基于HAProxy的负载均衡支持七层路由，可以在端口规则下通过设定指定的主机头和路径来使用它。
 
 ###### Example `rancher-compose.yml`
 
@@ -350,18 +358,18 @@ services:
     scale: 2
 ```
 
-##### Wildcards
+##### 通配符
 
-Rancher supports wildcards when adding host based routing. The following wildcard syntax is supported.
+当基于路由添加源主机时，Rancher支持通配符。所支持的语法如下。
 
 ```
 *.domain.com -> hdr_end(host) -i .domain.com
 domain.com.* -> hdr_beg(host) -i domain.com.
 ```
 
-##### Priority
+##### 优先级
 
-By default, Rancher [prioritizes port rules](#default-priority-order) targeting the same service, but if you wanted to, you could customize your own prioritization of the port rules (lower number is higher priority).
+默认情况下，Rancher 针对同一个服务遵循[prioritizes port rules](#default-priority-order)，但是你也可以定制化你自己的优先级规则（数字越小，优先级越高）
 
 ###### Example `rancher-compose.yml`
 
@@ -393,15 +401,15 @@ services:
     scale: 2
 ```
 
-##### Selector
+##### 选择器
 
-Instead of targeting a specific service, you can set up a [selector](({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/labels/#selector-labels)). By using selectors, you can define the service links and hostname routing rules on the target service instead of on the load balancer. Services with labels matching the selector become a target in the load balancer.
+你可以通过设定[选择器](({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/labels/#selector-labels))来指定多个服务。通过使用选择器，你可以在目标服务上定义服务连接和主机名路由规则，那些标签匹配了选择器的服务将成为负载均衡的目标。
 
-When using a selector in a load balancer, the `lb_config` can be set on the load balancer and any  target services that are matching the selector.
+当使用选择器的时候，`lb_config`可以设定在负载均衡和任意一个匹配选择器的服务上。
 
-In the load balancer, the [selector value]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/labels/#selector-labels) is set in the `lb_config` under `selector`. The port rule in the `lb_config` of the load balancer cannot have a service and would typically not have a target port. Instead, the target port is set in port rules on the target service. If you choose to use hostname routing, the hostname and path would be set on the target service.
+在负载均衡器中。[选择器值]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/labels/#selector-labels) 设置在`selector`下的`lb_config`中。负载均衡的`lb_config`端口规则不能有服务，并且也不能有目标端口。目标端口是设置在目标服务的端口规则中的。如果你需要使用主机名路由，主机名和路径是设置在目标服务下的。
 
->**Note:** For any load balancers using the v1 load balancer yaml fields that uses selector labels will not be converted to the v2 load balancer as the port rules on the service would not be updated.
+>**注意:** 对于那些在v1版本yaml中使用了的选择器标签字段的负载均衡，这不会被转化成v2版本的负载均衡。因为服务上的端口规则不会更新。
 
 ###### Example `docker-compose.yml`
 
@@ -454,20 +462,20 @@ services:
     lb_config:
       port_rules:
       - target_port: 80
-        hostname: example.com/test     
+        hostname: example.com/test
 ```
 
-##### Backend Name
+##### 后台名称
 
-If you want to explicitly label your backend in your load balancer configuration, you would use the `backend_name`. This option can be useful if you want to configure custom config parameters for a particular backend.
+如果你想要清晰地在负载均衡配置中标明你的后台，你需要使用`backend_name`。如果你想要为一个某个后台自定义配置参数，这就会用得上。
 
-#### Certificates
+#### 证书
 
-If you are using `https` or `tls` [protocol](#protocol), you can use certificates that are either [added directly into Rancher]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates) or from a directory mounted in the load balancer container.
+如果你需要使用`https` 或者 `tls` [协议](#protocol), 你可以使用[直接加入Rancher]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates)或者挂载在负载均衡容器中的证书。
 
-##### Referencing Certificates that are added into Rancher
+##### 引用在Rancher中添加的证书
 
-The certificates are referenced in the `lb_config` section of the load balancer container.
+证书可以在负载均衡容器的`lb_config`中被引用。
 
 ```yaml
 version: '2'
@@ -480,17 +488,18 @@ services:
       default_cert: <defaultCertName>
 ```
 
-##### Loading Certificates into the Load Balancer container
+##### 将证书挂载进负载均衡容器
 
-_Only supported in Compose Files_
+_仅仅在Compose文件中支持_
 
-Certificates can be mounted directly into a load balancer container as a volume. The load balancer container expects the certificates to be in a specific directory structure. If you are using LetsEncrypt client to generate your certificates, then your directory structure is already configured in the format that Rancher expects. If you are not using LetsEncrypt, then the director and names of the certificates will need to be structured in a specific way.
+证书可以作为卷直接挂载进负载均衡容器。证书需要按照特定的目录结构挂载入容器。如果你使用LetsEncrypt客户端生存证书，那么它就已经满足Rancher的要求。否则，你需要手动设置目录结构，使他与LetsEncrypt客户端生成的一致。
 
-Rancher's load balancer will poll the certificate directories for updates. Any addition/removal of the certificates will be synced via polling every 30 seconds.
+Rancher的负载均衡将会检测证书目录来实现更新。任何对证书的新增／删除操作都将每30秒同步一次。
 
-All certificates will be located under a single base certificate directory. This directory name will be used in a label on the load balancer service to inform the load balancer where the certificates are.
+所以的证书都位于同一个基础的证书目录下。这个文件名将会作为负载均衡服务的一个标签，用于通知负载均衡证书的所在地。
 
-In this base directory, each certificate that is generated for a specific domain is required to be placed in a sub-directory folder. The folder name should be the domain name for the certificate and each folder should contain the private key (i.e. `privkey.pem`) and certificate chain (`fullchain.pem`). For the default certificate, it can be placed in any subdirectory name, but the files in the folder must contain the same naming conventions as the certificates (i.e. `privkey.pem` and `fullchain.pem`).
+在这个基础目录下，相同域名的证书被放置在同一个子目录下。文件名就是证书的域名。并且每一个文件夹都需要包含`privkey.pem`和
+`fullchain.pem`。对于默认证书，可以被放置在任意一个子目录名下，但是下面的文件命名规则必须保持一致。
 
 ```bash
 -- certs
@@ -505,10 +514,9 @@ In this base directory, each certificate that is generated for a specific domain
   |   |-- fullchain.pem
 ...
 ```
+当启动一个负载均衡的时候，你必须用标签声明证书的路径（包括默认证书的路径）。这样以来，负载均衡将忽略设置在`lb_config`中的证书。
 
-When launching a load balancer, you must specify the location of the certificates and the location of the default certificate by using labels. If these labels are on the load balancer, the load balancer will ignore any certificates that are in the `lb_config` key of the load balancer.
-
-> **Note:** You cannot use the certificates added into Rancher in conjunction with mounting certificates into the container through a volume.
+> **注意:** 你不能同时使用在Rancher中添加的证书和挂载在负载均衡容器中的证书
 
 ```yaml
 labels:
@@ -516,7 +524,7 @@ labels:
   io.rancher.lb_service.default_cert_dir: <DEFAULT_CERTIFICATE_LOCATION>
 ```
 
-Certificates can be mounted into the load balancer container by using host bind mounts or using a named volume with our [storage drivers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/storage-service/) as a volume drivers.
+证书可以通过绑定主机的挂载目录或者通过命名卷来挂在入负载均衡容器，命名卷可以以我们的[storage drivers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/storage-service/)为驱动。
 
 ###### Example `docker-compose.yml`
 
@@ -538,7 +546,7 @@ services:
     image: nginx:latest
     stdin_open: true
     tty: true
-```    
+```
 
 ###### Example `rancher-compose.yml`
 
@@ -568,9 +576,11 @@ services:
     start_on_create: true
 ```
 
-#### Custom configuration
+#### 自定义配置
 
 For advanced users, you can specify custom configuration to the load balancer in the `rancher-compose.yml`. Please refer to the [HAProxy documentation](http://cbonte.github.io/haproxy-dconv/configuration-1.5.html) for details on the available options you can add for the Rancher's HAProxy load balancer.
+
+高阶用户可以在`rancher-compose.yml`中声明自定义的配置。点击[HAProxy documentation](http://cbonte.github.io/haproxy-dconv/configuration-1.5.html)查看更多详情。
 
 ##### Example `rancher-compose.yml`
 
@@ -609,9 +619,9 @@ services:
     response_timeout: 2000
 ```
 
-#### Stickiness Policy
+#### 会话粘性策略
 
-If you want to specify stickiness policy, you can update the policies in `rancher-compose.yml`.
+如果你需要使用会话粘性策略，你可以更新`rancher-compose.yml`中的策略。
 
 ##### Example `rancher-compose.yml`
 
@@ -682,9 +692,9 @@ services:
     response_timeout: 2000
 ```
 
-#### Internal Load Balancer Example
+#### 内部负载均衡例子
 
-To set up an internal load balancer, no ports are listed, but you can still set up port rules to direct traffic to the service.
+设置内部负载均衡不需要列举端口，但是你仍然可以设置端口规则来转发流量。
 
 ##### Example `docker-compose.yml`
 
@@ -721,9 +731,9 @@ services:
     scale: 1
 ```
 
-#### SSL Termination Example
+#### SSL会话终止 Example
 
-The [certificates]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/) must be added into Rancher and are defined in the `rancher-compose.yml`.
+在`rancher-compose.yml`中使用的证书必须被加入到Rancher中。
 
 ##### Example `docker-compose.yml`
 
