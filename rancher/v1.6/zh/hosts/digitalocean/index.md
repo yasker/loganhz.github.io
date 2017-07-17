@@ -2,37 +2,37 @@
 title: Adding DigitalOcean Hosts
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Adding DigitalOcean Hosts
+## 添加DigitalOcean主机
 ---
 
-Rancher supports provisioning [DigitalOcean](https://www.digitalocean.com/) hosts using `docker machine`.
+Rancher 通过使用 `docker machine` 来管理 [DigitalOcean](https://www.digitalocean.com/) 提供的主机。
 
-### Finding DigitalOcean Credentials
+### 获取DigitalOcean访问凭证
 
-In order to launch a DigitalOcean host, you'll need a **Personal Access Token** provided by DigitalOcean. Log in to your DigitalOcean account.
+为了能启动 DigitalOcean 主机, 需要获取由 DigitalOcean 提供的 **Personal Access Token（私有访问令牌）** 。 首先，登录 DigitalOcean，然后：
 
-1. Navigate to the [Apps & API page](https://cloud.digitalocean.com/settings/applications).
+1. 切换到 [Apps & API（应用及接口）](https://cloud.digitalocean.com/settings/applications)页面；
 
-2. In the **Personal Access Tokens**, click on the **Generate New Token** button. Name your token (e.g. Rancher) and click **Generate Token**.
+2. 选中 **Personal Access Tokens（私有访问令牌汇总）**菜单，点击 **Generate New Token（创建新令牌）**。给新令牌起一个名称，然后点击 **Generate Token（创建令牌）**；
 
-3. Copy your **Access Token** from the UI and save it somewhere safe. This is the only time you will be able to see the access token. Next time you go to the page, the token will no longer be shown and you will not be able to retrieve it.
+3. 从界面上把 **Access Token（访问令牌）** 复制出来并妥善保管。注意，这是唯一一次可以完整的看到 access token。重新访问这个页面，将无法再看到完整的信息。
 
-### Launching DigitalOcean Host(s)
+### 启动DigitalOcean主机
 
-Now that we've saved the **Access Token**, we are ready to launch our DigitalOcean host. Under the **Infrastructure -> Hosts** tab, click **Add Host**. Select the **DigitalOcean** icon.
+接下来来启动 DigitalOcean 主机。在 Rancher 的操作界面中，选择 **Infrastructure（基础架构） -> Hosts（主机）**，点击 **Add Host（添加主机）**，选择 **DigitalOcean**图标。
 
-1. Select the number of hosts you want to launch using the slider.
-2. Provide a **Name** and if desired, **Description** for the host.
-3. Provide the **Access Token** that you have created for your DigitalOcean account.
-4. Select the **Image** that you want launched. Whatever `docker machine` supports for DigitalOcean is also supported by Rancher.
-5. Select the **Size** of the image.
-6. Select the **Region** that you want to launch in. We've provided the available regions that can be launched using metadata. Some regions may not be included as the API doesn't support it.
-7. (Optional) If you want to enable any of the advanced options (i.e. backups, IPv6, private networking), select the ones that you want to include.
-8. (Optional) Add **[labels]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#labels)** to hosts to help organize your hosts and to [schedule services/load balancers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/) or to [program external DNS records using an IP other than the host IP]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/#using-a-specific-ip-for-external-dns).
-9. (Optional) In **Advanced Options**, customize your `docker-machine create` command with [Docker engine options](https://docs.docker.com/machine/reference/create/#specifying-configuration-options-for-the-created-docker-engine).
-10. When complete, click **Create**.
+1. 拖动滑条来选择需要启动的主机数目；
+2. 输入 **Name（名称）**，需要详细备注的时候就填写 **Description（描述）**；
+3. 输入刚才获取的 **Access Token（访问令牌）**；
+4. Rancher 对 `docker machine` 的支持和 DigitalOcean 是一样的，所以选择需要启动的 **Image（镜像）** 即可；
+5. 输入 **Size（大小）**；
+6. 选择希望主机启动时所在的 **Region（地域）**，Rancher 是通过调用 DigitalOcean 的metadata来获取合适的地域列表，因此无法支持不在这个列表内的地域；
+7. 接下来是可选的。必要时，可以选择启用例如backups(备份)，IPv6，private networking(私有网络)等高级选项操作；
+8. 必要时，添加 **[labels（标签）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#labels)** 来辅助管理主机以及 [调度服务或负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/)，也可以 [通过DNS-IP映射来管理不在 Rancher 内启动的服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/#using-a-specific-ip-for-external-dns)；
+9. 必要时，通过 **Advanced Options（高级选项）**，定制化 [Docker engine options（Docker引擎选项）](https://docs.docker.com/machine/reference/create/#specifying-configuration-options-for-the-created-docker-engine) 来控制 `docker-machine create` 时用到的选项指令；
+10. 一切准备就绪后, 点击 **Create（创建）**。
 
-Once you click on create, Rancher will create the DigitalOcean droplet and launch the _rancher-agent_ container in the droplet. In a couple of minutes, the host will be active and available for [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/).
+点击创建后，Rancher 将创建 DigitalOcean 的 droplet（主机），接着在 droplet 上启动一个 _rancher-agent_的容器。几分钟之后，就可以通过 [services（服务）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) 页面看到一个Rancher的主机被启动了。

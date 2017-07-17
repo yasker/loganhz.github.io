@@ -2,37 +2,37 @@
 title: Adding Packet Hosts
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Adding Packet Hosts
+## 添加Packet主机
 ---
 
-Rancher supports provisioning [Packet](https://www.packet.net/) hosts using `docker machine`.
+Rancher 通过使用 `docker machine` 来管理 [Packet](https://www.packet.net/) 提供的主机。
 
-### Finding Packet Credentials
+### 获取Packet访问凭证
 
-In order to launch a Packet host, you'll need an **API Key**. Log in to your Packet account.
+为了能启动 Packet 主机，需要获取由 Rackspace 提供的 **API Key（接口密钥）**。首先，登录 Packet，然后：
 
-1. Navigate to the [api-key page](https://app.packet.net/portal#/api-keys). If you haven't created an api key, you'll need to add one.
+1. 切换到 [api-key（接口密钥）](https://app.packet.net/portal#/api-keys)页面，创建一个新接口密钥；
 
-2. In the new api key screen, you'll put in a description (e.g. Rancher) and click **Generate**.
+2. 在创建新接口密钥的界面上，可以给新接口密钥增加一个描述，然后点击 **Generate（创建）**；
 
-3. The newly created **Token** will be visible for you to copy and use in Rancher.
+3. 接下来可以看到新创建的 **Token（令牌）**，复制出来并妥善保管。
 
-### Launching Packet Host(s)
+### 启动Packet主机
 
-Now that we've found our **Token**, we are ready to launch our Packet host(s). Under the **Infrastructure -> Hosts** tab, click **Add Host**. Select the **Packet** icon.
+选择 **Infrastructure -> Hosts（基础架构 -> 主机）**，点击 **Add Host（添加主机）**，选择 **Packet**图标。
 
-1. Select the number of hosts you want to launch using the slider.
-2. Provide a **Name** and if desired, **Description** for the host.
-3. Provide the **API Key** that you have created from your Packet account.
-4. Provide the **Project** that you want the host to be launched. This project is found in your Packet account.
-5. Select the **Image**. Whatever `docker machine` supports for Packet is also supported by Rancher.
-5. Select the **Size** of the image.
-6. Select the **Region** that you want to launch in.
-7. (Optional) Add **[labels]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#labels)** to hosts to help organize your hosts and to [schedule services/load balancers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/) or to [program external DNS records using an IP other than the host IP]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/#using-a-specific-ip-for-external-dns).
-8. (Optional) Customize your `docker-machine create` command with [Docker engine options](https://docs.docker.com/machine/reference/create/#specifying-configuration-options-for-the-created-docker-engine).
-9. When complete, click **Create**.
+1. 拖动滑条来选择需要启动的主机数目；
+2. 输入 **Name（名称）**，需要详细备注的时候就填写 **Description（描述）**；
+3. 输入刚才获取的 **API Key（接口密钥）**；
+4. 输入希望启动的 **Project（项目）**，必须是 Packet 账户中支持的；
+5. Rancher 对 `docker machine` 的支持和 Packet 是一样的，所以选择需要启动的 **Image（镜像）** 即可；
+6. 输入 **Size（大小）**；
+7. 选择希望主机启动时所在的 **Region（地域）**
+8. 必要时，添加 **[labels（标签）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#labels)** 来辅助管理主机以及 [调度服务或负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/)，也可以 [通过DNS-IP映射来管理不在 Rancher 内启动的服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/#using-a-specific-ip-for-external-dns)；
+9. 必要时，通过 **Advanced Options（高级选项）**，定制化 [Docker engine options（Docker引擎选项）](https://docs.docker.com/machine/reference/create/#specifying-configuration-options-for-the-created-docker-engine) 来控制 `docker-machine create` 时用到的选项指令；
+10. 一切准备就绪后, 点击 **Create（创建）**。
 
-Once you click on create, Rancher will create the Packet and launch the _rancher-agent_ container. In a minute or two, the host will be active and available for [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/).
+点击创建后，Rancher 将创建 Packet 的主机，接着在主机上启动一个 _rancher-agent_的容器。几分钟之后，就可以通过 [services（服务）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) 页面看到一个 Rancher 的主机被启动了。

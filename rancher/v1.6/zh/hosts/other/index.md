@@ -2,30 +2,30 @@
 title: Adding Other Hosts
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Adding Hosts from Other Cloud Providers
+## 添加其他云提供商的主机
 ---
 
-Rancher supports provisioning from other cloud providers using `docker-machine`. The other cloud providers have a generic UI, which provides all the options in `docker-machine`, and we only require the necessary parameters.
+Rancher 支持使用 `docker machine` 来管理其他云提供商的主机服务。通过提供一个通用的界面，输入必要的参数键值对，然后作为 `docker-machine`运行的参数。
 
-Please review the Docker Machine defaults for the driver you selected to confirm that you are okay with the defaults.
+查阅 Docker Machine 的默认值文档来确保默认值符合预期想法。
 
-### Adding Additional Drivers
+### 添加云提供商的驱动
 
-If you'd like to add other drivers to your Rancher instance, an [admin]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/accounts/#admin) will need to add them in our [machine drivers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/machine-drivers/) page.
+通过 [Admin（系统管理）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/accounts/#admin)的 [machine drivers（主机驱动）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/machine-drivers/) 页面来添加。
 
-### Launching Other Host(s)
+### 启动云提供商的主机
 
-Select the **Other** icon in the **Add Host** page.
+选择 **Add Host（添加主机）** 页内的 **Other（其他）**：
 
-1. Select the number of hosts you want to launch using the slider.
-2. Provide a **Name** and if desired, **Description** for the host.
-3. Select the type of **Driver** that you'd like to use.
-4. Based on your **Driver**, the **Driver Options** section will be populated according to the available options in `docker-machine`.
-5. (Optional) Add **[labels]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#labels)** to hosts to help organize your hosts and to [schedule services/load balancers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/) or to [program external DNS records using an IP other than the host IP]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/#using-a-specific-ip-for-external-dns).
-6. (Optional) Customize your `docker-machine create` command with [Docker engine options](https://docs.docker.com/machine/reference/create/#specifying-configuration-options-for-the-created-docker-engine).
-7. When complete, click **Create**.
+1. 拖动滑条来选择需要启动的主机数目；
+2. 输入 **Name（名称）**，需要详细备注的时候就填写 **Description（描述）**；
+3. 选择要被使用的 **Driver（驱动）**；
+4. 根据选择的 **Driver（驱动）**，输入对应的 **Driver Options（驱动选项）**。这些选项参数将会直接被 `docker machine`调用；
+5. 必要时，添加 **[labels（标签）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#labels)** 来辅助管理主机以及 [调度服务或负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/scheduling/)，也可以 [通过DNS-IP映射来管理不在 Rancher 内启动的服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/external-dns-service/#using-a-specific-ip-for-external-dns)；
+6. 必要时，通过 **Advanced Options（高级选项）**，定制化 [Docker engine options（Docker引擎选项）](https://docs.docker.com/machine/reference/create/#specifying-configuration-options-for-the-created-docker-engine) 来控制 `docker-machine create` 时用到的选项指令；
+7. 一切准备就绪后, 点击 **Create（创建）**。
 
-Once you click on create, Rancher will create start a VM in your selected **Driver** using `docker-machine` and launch the _rancher-agent_ container in the VM. In a couple of minutes, the host will be active and available for [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/).
+点击创建后，Rancher 将创建选择对应 **Driver（驱动）** 的（虚拟）主机，接着在主机上启动一个 _rancher-agent_的容器。几分钟之后，就可以通过 [services（服务）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) 页面看到一个 Rancher 的主机被启动了。
