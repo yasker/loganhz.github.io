@@ -2,41 +2,45 @@
 title: Kubernetes Ingress Support in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
 ## Ingress Support
 ---
 
-Before being able to start using [Kubernetes Ingress resources](http://kubernetes.io/docs/user-guide/ingress/), you'll need to have an [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) that has an orchestation type as  Kubernetes. We also recommend [setting up `kubectl` on your local machine]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl) to make it easier to launch Kubernetes resources into Rancher. Alternatively, you can use the shell provided by the Rancher UI to launch resources.
+在开始使用 [Kubernetes Ingress](http://kubernetes.io/docs/user-guide/ingress/)资源之前，你需要准备一个Kubernetes[环境]({{site.baseurl}}/Rancher/{{page.version}}/{{page.lang}}/environments/) 。并且建议在本地电脑上[设置kubectl]({{site.baseurl}}/Rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl) ，以便更容易地将Kubernetes的资源发布到Rancher中。或者，您可以使用Rancher UI提供的shell来启动资源。
 
-The Kubernetes Ingress resource can be backed up by any load balancer of your choice, so to leverage the Rancher's load balancing functionality, we have introduced the concept of a Rancher ingress controller. The ingress controller is created as part of ingress-controller service, which gets deployed as part of the system stack for Kubernetes.
+Kubernetes Ingress资源可以支持你选择的任何负载均衡器类型，因此，为了利用Rancher的负载均衡功能，我们引入了Rancher Ingress控制器的概念。ingress控制器是ingress-controller服务的一部分，它做为Kubernetes系统栈的组件被部署。
 
-The ingress controller manages the creation/removal/update of Rancher load balancers. Each load balancer is created/removed/updated based on the Kubernetes ingress resources. If an ingress is updated or service endpoints are changed, the ingress controller will update the corresponding Rancher load balancer to the changes in the ingress. Similarly, if the ingress is removed, the Rancher load balancer will be removed as well. If the backend services of an ingress has changes (e.g. when a replication controller is scaled up or down or a pod gets recreated), the Rancher load balancer will be updated accordingly. The ingress controller ensures that the Rancher load balancer matches the ingress and backend services in Kubernetes.
+ingress控制器管理着Rancher负载均衡器的创建/迁移/更新。每个负载均衡器的创建/删除/更新都是基于 Kubernetes ingress 资源。
 
-### Current Limitations
+如果一个ingress被更新或服务端点（Service endpoint）被更改，ingress控制器将更新相应的Rancher负载均衡器，使其与ingress的变化相对应。
 
-* Ingress resources can only be added through `kubectl`
+同理，如果ingress被移除，Rancher负载均衡器也会被移除。如果一个ingress的后端服务发生了变化(例如，当复制控制器被放大或缩小或重新创建一个pod时)，Rancher负载均衡器也将相应地更新。ingress控制器确保了Rancher负载均衡器与Kubernetes的ingress和后端服务相匹配。
 
-### Rancher Ingress Controller
+### 目前的局限性
 
-The Rancher ingress controller will leverage the existing load balancing functionality within Rancher and convert what is in Kubernetes ingress to a load balancer in Rancher.
+* Ingress资源只能通过kubectl工具添加
 
-The ingress controller will:
+###  Rancher Ingress 控制器
 
-* Listen to Kubernetes server events
-* Deploy a load balancer and program it with the routing rules defined in Ingress
-* Configure the Ingress `Address` field with the Public Endpoint of your Load Balancer
+Rancher ingress控制器利用Rancher中现有的负载均衡功能，将Kubernetes ingress的内容转换到Rancher的负载均衡器。
 
-### Creating Ingress resources in Rancher
+ingress controller 功能:
 
-#### Setting up an Example Nginx Service
+* 监听Kubernetes服务器事件;
+* 部署负载平衡器，并将其与Ingress中定义的路由规则进行适配;
+* 通过配置Ingress `Address` 字段来做为负载均衡器的公共接入地址。
 
-Before setting up any ingress, services will need to be created in Kubernetes. We'll start by adding a service and replication controller into our Kubernetes environment.
+### 在Rancher中创建Ingress资源
 
-Here's a simple nginx service to add into Kubernetes.
+#### 设置一个Nginx服务示例
 
-Example `nginx-service.yml`:
+在配置任何ingress之前, 需要在Kubernetes中创建服务. 首先在Kubernetes环境中添加一个服务和复制控制器（Replication Controller）。
+
+这里添加单个的nginx服务到Kubernetes中。
+
+示例：`nginx-service.yml`:
 
 ```yaml
 apiVersion: v1
@@ -75,7 +79,7 @@ spec:
         - containerPort: 80
 ```
 
-Using `kubectl`, let's launch our nginx service into Kubernetes. Remember, you can either [configure `kubectl` for your local machine]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl) or you can use the shell in the UI under **Kubernetes** -> **kubectl**.
+让我们使用kubectl将nginx服务发布到Kubernetes。请记住,  你也可以为本地机器配置kubectl ，或者在Kubernetes/kubectl的UI中使用shell。
 
 ```bash
 $ kubectl create -f nginx-service.yml
@@ -83,13 +87,11 @@ service "nginx-service" created
 replicationcontroller "nginx-service" created
 ```
 
-<a id="simple-ingress"></a>
+#### 配置单个ingress资源
 
-#### Setting up a Simple Ingress Resource
+您可以为单个服务设置单一的ingress资源。
 
-You can set up a simple ingress resource for the single service.
-
-Example `simple-ingress.yml`
+示例：`simple-ingress.yml`
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -102,7 +104,9 @@ spec:
     servicePort: 90
 ```
 
-Let's create the ingress using `kubectl`. After you create the ingress, the ingress controller will trigger a load balancer service to be created and visible in the **kubernetes-ingress-lbs** stack within the **Kubernetes** -> **System** tab. By default, the load balancer service will only have 1 instance of the load balancer deployed. From `kubectl`, you can see the ingress created, but the UI will only show the load balancer. The ingress controller has already done all the translations of the requests in the ingress to a Rancher load balancer.  
+让我们使用kubectl创建ingress。在创建ingress后, ingress 控制器将触发创建一个负载均衡器并且可以在**Kubernetes** -> **System**  标签栏中看到创建的 **kubernetes-ingress-lbs** 应用栈 .
+
+默认情况下，负载均衡器服务只有一个实例被部署。 通过`kubectl`, 可以看到 ingress被创建, 但通过UI只能看到负载均衡器应用.  ingress控制器已经完成了所有ingress转换到Rancher负载均衡器的请求。
 
 ```bash
 $ kubectl create -f simple-ingress.yml
@@ -112,17 +116,17 @@ NAME          RULE      BACKEND            ADDRESS          AGE
 simplelb      -         nginx-service:80   1.2.3.4          5m
 ```
 
-The `address` in the ingress will be the public endpoint of where the load balancer service was launched. If the load balancer is moved to a different host and gets a different public endpoint, the ingress `address` will be updated.
+ingress中的address将是负载均衡器服务启动的公共接入地址。如果负载均衡器被移动到不同的主机并得到不同的公共端点（public endpoint），则ingress地址将被更新。
 
-To access your application, you can hit the address at our default port `80` (i.e. `http://1.2.3.4:80`) or the address directly (i.e. `http://1.2.3.4`).
+您可以在缺省端口80(例如：http://1.2.3.4:80)或直接访问地址(例如：http://1.2.3.4)来访问你的应用。
 
-#### Setting up Multiple Services
+#### 配置多个服务
 
-If you want the ingress to act as an entry point for more than one service, then it will need to be configured with  host name routing rules, which allows adding host/path based routing to services.
+如果您希望ingress做为多个服务的入口点，那么需要使用主机名路由规则来配置它，它允许将host/path 的路由添加到服务。
 
-Let's start by adding multiple services into Kubernetes.
+让我们添加多个服务到 Kubernetes中.
 
-Example `multiple-nginx-services.yml`:
+示例：`multiple-nginx-services.yml`:
 
 ```yaml
 apiVersion: v1
@@ -196,7 +200,7 @@ spec:
         - containerPort: 80
 ```
 
-Using `kubectl`, let's launch our services and replication controllers into Kubernetes. Remember, you can either [configure `kubectl` for your local machine]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl) or you can use the shell in the UI under **Kubernetes** -> **kubectl**.
+让我们用kubectl将我们的服务和复制控制器发布到Kubernetes中，请记住，您可以为本地机器配置kubectl，也可以在Kubernetes-kubectl的UI中使用shell。
 
 ```bash
 $ kubectl create -f multiple-nginx-services.yml
@@ -206,11 +210,9 @@ service "nginx-service-2" created
 replicationcontroller "nginx-service-2" created
 ```
 
-<a id="host-based-routing"></a>
+#### 基于主机路由配置 Ingress 资源
 
-#### Setting up a Ingress Resource with Host Based Routing
-
-Example `host-based-ingress.yml`
+示例：`host-based-ingress.yml`
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -233,9 +235,11 @@ spec:
           servicePort: 90
 ```
 
-Let's create the ingress using `kubectl`. After you create the ingress, the ingress controller will trigger a load balancer service to be created and visible in the **kubernetes-ingress-lbs** stack within the **Kubernetes** -> **System** tab. By default, the load balancer service will only have 1 instance of the load balancer deployed. The load balancer will have the host name routing rules created from the ingress.
+让我们使用kubectl创建ingress。在创建ingress后, ingress 控制器 将触发创建一个负载均衡器并且可以在**Kubernetes** -> **System**  标签栏中看到创建的 **kubernetes-ingress-lbs** 应用栈 .
 
-From `kubectl`, you can see the ingress created, but the UI will only show the load balancer. The ingress controller has already done all the translations of the requests in the ingress to a Rancher load balancer.  
+默认情况下，负载均衡器服务只有一个实例被部署。 通过ingress，负载均衡器将有一个以主机名命名的路由规则被创建。
+
+通过`kubectl`, 可以看到 ingress 被创建, 但通过UI只能看到负载均衡器应用.  ingress控制器已经完成了所有ingress转换到Rancher负载均衡器的请求。
 
 
 ```bash
@@ -244,25 +248,23 @@ ingress "host-based-ingress" created
 $ kubectl get ingress
 NAME                    RULE            BACKEND             ADDRESS     AGE
 host-based-ingress      -                                   1.2.3.4     20m
-                        foo.bar.com    
+                        foo.bar.com
                                         nginx-service-1:80
-                        foo1.bar.com   
+                        foo1.bar.com
                                         nginx-service-2:80
 ```
 
-Similar to the simple ingress load balancer, this load balancer will be in the **kubernetes-ingress-lbs** stack within the **Kubernetes** -> **System** tab.
+与单个ingress负载均衡器类似，这个负载均衡器将在Kubernetes/System选项卡中位于Kubernetes-lbs的应用栈中。
 
-The `address` in the ingress will be the public endpoint of where the load balancer service was launched. If the load balancer is moved to a different host and gets a different public endpoint, the ingress `address` will be updated.
+ingress中的地址将是负载均衡器服务启动的公共接入地址。.如果负载均衡器被移动到不同的主机并得到不同的公共端点，则ingress地址将被更新
 
-To access your application, you can hit the address at our default port `80` (i.e. `http://1.2.3.4:80`) or the address directly (i.e. `http://1.2.3.4`).
+ 您可以在缺省端口80(例如：http://1.2.3.4:80)或直接访问地址(例如：http://1.2.3.4)。来访问你的应用。
 
-<a id="path-based-routing"></a>
+#### 使用基于路径的路由配置Ingress资源
 
-#### Setting up a Ingress Resource with Path Based Routing
+如果有多个想要做负载均衡的服务，那么可以向ingress添加基于路径的路由。
 
-If we have multiple services that you want load balanced, then you could add path based routing to your ingress.
-
-Example `path-based-ingress.yml`
+示例：`path-based-ingress.yml`
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -284,9 +286,9 @@ spec:
           servicePort: 90
 ```
 
-Let's create the ingress using `kubectl`. After you create the ingress, the ingress controller will trigger a load balancer to be created and visible in the **kubernetes-ingress-lbs** stack within the **Kubernetes** -> **System** tab. By default, the load balancer service will only have 1 instance of the load balancer deployed. The load balancer will have the host name routing rules created from the ingress.
+让我们使用kubectl创建ingress。在创建ingress后, ingress 控制器 将触发创建一个负载均衡器并且可以在**Kubernetes** -> **System**  标签栏中看到创建的 **kubernetes-ingress-lbs** 应用栈。默认情况下，负载均衡器服务只有一个实例被部署。负载均衡器将拥有从ingress创建的主机名路由规则。
 
-From `kubectl`, you can see the ingress created, but the UI will only show the load balancer. The ingress controller has already done all the translations of the requests in the ingress to a Rancher load balancer.  
+通过`kubectl`, 可以看到 ingress 被创建, 但是UI中只能看到负载均衡器应用.  ingress控制器已经完成了所有在ingress中的转换到Rancher负载均衡器的请求。
 
 
 ```bash
@@ -295,39 +297,40 @@ ingress "path-based-ingress" created
 $ kubectl get ingress
 NAME                    RULE            BACKEND             ADDRESS            AGE
 path-based-ingress      -                                   1.2.3.4             15s
-                        foo.bar.com    
+                        foo.bar.com
                         /foo            nginx-service1:80
                         /bar            nginx-service2:80
 ```
 
-Similar to the simple ingress load balancer, this load balancer will be in the **kubernetes-ingress-lbs** stack within the **Kubernetes** -> **System** tab.
+与单个的ingress负载均衡器类似，这个负载均衡器将在Kubernetes-System选项卡中位于Kubernetes-lbs的堆栈中。
 
-The `address` in the ingress will be the public endpoint of where the load balancer service was launched. If the load balancer is moved to a different host and gets a different public endpoint, the ingress `address` will be updated.
+ingress中的address将是负载均衡器服务启动的公共接入地址。如果负载均衡器被移动到不同的主机并得到不同的公共端点，则ingress地址将被更新。
 
-To access your application, you can hit the address at our default port `80` (i.e. `http://1.2.3.4:80`) or the address directly (i.e. `http://1.2.3.4`).
+要访问您的应用程序，可以在缺省端口80(例如：http://1.2.3.4:80)或地址直接访问地址(例如：http://1.2.3.4)。
 
-### Load Balancer Options with Kubernetes Ingress
+### Kubernetes Ingress的负载均衡器选项
 
-By default, a Kubernetes ingress will deploy 1 load balancer on only 1 host using http/https on default ports `80`/`443`. Rancher has added the ability to support multiple load balancers using the port of your choice. By scaling the ingress, the address programmed in Kubernetes will also reflect all the hosts that have the load balancer available.
+默认情况下，Kubernetes ingress将在默认80/443端口上使用http/https部署1个负载均衡器实例。Rancher可支持多组负载均衡，用户可以根据需要自行制定端口。扩展ingress后，Kubernetes 配置的地址将被复制到所有负载均衡器。
 
-#### Examples:
+#### 示例:
 
-* [Multiple Load Balancers using a Different Port](#scale-and-other-port)
-* [Using TLS](#tls)
-* [Blocking HTTP](#blocking-http)
-* [Custom HAProxy](#custom-haproxy)
-* [Load Balancers scheduled on all Hosts](#scheduled-globally)
-* [Load Balancers scheduled on a specific Host](#host-scheduling)
+* [多个负载均衡器使用不同的端口](#scale-and-other-port)
+* [使用 TLS](#tls)
+* [禁用HTTP](#blocking-http)
+* [自定义HAProxy](#custom-haproxy)
+* [所有主机运行负载均衡器](#scheduled-globally)
+* [特定主机运行负载均衡器](#host-scheduling)
 
-> **Note:** If you choose to increase the scale of your ingress, you will need to ensure that there are at least the equivalent number of hosts available in your Kubernetes environment that have the port available.
+> **Note:** 如果增加ingress实例数量，您需要确保在Kubernetes环境中至少有同等数量的主机可用。
+>
 
-#### Setting up a Simple Service
+#### 设置单个服务
 
-Before setting up any ingress, services will need to be created in Kubernetes. We'll start by adding a service and replication controller into our Kubernetes environment.
+在建立任何一个ingress之前，需要在Kubernetes中创建服务。首先在Kubernetes环境中添加一个服务和复制控制器。
 
-Here's a simple nginx service to add into Kubernetes.
+这里向Kubernetes添加一个单个的nginx服务。
 
-Example `nginx-service.yml`:
+示例：`nginx-service.yml`:
 
 ```yaml
 apiVersion: v1
@@ -366,20 +369,18 @@ spec:
         - containerPort: 80
 ```
 
-Using `kubectl`, let's launch our nginx service into Kubernetes. Remember, you can either [configure `kubectl` for your local machine]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/kubernetes/#kubectl) or you can use the shell in the UI under **Kubernetes** -> **kubectl**.
+使用kubectl，让我们将nginx服务发布到Kubernetes。请记住，您可以为本地机器配置kubectl，也可以在Kubernetes-kubectl的UI中使用shell。
 
 ```bash
 $ kubectl create -f nginx-service.yml
 service "nginx-service" created
 replicationcontroller "nginx-service" created
 ```
-<a id="scale-and-other-port"></a>
+#### *示例：两个负载均衡器使用交替的端口*
 
-#### Example of 2 Load Balancers using an Alternative Port
+您可以在两个不同的主机上运行2个负载均衡器启动一个ingress，它使用一个99端口代替默认的80端口。为了让这个ingress正常工作，您的kubernetes环境至少需要两台拥有99端口的主机。
 
-You can set up a ingress that is launched using 2 load balancers on 2 different hosts that uses a port, `99`, instead of the default ingress port `80`. For this ingress to work correctly, your kubernetes environment will need at least 2 hosts that have port `99` available.
-
-Example `scaled-ingress.yml`
+示例：`scaled-ingress.yml`
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -397,9 +398,9 @@ spec:
     servicePort: 90
 ```
 
-Let's create the ingress using `kubectl`. After you create the ingress, the ingress controller will trigger the load balancer service to be created and visible in the **kubernetes-ingress-lbs** stack within the **Kubernetes** -> **System** tab. Since the `scale` is set to `2` in the ingress, the load balancer service will have 2 instances of the load balancer deployed.
+让我们使用kubectl创建ingress。在创建ingress之后，ingress控制器将触发在Kubernetes-System选项卡中创建的负载均衡器服务，并在Kubernetes-ingss-lbs堆栈中可见。由于在ingress中`scale` 设置为2，所以在负载均衡器服务中会有两个负载均衡器实例被部署。。
 
-From `kubectl`, you can see the ingress created, but the UI will only show the load balancer. The ingress controller has already done all the translations of the requests in the ingress to a Rancher load balancer. Since there are 2 load balancers, there will be 2 addresses set in the ingress.
+在kubectl中，您可以看到ingress创建，但是UI只显示负载均衡器。ingress控制器已经完成了在ingress转化到Rancher负载均衡器的所有请求。因为有两个负载均衡器，需要在ingress中设置两个地址。
 
 
 ```bash
@@ -410,15 +411,13 @@ NAME       RULE      BACKEND            ADDRESS             AGE
 simplelb   -         nginx-service:90   1.2.3.4,5.6.7.8     41s
 ```
 
-<a id="tls"></a>
+#### 示例：使用TLS
 
-#### Example using TLS
+***如果您想要在Kubernetes中使用TLS，那么您需要将证书添加到Rancher中。在Rancher中添加的证书可以用于为TLS终端提供一个安全的ingress。***
 
-If you want to use TLS with Kubernetes, you'll need to [add the certifcate]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/certificates/) into Rancher. The certificate added into Rancher can be used to secure an ingress for TLS termination.
+*假设我们添加了一个名为foo的证书*
 
-Let's say we added a certificate called `foo`.
-
-Example `tls-ingress.yml` using the `foo` certificate
+示例：`tls-ingress.yml` 使用这个 `foo` 证书。
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -435,17 +434,15 @@ spec:
     servicePort: 90
 ```
 
-Let's create the ingress using `kubectl`. After you create the ingress, the ingress controller will trigger the load balancer service to be created and visible in the **kubernetes-ingress-lbs** stack within the **Kubernetes** -> **System** tab. By default, the load balancer service will only have 1 instance of the load balancer deployed.
+让我们使用kubectl创建ingress。在创建ingress之后，ingress控制器将触发在Kubernetes-System选项卡中创建的负载均衡器服务，并在Kubernetes-ingss-lbs堆栈中可见。默认情况下，负载均衡器服务只有一个负载均衡器的实例被部署。
 
-From `kubectl`, you can see the ingress created, but the UI will only show the load balancer. The ingress controller has already done all the translations of the requests in the ingress to a Rancher load balancer.
+在kubectl中，您可以看到ingress被创建，但是UI只显示负载均衡器应用。ingress控制器已经完成了在ingress中转换到Rancher负载均衡器所有请求的。
 
-<a id="blocking-http"></a>
+#### **禁用HTTP**
 
-##### Blocking HTTP
+***默认情况下，即使使用了TLS，端口80也是可以访问的。为了阻止80端口，您可以添加额外的参数（annotation） (allow.http: "false")做为ingress模板的一部分。***
 
-By default, port `80` is accessible even if a TLS is being used. In order to block port `80`, you can add in additional annotation `allow.http: "false"` as part of the ingress template.
-
-Example `tls-ingress.yml` and blocking port `80`
+示例：`tls-ingress.yml` and 禁用80 端口
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -463,13 +460,11 @@ spec:
     serviceName: nginx-service
     servicePort: 90
 ```
-<a id="custom-haproxy"></a>
+#### 示例：用户定制
 
-#### Example customization
+在Rancher中，我们的负载均衡器运行的是HAProxy软件。如果您想要定制负载均衡器配置文件的`global` 和`defaults` 部分，可以通过ingress注释(annotations)来配置它们。
 
-In Rancher, our load balancers run HAProxy software. If you want to customize the `global` and `defaults` sections of the load balancer, they can be configured through ingress annotations.
-
-Example `custom-ingress.yml`
+示例：`custom-ingress.yml`
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -485,15 +480,13 @@ spec:
     servicePort: 80
 ```
 
-In our configuration, the `defaults` and `global` keywords identify the customizable sections and should be followed by a new line. Every parameter in these sections should be followed by a new line.
+***在配置中，默认和全局关键字标识可自定义的部分，后面应该紧跟着有新的换行。 这些部分中的每个参数都应该跟着一条新的换行。***
 
-<a id="scheduled-globally"></a>
+#### 示例:在所有主机上运行负载均衡器
 
-#### Example of a Load Balancer Scheduled on All Hosts
+在当前环境中，可以让负载均衡器在所有主机上运行。这些全局负载均衡器可以使用注释（annotations）进行调度，i.e. `io.Rancher.scheduler.global: "true"`.
 
-You can schedule load balancers to be launched on all hosts in an environment. These global load balancers can be scheduled using an annotation, i.e. `io.rancher.scheduler.global: "true"`.
-
-Example `global-ingress.yml`
+示例：`global-ingress.yml`
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -502,18 +495,16 @@ metadata:
   name: globallb
   annotations:
     # Create load balancers on every host in the environment
-    io.rancher.scheduler.global: "true"
+    io.Rancher.scheduler.global: "true"
 spec:
   backend:
     serviceName: nginx-service
     servicePort: 80
 ```
 
-<a id="host-scheduling"></a>
+#### 示例：在特定主机上运行负载均衡器
 
-#### Example of Scheduling a Load Balancer on a Host
-
-You can schedule load balancers to specific hosts in an environment. To schedule your load balancers to specific hosts, you would need to add labels to the host. A label on a host is a key value pair. For example, you could have a host with a label `foo=bar`. After the label is added to the host, you would use an annotation, i.e. `io.rancher.scheduler.affinity.host_label: "foo=bar"`, to schedule load balancer containers onto the labeled host.
+在当前环境中，您可以将负载均衡器安排到某个特定主机上。为了将负载均衡器安排到特定的主机上，您需要向主机添加标签。主机上的标签是一个键值对，比如你可以给主机设置标签为foo=bar。主机添加标签之后，你需要使用参数annotation，（如Rancher.scheduler.affinity.host_label: "foo=bar"`）以使负载均衡器容器安排到标记的主机上。
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -522,18 +513,16 @@ metadata:
   name: scheduledlb
   annotations:
     # Search for a host that has label foo=bar and schedule the load balancer on that host.
-    io.rancher.scheduler.affinity.host_label: "foo=bar"
+    io.Rancher.scheduler.affinity.host_label: "foo=bar"
 spec:
   backend:
     serviceName: nginx-service
     servicePort: 80
 ```
 
-<a id="only-local"></a>
+#### 例：将流量导向同一主机上的不同容器
 
-#### Example of Directing traffic to only Containers on the same host
-
-You can configure load balancers to route traffic to **only** containers of a service that are on the same host of the load balancer container. If there are no containers of the target service on the host, then the load balancer does not route any traffic to the other containers of the target service as they are on other hosts. In order to configure the load balancer, you would use an annotation, i.e. `io.rancher.lb_service.target: "only-local"`.
+*您可以配置负载均衡器，将流量路由到与负载均衡器容器同一主机上的服务容器。如果主机上没有目标服务的容器，那么负载均衡器不会将任何流量路由到目标服务的其他容器，就像它们在其他主机上一样。为了配置负载均衡器，您需要使用annotation参数i.e. `io.Rancher.lb_service.target: "only-local"`.*
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -542,18 +531,16 @@ metadata:
   name: onlylocallb
   annotations:
     # Direct traffic to only containers that are on the same host as the load balancer container
-    io.rancher.lb_service.target: "only-local"
+    io.Rancher.lb_service.target: "only-local"
 spec:
   backend:
     serviceName: nginx-service
     servicePort: 80
 ```
 
-<a id="prefer-local"></a>
+#### 示例：在同一主机上对容器的流量进行优先级排序
 
-#### Example of prioritizing traffic to Containers on the same host
-
-You can configure load balancers to prioritize traffic to containers of a service that are on the same host of the load balancer container. If there are no containers of the target service on the host, then the load balancer directs traffic to the other containers of the target service, that are on other hosts. In order to configure the load balancer, you would use an annotation, i.e. `io.rancher.lb_service.target: "prefer-local"`.
+对于一个多实例服务，你可以配置负载均衡器，使流量优先分配到与负载均衡器容器相同主机的服务容器中。如果主机上没有目标服务的容器，则负载均衡器将流量引导到目标服务所在的其他主机上。为了配置负载均衡器，您将使用一个annotation， i.e. `io.Rancher.lb_service.target: "prefer-local"`.
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -562,16 +549,22 @@ metadata:
   name: preferlocallb
   annotations:
     # Prioritize traffic to containers that are on the same host as the load balancer container
-    io.rancher.lb_service.target: "prefer-local"
+    io.Rancher.lb_service.target: "prefer-local"
 spec:
   backend:
     serviceName: nginx-service
     servicePort: 80
 ```
 
-#### Example of sticky sessions
+#### 示例：粘滞会话
 
-The stickiness policy of the HAProxy software running inside Rancher's load balancers can be configured. For example, you can configure the load balancers to route traffic from the same source to the same container. In order to configure the load balancer, you would use an annotation (i.e. `io.rancher.stickiness.policy`) and include the stickiness policy. The value can be set to a `\n` delimited set of key value parameters that are understood by HAProxy software.
+可以为Rancher负载均衡器中运行的HAProxy软件的配置粘性策略。
+
+**例如，您可以配置负载均衡器使来自相同源的流量路由到相同的容器。**
+
+为了配置负载均衡器,你需要使用一条包括粘性政策的annotation参数 (i.e. `io.Rancher.stickiness.policy`)。
+
+可以设置一个HAProxy软件能够识别的关键参数 \n做为界限值。
 
 ```yaml
 apiVersion: extensions/v1beta1
@@ -580,7 +573,7 @@ metadata:
   name: test
   annotations:
     # Configure stickiness policy
-    io.rancher.stickiness.policy: "name: testname\n cookie: cookie123\ndomain: test.domain"
+    io.Rancher.stickiness.policy: "name: testname\n cookie: cookie123\ndomain: test.domain"
 spec:
   backend:
     serviceName: nginx-service
