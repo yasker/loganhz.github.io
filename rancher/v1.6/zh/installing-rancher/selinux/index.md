@@ -2,31 +2,31 @@
 title: Using Rancher with SELinux Enabled
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Using Rancher with SELinux enabled - RHEL/CentOS
+## 在SELinux模式下使用Rancher - RHEL/CentOS
 ---
 
 _Available for Rancher 1.6+_
 
-If you are running Rancher on RHEL/CentOS and want to enable SELinux, you will be required to install an additional SELinux module.
+如果你的Rancher是运行在RHEL/CentOS并想启用SELinux，你需要安装额外的SELinux模块
 
-The steps in this document are a necessary workaround until the [changes present in the module](https://github.com/projectatomic/container-selinux/pull/33) are shipped in RHEL and CentOS. Once these changes are made in RHEL and CentOS then these steps will no longer be required.
+这个文档的步骤是一个必须的临时措施，但在RHEL以及CentOS安装升级[changes present in the module](https://github.com/projectatomic/container-selinux/pull/33)后已经不需要了。一旦这个更新被应用，以下的步骤则不再需要了。
 
-These steps must occur on the instances that are running the Rancher server container as well as any [hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/).
+这些步骤必须在Rancher server容器所在的主机以及所有的[hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/)上运行。
 
-### Installing Package to Build the Module
+### 安装包并构建SELinux模块
 
-In order to build the additional SELinux module, you will need to install the `selinux-policy-devel` package.
+为了安装另外的SELinux模块，你需要安装 `selinux-policy-devel` 这个包。
 
 ```bash
 $ yum install selinux-policy-devel
 ```
 
-### Building the Module
+### 构建模块
 
-Create a file named `virtpatch.te` with the following contents.
+创建一个名叫 `virtpatch.te` 的文件并写入以下内容
 
 ```
 policy_module(virtpatch, 1.0)
@@ -38,17 +38,18 @@ gen_require(`
 allow svirt_lxc_net_t self:netlink_xfrm_socket create_netlink_socket_perms;
 ```
 
-Build the module.
+构建模块
 
 ```
 $ make -f /usr/share/selinux/devel/Makefile
 ```
 
 After running the `make` command, a file named `virtpatch.pp` should be created if the build was successful. `virtpatch.pp` is the compiled SELinux module.
+运行 `make` 命令后，当构建成功后，一个名叫 `virtpatch.pp` 的文件将会被创建。`virtpatch.pp` 是编译后的SELinux模块
 
-### Loading the Module
+### 加载模块
 
-After the SELinux module is built, load the module.
+在SELinux模块被构建后，使用以下命令加载。
 
 ```
 # Load the module

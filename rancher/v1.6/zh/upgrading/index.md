@@ -2,7 +2,7 @@
 title: Upgrading Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 redirect_from:
   - /rancher/latest/en/upgrading/
 ---

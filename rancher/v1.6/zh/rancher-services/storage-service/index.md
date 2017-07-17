@@ -2,7 +2,7 @@
 title: Persistent Storage Service in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
 ## 存储服务
