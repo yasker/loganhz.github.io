@@ -5,34 +5,34 @@ version: v1.6
 lang: en
 ---
 
-## Storage Service
+## 存储服务
 ---
 
-Rancher provides different storage services that are capable of exposing volumes to containers.
+Rancher提供了不同的存储服务，使用户可以将卷存储映射给容器。
 
-### Setting up the Storage Service
+### 配置存储服务
 
-When setting up an [environment template]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template), you can select what storage services you'd like to use in your environment.
+当我们创建[环境模板]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template)时，用户可以从应用商店选择需要在环境中的使用存储服务。
 
-Alternatively, if you already have an environment set up, you can select and launch a storage service from the [catalog]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/).
+或者，如果用户已经创建了一个环境，你可以从 [应用商店]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/)中选择并启动一个存储服务。
 
-> **Note:** Some storage services may not be compatible with some container orchestration types (i.e. Kubernetes). Environment templates will restrict which ones are compatible based on orchestration, but all options are available from the catalog.
+> **注意:** 某些存储服务可能无法和一些容器或编排调度系统（例如，kubernetes）所兼容。环境模板可以根据当前的编排调度系统限定可以使用的存储服务，而应用商店中则会显示全部的存储服务。
 
-### Viewing Storage Drivers
+### 查看存储驱动
 
-After your storage service has been launched, a storage driver has been created and is viewable in **Infrastructure** -> **Storage**. You will be able to see all the storage drivers that are available in your environment. The name of the storage driver is derived from the name of the stack.
+在存储服务启动后，在**基础架构** -> **存储**的界面中可以看到一个存储驱动已经被创建出来。在这个界面中，用户可以查看当前环境中所有可用的存储驱动。存储驱动的名称和刚刚启动的存储服务stack的名称保持一致。
 
-In each storage driver, the hosts that have the storage service running will be listed. Typically, this is all hosts in the environment. The lists of volumes and their states in the storage driver are also listed. For each volume, you can see the name of the volume (i.e. the name of the volume on the host(s)), and the mounts of each volume. For each mount, there is the container name and the directory path inside the container.
+对于每一种存储驱动，主机上运行的存储服务都会被显示出来。正常情况下，环境里的所有主机都会出现在该页面。同时，存储驱动提供的卷列表以及卷的状态也会被显示出来。你可以看到每个卷的名称（比如，主机上的卷名称），以及每个卷的挂载点。对于每个挂载点，其容器信息以及该挂载点在容器中映射的路径都会被显示出来。
 
-### Volume Scopes
+### 卷的作用域
 
-With our storage service, we have volumes that can be scoped at different levels. Currently, only [Rancher Compose](#using-storage-drivers-with-rancher-compose) supports creating the different types of volumes. The UI only creates volumes that are environment scoped.
+Rancher的存储服务中，卷的作用域可以在不同的级别生效。目前，只有[Rancher Compose](#using-storage-drivers-with-rancher-compose)支持创建不同的存储作用域。UI上仅仅支持环境级别的卷创建操作。
 
-#### Stack Scoped
+#### 应用级别
 
-With a stack scoped volume, services referencing the same volume in a stack would share the same volume. A service outside the stack could not use the same volume.
+应用级别的存储卷，应用中的服务如果引用了相同的卷都将共享同一个存储卷。不在该应用内的服务则无法使用此存储卷。
 
-In Rancher, stack scoped volumes are named with the stack name as a prefix to indicate which stack the volume is scoped to and suffixed with a random number to guarantee no duplication. When referencing the volume, you still use the original volume name. For example, if you create a volume called `foo` in `stackA`, the volume name in the UI and on your hosts will be `stackA_foo_<randomNumber>`, but to use the same volume in your service, you would use the name `foo`.  
+Rancher中，应用级别的存储卷的命名规则为使用应用名称为前缀来表明该卷为此应用独有，且会以随机生成的一组数字结尾以确保没有重名。在引用该存储卷时，你依然可以使用原来的卷名称。比如，如果你在应用 `stackA`中创建了一个名为`foo` 的卷， 你的主机上显示的卷名称将为`stackA_foo_<randomNumber>`，但在你的服务中，你依然可以使用`foo`。
 
 <!-- #### Container Scoped
 
@@ -40,35 +40,34 @@ With a container scoped volume, a new volume is created for each instance of a c
 
 In Rancher, container scoped volumes are prefixed with `containerscoped` and have a suffix of the `<dockerContainerID>` and a random number to guarantee no duplication. For example, if you create a volume called `foo1` with a container scope, the volume name in the UI and on your hosts will be `containerscoped_foo1_1_<dockerContainerID>_<randomNumber>`. -->
 
-#### Environment Scoped
+#### 环境级别
 
-With an environment scoped volume, services referencing the same volume in an environment would share the same volume. Services in different stacks could share the same volume. Currently, an environment scoped volume can only be created through the UI.
+环境级别的存储卷，该环境中的所有服务如果 引用了相同的卷将共享同一个存储卷。不同应用中的不同服务也可以共享同一个存储卷。目前，环境级别的卷只可以通过UI创建。
 
-### Using Storage Drivers in the UI  
+### 在UI中使用存储驱动
 
-After your storage service has been launched and is `active`,  [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) can start using the shared storage. when creating a service, in the **Volumes** tab, provide a **volume** and a **volume driver**.
+在你的存储服务启动后且状态为`active`，使用共享存储卷的[services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/)就可以被创建了。在创建服务时，在**卷**选项卡中，输入**卷**以及**卷驱动**
 
-The **volume** will be in the same syntax as Docker, `<volume_name>:</path/in/container>`. Docker volumes default to mount in read-write mode, but you can set it to be mounted read-only by adding the `:ro` at the end of the volume.
+**卷** 语法和Docker语法相同，`<volume_name>:</path/in/container>`。Docker卷默认挂载为读写模式，但是你可以通过在卷的末尾添加`:ro`将其挂载为只读模式。
 
-The **volume driver** will be the name of the storage driver, which is the name of the stack.
+**卷驱动**和存储驱动的名字一致，为存储驱动的应用名。
 
-If the `<volume_name>` already exists in the storage driver, the same volume will be used if the volume meets the volume scope requirements.
+如果 `<volume_name>`在存储驱动中已经存在，在存储卷作用域范围内，将使用相同的存储卷。
 
-#### Creating New Volumes
+#### 创建新卷
 
-A volume can be created in 2 sections:
+一个卷可以被分为两部分创建：
 
-1. Upon creating a service, if the volume in the **Volumes** tab does not exist in the storage driver, then an environment scoped volume is created. If the volume already exists in the volume driver, a new volume will not be created.
+1. 创建服务时，如果 **卷**选项卡中的卷在存储驱动中还不存在，环境级别的存储卷将被创建。如果卷已经存储，将不会再创建新卷。
+> **注:**该设定并不适用于Rancher EBS，使用Rancher EBS时，必须首先定义一个卷。
 
-> **Note:** This option is not available for Rancher EBS as a specific driver option must be defined on the volume before using it.
+2. 在**基础架构** -> **存储**界面中，选择**添加卷**。输入卷名称以及驱动信息如果你需要的话。该卷在被一个服务使用之前将一直保持 `inactive` 状态。
 
-2. In **Infrastructure** -> **Storage**, click on **Add Volume**. Provide the name of the volume and driver options if desired. This volume will be `inactive` until a service starts to use it.
+### 在Rancher Compose中使用存储驱动
 
-### Using Storage Drivers with Rancher Compose
+在基础设施应用中的存储服务启动后，你可以开始创建卷了。在下面的例子中，我们将使用**Rancher NFS** 存储服务。
+在Docker Compose文件中`volumes`下可以定义卷。在同一个Docker Compose中每个卷可以和多个服务关联。此功能只在Compose v2格式下生效。
 
-After the storage infrastructure services have been launched, you can start creating volumes. In our examples below, we are using the **Rancher NFS** storage service.
-
-Volumes can be specified as part of a Docker Compose file under the `volumes` key. Each volume can be associated with one or more services in the same file. This functionality is only available when using a Compose file in v2 format.
 
 ```yaml
 version: '2'
@@ -83,14 +82,13 @@ volumes:
     driver: rancher-nfs
 ```
 
-#### Stack Scoped
+#### 应用级别
 
-By default, all volumes are created at the stack scope. Services referencing the same volume in a Compose file or stack will be sharing the same volume.
+默认情况下，所有的卷将为应用级别。在同一个Compose文件中所有引用同一个卷的服务或应用将共享同一个卷。
 
-When launching a new stack from the same Compose file, a new volume will be created. When a stack is deleted, its corresponding volumes are removed.
-
+如果再同一个Compose文件中创建了一个新应用，一个新卷也会被创建。当应用被删除时，卷也会被删除。
 In the above example, volume `bar` has stack scope.
-
+在上面的例子上，卷`bar`即为应用级别。
 <!--
 #### Container Scoped
 
