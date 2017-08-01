@@ -2,31 +2,31 @@
 title: Creating Private Catalogs
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Creating Private Catalogs
+## 创建私有应用商店
 ---
 
-The Rancher catalog service requires private catalogs to be structured in a specific format in order for the catalog service to be able to translate it into Rancher.
+Rancher Catalog Service要求私有应用商店需要遵循指定的格式才可以正常的在Rancher中显示出来。
 
-### Template Folders
+### 模板文件夹
 
-Catalog templates are displayed in Rancher based on what container orchestration type that was selected for the environment.
+应用商店将会根据环境中的调度引擎来显示不同的应用商店模板。
 
-#### Templates based on Orchestration type
+#### 基于不同调度引擎的模板
 
-* _Cattle_ orchestration: Entries in the UI are from the `templates` folder
-* _[Swarm]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/swarm/)_ orchestration: Entries in the UI are from the `swarm-templates` folder
-* _[Mesos]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/mesos/)_ orchestration: Entries in the UI are from the `mesos-templates` folder
+* _Cattle_ 调度引擎: 界面中的应用模板来自 `templates` 文件夹
+* _[Swarm]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/swarm/)_ 调度引擎: 界面中的应用模板来自 `swarm-templates` 文件夹
+* _[Mesos]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/mesos/)_ 调度引擎: 界面中的应用模板来自 `mesos-templates` 文件夹
 
-### Infrastructure Services Templates
+### 基础设施服务模板
 
-The [infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/) that are available to be enabled in an [environment template]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template), are from the `infra-templates` folder of any catalog enabled in Rancher.
+Rancher的基础设施服务({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/) 可以从[环境模板]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template)中启用, 这些模板来自于 `infra-templates` 文件夹.
 
-These services are also available from the **Catalog** tab, and you will be able to see all the infrastructure services even though they may not work with the selected orchestration type. It's recommended to select infrastructure services during environment template creation versus launching them directly from the catalog.
+这些服务从 **应用商店** 菜单中也可以看到, 你可以看到全部的基础设施服务包括那些和当前的编排调度引擎不兼容的服务. 我们建议从环境模板中启用基础设施服务，而不是直接从应用商店中启动。
 
-### Directory Structure
+### 目录结构
 
 ```
 -- templates (Or any of templates folder)
@@ -43,44 +43,43 @@ These services are also available from the **Catalog** tab, and you will be able
 ```
 <br>
 
-In the main directory, you will need a `templates` folder. The `templates` folder will contain folders of each catalog entry that you have created. We recommend that each catalog entry have a simple template name as the folder name.
+你需要创建一个`templates` 文件夹作为根目录. `templates` 文件夹讲包含所有你想创建的应用模板。我们建议为每一个应用模板都有一个简单明了的文件夹名称。
 
-In the catalog entry folder (e.g. `cloudflare`), there will be folders for each version that you have created for your catalog entry. The first version should be `0` and each subsequent version will be an incremental value. For example, version 2 will be in the `1` folder. By providing a new version folder number, it provides a way to upgrade your stack from a previous version of the template. Alternatively, you could update the templates in the `0` folder and just re-deploy the entry.
+在一个应用模板文件夹中 (e.g. `cloudflare`), 将包含该应用模板的各个版本所对应的文件夹。第一个版本为`0`，后续每个版本加1。比如，第二个版本应该在 `1` 文件夹中. 每增加一个新版本的文件夹，将在应用实例的界面提供提供一个从之前版本升级的选项。另外，你可直接更新`0`文件夹中的内容并重新部署应用。
 
-> **Note:** Each catalog entry will need to be a single word, so please use `-` instead of spaces for longer catalog names. You can use spaces in the `name` section of the `config.yml`.
+> **注意:** 针对名字比较长的应用，需要使用 `-` 连接符，空格不允许使用。 而在`config.yml`中的 `name`你可以使用空格。
 
-### Rancher Catalog Files to Display in Rancher Catalog
+### 在Rancher应用商店中展示出的Rancher Catalog文件
 
-Within the catalog entry folder, the details of how to display your catalog entry in the Rancher catalog are located in two files.
+在应用商店模板的文件夹中，如何展示应用商店模板详细内容取决于两个文件。
 
-* The first file `config.yml` contains the details of your entry.
+* 第一个文件为 `config.yml`，包含了应用模板的详细信息。
 
 ```yaml
-name: # Name of the Catalog Entry
+name: # 应用商店模板名称
 description: |
-  # Description of the Catalog Entry
-version: # Version of the Catalog to be used
-category: # Category to be used for searching catalog entries
-maintainer: # The maintainer of the catalog entry
-license: # The license
-projectURL: # A URL related to the catalog entry
+  # 应用商店模板描述
+version: # 应用商店模板对应的版本
+category: # 用于模板搜索时的目录
+maintainer: # 该模板的维护者
+license: # 许可类型
+projectURL: # 和模板相关的URL
 ```
 <br>
 
-* The second file is the icon image for the catalog entry. The file must be prefixed with `catalogIcon-`.
+* 另外一个文件为该模板的logo. 该文件的前缀必须为 `catalogIcon-`.
 
-For every catalog entry, there will be a minimum of three items: `config.yml`, `catalogIcon-entry.svg`, and the `0` folder, which holds the first version of the catalog entry.
+对于每一个应用模板，将至少有一下三个部分组成： `config.yml`, `catalogIcon-entry.svg`, 以及 `0` 文件夹 - 包含该模板的第一个版本配置.
 
-### Rancher Catalog Templates
+### Rancher 应用商店模板
 
-The `docker-compose.yml` and `rancher-compose.yml` are the **required** files to be able to launch the services in Rancher using [Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#adding-services-with-rancher-compose). These files are located within the version folder number (i.e. `0`, `1`, etc.).
+ `docker-compose.yml` 以及 `rancher-compose.yml` 为在Rancher中使用[Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/#adding-services-with-rancher-compose)启动服务 **必须** 提供的两个文件. 该文件将被保存在版本文件夹中。 (如. `0`, `1`, 等等.).
 
-The `docker-compose.yml` should be a file that could also be launched using `docker-compose up`. The services follow the docker-compose format.
+ `docker-compose.yml` 为一个可以使用 `docker-compose up`来启动的文件. 该服务遵循 docker-compose 格式.
 
-The `rancher-compose.yml` will contain additional information to help customize your catalog entries. In the `catalog` section, there are some fields that will be required in order to have your catalog entry interpreted correctly.
+ `rancher-compose.yml` 将包含帮助你自定义应用模板的其他信息。在Catalog部分中，为了应用模板可以被正常解析，有一些选项是必填的。
 
-An optional `README.md` is possible to be created, which provides a lengthy description or notes on how to use the catalog service.
-
+你也可以创建一个可选的 `README.md` , 可以为模板提供一些较长的描述以及如何使用他们。
 
 **`rancher-compose.yml`**
 
@@ -97,17 +96,17 @@ catalog:
 ```
 <br>
 
-For `upgrade_from`, there are three types of values that can be used.
+对于 `upgrade_from`, 有三种值可以使用。
 
-1. Allowing upgrading only from 1 version: `1.0.0`
-2. Being able to select higher or lower than a specific version: `>=1.0.0.`, `<=2.0.0`
-3. Being able to define a [range of versions](https://github.com/blang/semver#ranges): `>1.0.0 <2.0.0 || >3.0.0`
+1. 只允许从某一个版本升级： `1.0.0`
+2. 可以从高于或低于某一个版本升级： `>=1.0.0.`, `<=2.0.0`
+3.  定义一个区间升级 (https://github.com/blang/semver#ranges): `>1.0.0 <2.0.0 || >3.0.0`
 
-### Questions in the `rancher-compose.yml`
+### `rancher-compose.yml`中的问题部分
 
-The `questions` section of `catalog` is used to allow the user to change the configuration options of the services. The `answers` would be populated within the `docker-compose.yml` before the services are launched.
+ `应用商店`中`questions` 部分允许用户更改一个服务的一些配置选项。 其`答案` 将在被服务启动之前被预配置在 `docker-compose.yml` 中.
 
-Each configuration option is a list item in the `questions` section of the `rancher-compose.yml`.
+每一个配置选项都在`rancher-compose.yml`的 `questions` 部分配置.
 
 ```yaml
 version: '2'
@@ -122,18 +121,18 @@ catalog:
 ```
 <br>
 
-#### Type
+#### 类型
 
-The `type` section controls how the questions are formatted in the UI as well as the types of responses that are expected.
+ `type` 控制了问题如何在UI中展现以及需要什么样的回复。
 
-Eligible formats are:
+合法的格式有:
 
-* `string` A textbox will be shown in the UI to capture the answer, and the answer will be formatted to a string.
-* `int` A textbox will be shown in the UI to capture the answer, and the answer will be formatted to a number. The UI will validate whether or not it's a valid number before launching the template.
-* `boolean` A radio button will be shown in the UI to capture the answer, and the answer will be formatted to `true` or `false`. If the radio button is selected, the answer will be formatted to `true`.
-* `password` A textbox will be shown in the UI to capture the answer, and the answer will be formatted to a string.
-* `service` A drop-down of all services in the environment will be displayed.
-* `enum` A drop-down menu will be shown in the UI and the `options` section will be populated in the drop-down.
+* `string` UI中将显示文本框来获取答案，获取到的答案将被设置为字符串型格式。
+* `int` UI中将显示文本框来获取答案，获取到的答案将被设置为整型格式。 UI会在服务启动前对输入进行校验。
+* `boolean` UI中将通过单选按钮获取答案，获取到的答案将被格式化为`true` 或者 `false`。 如果用户选择了单选按钮，答案将被格式化为 `true`。
+* `password` UI中将显示文本框来获取答案，获取到的答案将被设置为字符串型格式。
+* `service` UI中将展示一个下拉框，所有该环境的服务都会显示出来。
+* `enum` UI中将展示一个下拉框，`options`中的配置将会被展示出来。
 
 ```yaml
 version: '2'
@@ -142,13 +141,13 @@ catalog:
     - variable:
       label:
       description: |
-      type: enum   
+      type: enum
       options: # List of options if using type of `enum`
         - Option 1
         - Option 2
 ```
 
-* `multiline` A multiple line textbox will be shown in the UI.
+* `multiline` 多行文本框会被显示在UI中。
 
 ```yaml
 version: '2'
@@ -165,8 +164,7 @@ catalog:
         line.
 ```
 
-* `certificate` A drop down of all available certificates in the environment.
-
+* `certificate` 该环境的所有可用证书都会显示出来。
 ```yaml
 version: '2'
 catalog:
@@ -177,6 +175,6 @@ catalog:
       type: certificate
 ```
 
-### Catalog Generator based on Yeoman
+### 基于Yeoman的应用目录生成器
 
-There is an [open-source project](https://github.com/slashgear/generator-rancher-catalog) based on [Yeoman](http://yeoman.io/), that can be used to create the templates of an empty catalog entry.
+这里有一个基于 [Yeoman](http://yeoman.io/)的[开源项目](https://github.com/slashgear/generator-rancher-catalog) , 可以被用于创建一个空的应用商店目录。

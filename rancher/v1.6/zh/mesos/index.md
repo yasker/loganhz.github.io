@@ -2,39 +2,38 @@
 title: Mesos in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
 ## Mesos
 ---
 
-To deploy Mesos in Rancher, you'll first need to create a new [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/) that has an [environment template]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template) with the container orchestration set as **Mesos**.
+在Rancher中部署Mesos，你首先需要添加一个新的[environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)，这个环境需要[environment template]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template)中设定容器编排引擎是 **Mesos**。
 
-### Creating a Mesos Environment
+### 创建一个Mesos环境
 
-In the dropdown of environments, click on the **Manage Environments**. To create a new environment, click on **Add Environment**, provide a **Name**, **Description** (Optional), and select an environment template that has Mesos as the orchestration. If [access control]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/) is turned on, you can [add members]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#editing-members) and select their [membership role]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#membership-roles). Anyone added to the membership list would have access to your environment.
+在环境的下拉菜单中，点击 **环境管理**。通过点击 **添加环境** 去创建一个新的环境，需要填写 **名称**，**描述**（可选），并选择Mesos作为编排引擎的环境模版。如果启用了[access control]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/)，你可以在环境中[add members]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#editing-members)并选择他们的[membership role]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#membership-roles)。所有被添加到成员列表的用户都能访问你的环境。
 
-After a Mesos environment has been created, you can navigate to the environment by either selecting the name of the environment in the environment's dropdown in the upper left hand corner or by selecting **Switch to this Environment** in the specific environment's drop down.
+在创建Mesos环境后，你可以在左上角环境的下拉菜单中切换到你的环境，或者在环境管理页面中，在对应环境的下拉选项中点击 **切换到此环境** 。
 
-> **Note:** As Rancher adds support for multiple container orchestration frameworks, Rancher currently does not support the ability to switch between environments that already have services running in it.
+> **Note:** 由于Rancher支持多种的容器编排引擎框架，Rancher目前不支持在多个已经有服务运行的环境之间切换容器编排引擎。
 
+### 启动 Mesos
 
-### Starting Mesos
+在Mesos环境呗创建后，[infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)在你添加一台主机到这个环境之前是不会启动的。**Mesos** 服务会需要至少3个Host节点。[adding hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/)的过程与其他类型的环境相同。一旦第一个Host被添加，Rancher将会自动启动基础架构服务，包括Mesos的组件（例如mesos-master，mesos-agent以及zookeeper）。你可以在 **Mesos** 标签页看到部署的过程。Mesos
 
-After a Mesos environment has been created, the [infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/) will not be started until you add at least one host to your environment. The **Mesos** service will require ate least 3 hosts to be added.  The process of [adding hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/) is the same steps for all  container orchestration types. Once the first host has been added, Rancher will automatically start the deployment of the infrastructure services including the Mesos services (i.e. mesos-master, mesos-slave and zookeeper).  You can see the progress of the deployment by accessing the **Mesos** tab.
+> **Note:** 只有Rancher的管理员或者环境的所有者才能够看到[infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)。
 
-> **Note:** Only admins of Rancher or owners of the environment will be able to view the [infrastructure services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/).
+### 使用 Mesos
 
-### Using Mesos
-
-Once the setup has completed, you can begin to create or manage your own Mesos applications via the following ways:
+当安装成功后，你可以通过以下的方式开始创建或者管理你的Mesos应用：
 
 #### Mesos UI
 
-You can manage Mesos by clicking on the **Mesos UI**. A new webpage will open up with a different UI to manage Mesos. Any frameworks created in this UI will also be reflected in Rancher.
+你可以通过点击 **Mesos UI**去管理Mesos。启动一个新的webpage并在一个不同的UI中管理Mesos。任何在UI上创建的框架同样会在Rancher反映
 
-#### Rancher Catalog
+#### Ranche应用商店
 
-Rancher supports the capability of hosting a catalog of Mesos frameworks. To use a framework, click on either the **Mesos** -> **Launch a framework** button or click on the **Catalog** tab. Select the framework that you want to launch and click **View Details**. Review and edit the stack name, stack description, and configuration options and click on **Launch**.
+Rancher支持兼容在Mesos框架下的应用商店。通过点击 **Mesos** -> **启动一个framework**按钮或者直接点击 **应用商店** 标签去选择使用一个framework。选择你想启动的framework并且点击**查看详情**。查看并且编辑Stack名称，Stack描述以及配置选项，最后点击 **启动**。
 
-If you want to add your own templates to Mesos, you add them to your own private [Rancher catalog]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/) and place your templates in a `mesos-templates` folder.
+如果你想添加你自己的Mesos应用模版，你可以把他们添加到你的私有[Rancher 应用商店]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/)并把你的模版放入`mesos-templates`的目录。

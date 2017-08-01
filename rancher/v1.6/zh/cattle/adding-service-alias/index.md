@@ -2,32 +2,33 @@
 title: Service Alias
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Service Alias
+## 服务别名
 ---
 
-By adding a service alias, it provides the ability to point to service aliases instead of directly at services.
+通过添加一个服务别名，可以提供一种别名的方式而不是直接的方式指向服务。
 
-### Adding Service Aliases in the UI
+### 在UI上添加服务别名
 
-Inside your stack, you add a service alias by clicking on the dropdown icon next to the **Add Service** button. Select **Service Alias**. Alternatively, if you are viewing the stacks at the stack level, the same **Add Service** dropdown is visible for each specific stack.
+在你的Stack中，你通过 **添加服务** 旁边的下拉按钮，并点击**服务别名**去添加一个服务别名。同样的，如果你在Stack层级页面，同样的 **添加服务**的下拉菜单也会在每个Stack页面中。
 
-You will need to provide a **Name** and if desired, **Description** of the service. The **Name** will be the service alias for the service that you select.
+你需要提供服务别名的 **名称**，以及填写必要的 **描述**。**名称** 将是你选择服务的服务别名。
 
-Select the target(s) that you want to add the alias to. The list of available targets is any service that is already created in the stack. Finally, click **Create**.
+选择一个或多个你想添加到别名的目标。可用目标列表是当前Stack中已经创建的服务。最后点击 **创建**。
 
-The list of services that the alias is serving is shown in the service view. Just like our services, you will need to have the service alias started before it is working.
+服务别名中生效的服务列表会在服务层级页面显示。和我们的服务一样，你需要启动这个服务别名才能生效。
 
-#### Adding/Removing services
+#### 添加/移除服务
 
-At any time, you can edit the services in a service alias. Click on the **Edit** within the service's dropdown menu. You will have the ability to add more services to the alias or remove existing services.
+在任何时候你都可以在服务别名中修改目标服务。在服务的下拉菜单中点击 **编辑**，你可以添加更多的服务到这个别名中，或者移除现有的服务。
 
 
-### Adding Service Aliases with Rancher Compose
+### 通过Rancher Compose添加服务别名
 
-A service alias creates a pointer to service(s). In the example below, `web[.stack-name.rancher.internal]` will resolve to the IPs of the containers of `web1` and `web2`. The `rancher/dns-service` is not an actual image, but is required for the `docker-compose.yml`. There are no containers created for alias services.
+一个服务别名创建了一个指向服务的指针。在以下的例子中，`web[.stack-name.rancher.internal]`会被解析为容器`web1`以及`web2`的IP地址。`rancher/dns-service`并不是一个真实的镜像，但是他需要填写在`docker-compose.yaml`。不会为别名服务创建额外的容器。
+
 
 #### Example `docker-compose.yml`
 
