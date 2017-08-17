@@ -2,151 +2,160 @@
 title: FAQS about Rancher Server
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 redirect_from:
   - /rancher/latest/en/faqs/server/
 ---
 
-## FAQs about Rancher Server
+## FAQs 关于 Rancher Server
 ---
 
-### What version of Rancher am I running?
+### 我正在运行的 Rancher 是什么版本的?
 
-The version of Rancher is located in the footer of our site. If you click on the version, you'll be able to get specific versions of our other components.
+Rancher的版本位于页面的页脚。 如果你点击该版本，你将可以获得其他组件详细的版本。
 
-### How do I run Rancher behind a proxy?
+### 我怎么样在代理服务器后运行一个 Rancher Server?
 
-Read more about how to [install Rancher server behind a proxy]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/installing-rancher/installing-server/#launching-rancher-server-behind-a-http-proxy).
+
+请参照 [install Rancher server behind a proxy]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/installing-rancher/installing-server/#launching-rancher-server-behind-a-http-proxy).
 
 <a id="server-logs"></a>
 
-### Where can I find detailed logs of the Rancher Server container?
+### 我在那能找到 Rancher Server 容器的详细日志？
 
-Running `docker logs` on the Rancher server container will provide a set of the basic logs. To get more detailed logs, you can exec into the rancher server container and look at the log files.
+在Rancher Server上运行`docker logs`将提供一组基本日志。 要获取更详细的日志，你可以进入到Rancher Server容器内部并查看日志文件。
 
 ```bash
-# Exec into the server container
+# 进入 Rancher　Server　容器内部
 $ docker exec -it <container_id> bash
 
-# Navigate to the location of the cattle logs
+# 跳转到 Cattle 日志所在的目录下
 $ cd /var/lib/cattle/logs/
 $ cat cattle-debug.log
 ```
 
+在这个目录里面会出现`cattle-debug.log`和`cattle-error.log`。 如果你长时间使用此 Rancher Server，你会发现我们每天都会创建一个新的日志文件。
 Inside this folder, there will be `cattle-debug.log` and `cattle-error.log`. If you have been using Rancher server for many days, you will find a log file for each day as we create a new file for each day.
 
-#### Copying Rancher Server logs to the Host
+#### 将 Rancher Server 的日志复制到主机上。
 
-Here's the command to copy the Rancher server logs from the container to the host.
+以下是将Rancher Server日志从容器复制到主机的命令。
 
 ```bash
 $ docker cp <container_id>:/var/lib/cattle/logs /local/path
 ```
 
-### How do I export the internal database in the Rancher server container?
+### 如何到处 Rancher Server容器的内部数据库？
 
-You can export the database from the Rancher server container with a simple Docker command.
+你可以使用简单的Docker命令从Rancher服务器容器导出数据库。
 
 ```
 $ docker exec <CONTAINER_ID_OF_SERVER> mysqldump cattle > dump.sql
 ```
 
-### What happens if the IP of Rancher server has changed?
+### 如果Rancher Server的IP更改了会怎么样？
 
-If the IP of Rancher server has been changed, you will need to re-attach the hosts with the updated information.
+如果更改了 Rancher Server 的 IP 地址，你需要重新调整主机更新相关信息。
 
-In Rancher, go to **Admin** -> **Settings** and update the **Host Registration** with the updated URL for Rancher server. Please note that it must include the exposed port that you started Rancher server with. By default, we have recommended using port `8080` in our [installation instructions]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/installing-rancher/installing-server/).
+在 Rancher 中，点击 **系统管理**　> **系统设置**　更新 Rancher Server　URL　**主机注册地址**。注意必须包括 Rancher Server 暴露的端口号。默认情况下我们建议按照安装手册中使用 8080 端口。
 
-After the [Host Registration]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/settings/#host-registration) has been updated, go to **Infrastructure** -> **Add Hosts** -> **Custom**. The `docker run` command to add Rancher agents will have been updated with the new information. Using the updated command, run the command on all the hosts inside your Rancher server [environments]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/).
 
-### Why is Go-Machine-Service continually restarting in my logs? What should I do?
+主机注册更新后，进入**基础架构** - >**添加主机**- >**自定义**。 `Docker run`命令添加Rancher代理将会更新新的信息。 使用更新的命令，在所有主机上运行命令加入到 Rancher Server中。
 
-Go-machine-service is a micro-service that connects to the Rancher API server via a websocket connection. If it fails to connect, it restarts and tries again.
+###为什么Go-Machine-Service在我的日志中不断重新启动？ 我该怎么办？
 
-If you are running in [Single Node]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/installing-rancher/installing-server/) setup, it will connect to the Rancher API server using the URL you set for Host Registration. Verify that the Host Registration URL can be reached from inside the rancher-sever container.
+Go-machine-service是一种通过websocket连接连接到Rancher API服务器的微服务。 如果无法连接，则会重新启动并再次尝试。
+
+如果你运行在单节点中，它将使用你为主机注册设置的URL连接到Rancher API服务。 验证从Rancher-sever容器内部到达主机注册URL。
 
 ```bash
 $ docker exec -it <rancher-server_container_id> bash
-# Inside the rancher-server container
+# 在 Rancher-Server 容器内
 $ curl -i <Host Registration URL you set in UI>/v1
 ```
-You should get a json response. If authentication is turned on, the response code should be 401. If authentication is not turned on, the response code should be 200.
+你应该得到一个json响应。 如果认证开启，响应代码应为401.如果认证未打开，则响应代码应为200。
 
-Verify that the Rancher API server can be reached using those variables. Verify the connectivity by logging into the go-machine-service container and making a curl command using the parameters your provided to the container:
+验证Rancher API Server 能够使用这些变量，通过登录go-machine-service容器并使用你提供给容器的参数进行`curl`命令来验证连接:
 
 ```bash
 $ docker exec -it <go-machine-service_container_id> bash
-# Inside the go-machine-service container
+# 在go-machine-service 容器内
 $ curl -i -u '<value of CATTLE_ACCESS_KEY>:<value of CATTLE_SECRET_KEY>' <value of CATTLE_URL>
 ```
 
+你应该得到一个json响应和200个响应代码。
 You should get a json response back and a 200 response code.
 
-If the curl command fails, then you have a connectivity issue between go-machine-service and the Rancher API server.
+如果 curl 命令失败，那么在`go-machine-service`和Rancher API server之间存在链接问题。
 
-If the curl command does not fail, the problem could be related to the fact that go-machine-service is attempting to establish a websocket connection, not a normal http connection. If you have a proxy or load balancer between go-machine-service and your Rancher API server, verify that it is configured to allow websocket connections.
 
-### Rancher server was working and has now slowed down tremendously. How can I recover?
+如果curl命令没有失败，则问题可能与go-machine-service尝试建立websocket连接而不是普通的http连接。 如果在go-machine-service和Rancher API服务器之间有一个代理或负载平衡器，请验证它是否配置为允许websocket连接。
 
-Most likely there are some tasks that are stuck running for some reason. If you are able to look at the **Admin** -> **Processes** tab in the UI, you'd be able to see what is stuck in `Running`. If these tasks have been running (and failing) for a long time, Rancher ends up using too much memory to track the tasks. Essentially creates a running out of memory situation for Rancher server.
 
-In order to get your server into a responsive state, you'll need to add more memory. Typically, 4GB is more than sufficient.
+### Rancher Server 在运行中变的极慢，怎么去恢复它？
 
-If you run the Rancher server command again, just add an additional option, `-e JAVA_OPTS="-Xmx4096m"` to the command.
+很可能有一些任务由于某些原因而处于僵死状态，如果你能够用界面查看**系统管理** -> **系统进程**，你将可以看到`Running`中的内容，如果这些任务长时间运行（并且失败），则Rancher会最终使用太多的内存来跟踪任务。 本质上为Rancher Server 创建了一个内存不足的状态。
+
+为了使服务器处于响应状态，你需要添加更多内存。 通常，大于4GB的内存就够了。
+
+如果你再次运行 Rancher Server 命令只需要添加一个额外的选项`-e JAVA_OPTS="-Xmx4096m"`
 
 ```bash
 $ docker run -d -p 8080:8080 --restart=unless-stopped -e JAVA_OPTS="-Xmx4096m" rancher/server
 ```
 
-Depending on how the MySQL database is setup, you may need to do an [upgrade]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/upgrading/) to add the additional command.
+根据MySQL数据库的设置方式，你可能需要进行升级才能添加附加命令。
 
-If you were unable to see the **Admin** -> **Processes** tab due to the lack of memory, after starting Rancher server again with more memory, you should be able to see the tab and start troubleshooting the processes that have been running the longest.
+如果由于缺少内存而无法看到**系统管理** - > **系统进程**选项卡，则在有足够内存的前提下重启 Rancher Server就可以看到选项卡并开始对运行时间最长的进程进行故障排错。
 
-### Rancher server database is growing too quickly.
 
-Rancher server automatically cleans up a couple of database tables to prevent the database from increasing too quickly. If you are noticing that these tables are not being cleaned up quick enough for you, please feel free to update the default settings using our API.
+###  Rancher Server数据库数据增长太快.
 
-By default, any records in the `container_event` and `service_event` tables are deleted if they were created 2 weeks ago. The setting in the API is listed in seconds (`1209600`). The setting in the API is `events.purge.after.seconds`.
+Rancher服务器自动清理几个数据库表，以防止数据库增长太快。如果你注意到这些表没有被及时清理，请随时使用我们的API更新默认设置。
 
-By default, any records in the `process_instance` table are deleted if they were created 1 day ago. The setting in the API is listed in seconds (`86400`). The setting in the API is `process_instance.purge.after.seconds`.
+在默认情况下，`container_event` 和 `service_event` 在2 周前产生的任何数据将会被删除。在 API 中的设置以秒为单位被列出(`1209600`)。API 中的设置为`events.purge.after.seconds`.
 
-To update these settings in your API, navigate to the `http://<rancher-server-ip>:8080/v1/settings` page. Search for the setting you want to update and click on the link in the `links -> self` to navigate to the setting. Click on `Edit` on the side page to change the `value`. Remember, the value is in seconds.
+
+默认情况下，`process_instance`表在 1 天前产生的数据将会被删除，在 API 中的设置以秒为单位被列出(`86400`)。API 中的设置为`process_instance.purge.after.seconds`.
+
+为了更新你 API 中的设置，跳转到`http://<rancher-server-ip>:8080/v1/settings`页面， 搜索要更新的设置，点击`links -> self` 跳转到你点击的链接去设置，点击侧面的“编辑”更改'值'。 请记住，值是以秒为单位。
+
 
 <a id="databaselock"></a>
 
-### Why is Rancher Server frozen? OR Why could my upgrade have failed?
+### 为什么 Rancher Server 升级失败或被冻结？
 
-If you are starting Rancher and it freezes forever, there might be a liquibase database lock. On startup, liquibase does a schema migration. There is a race condition where it might leave a lock entry, which will prevent subsequent boots.
+如果你刚开始运行 Rancher 并发现它被永久冻结，也许是liquibase 数据库上锁了。在启动时，liquibase执行模式迁移。它的竞争条件可能会留下一个锁定条目，这将阻止后续的流程。
 
-If you have just upgraded and in the Rancher server logs, there can be a log lock on the MySQL database that has not been released.
+如果你刚刚升级，在Rancher　Server日志中，MySQL数据库可能存在尚未释放的日志锁定。
 
 ```bash
 ....liquibase.exception.LockException: Could not acquire change log lock. Currently locked by <container_ID>
 ```
 
-#### Releasing the database lock
+#### 释放数据库锁
 
-> **Note:** Please do not release the database lock unless you have the above **exception** regarding the log lock. If your upgrading is taking a long time due to data migration, you may hit other migration issues if you try to release the database lock.
+> **注意:** 请不要释放数据库锁，除非有相关日志锁的 **异常** 。如果由于数据迁移而升级需要很长时间，那么如果尝试释放数据库锁，你可能会遇到其他迁移问题。
 
-If you had created the data container for Rancher server per the [upgrading documentation]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/upgrading/), you'll need to `exec` into the `rancher-data` container to update the  `DATABASECHANGELOGLOCK` table and remove the lock. If you hadn't created the data container, you can `exec` into the container that has your database.
+如果你已根据升级文档创建了Rancher Server的数据容器，你需要`exec`到`rancher-data`容器中升级`DATABASECHANGELOGLOCK`表并移除锁，如果你没有创建数据容器，你用`exec`到包含有你数据库的容器中。
 
 ```bash
 $ sudo docker exec -it <container_id> mysql
 ```
 
-Once you are in MySQL database, you'll need to access the `cattle` database.
+一旦进入到 Mysql 数据库, 你就要访问`cattle`数据库。
 
 ```bash
 mysql> use cattle;
 
-# Check that there is a lock in the table
+#检查表中是否有锁
 mysql> select * from DATABASECHANGELOGLOCK;
 
-# Update to remove the lock by the container
+# 更新移除容器的锁
 mysql> update DATABASECHANGELOGLOCK set LOCKED="", LOCKGRANTED=null, LOCKEDBY=null where ID=1;
 
 
-# Check that the lock has been removed
+# 检查锁已被删除
 mysql> select * from DATABASECHANGELOGLOCK;
 +----+--------+-------------+----------+
 | ID | LOCKED | LOCKGRANTED | LOCKEDBY |

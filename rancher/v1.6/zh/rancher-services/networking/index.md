@@ -2,76 +2,51 @@
 title: Networking in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 redirect_from:
   - /rancher/latest/en/rancher-services/networking/
 ---
 
-## Networking
+## 网络
 ---
+Rancher实现了一个CNI框架，用户可以在Rancher中选择不同的网络驱动。为了支持CNI框架，每个Rancher环境中都需要部署Network Services，默认情况下，每个环境模版都会启用Network Services。除了Network Services这个基础设施服务之外，你还需要选择相关的CNI driver。在默认的环境模版中，IPSec驱动是默认启用的，它是一种简单且有足够安全性的隧道网络模型。当你一个网络驱动在环境中运行时候，它会自动创建一个默认网络，任何使用manged网络的服务其实就是在使用这个默认网络。
 
-Rancher implements a [CNI](https://github.com/containernetworking/cni) framework, which provides the ability to select different network drivers within Rancher. To leverage the CNI framework, an [environment]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments) is required to use the **Network Services** infrastructure service deployed. By default, all [environment templates]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template) have the **Network Services** enabled.
-
-Besides the **Network Services** infrastructure service,  select which type of networking plugin/driver that you'd like your services to use. In our default environment templates, we have enabled **IPsec** network driver to create a simple and secure overlay network using IPsec tunneling.
-
-When a network driver is launched into the environment, it automatically creates a default network. Any services using the `managed` network will be using this default network.
-
-### Differences from previous releases
-When using Rancher's IPsec networking prior to the **1.2** release, a container in the `managed` network would be assigned with both a Docker bridge IP (`172.17.0.0/16`) and a Rancher managed IP (`10.42.0.0/16`) on the default `docker0` bridge. With the adoption of the CNI framework, any container launched in `managed` network will only have the Rancher managed IP (default subnet: `10.42.0.0/16`).
+### 与先前版本的区别
+当使用1.2版本之前的IPsec网络时，容器使用managed网络将会被分配两个IP，分别是Docker bridge IP（172.17.0.0/16）和Rancher managed IP（10.42.0.0/16）。之后的版本中，则集成了CNI网络框架的标准，容器只会被分配Rancher managed IP（10.42.0.0/16）。
 
 ### Implications of using CNI
+Rancher managed IP不会显示在Docker元数据中，这意味着通过docker inspect无法查到IP。任何端口映射也无法通过docker ps显示出来，因为Rancher使用IPtables来管理端口映射。
 
-The Rancher managed IP address will not be present in Docker metadata, which means it will not appear in `docker inspect`. Certain images may not work if it requires a Docker bridge IP. Any ports published on a host will not be shown in `docker ps` as Rancher manages separate IPtables for the networking.
+###容器间连通性
+默认情况下，同一环境下的managed网络之间的容器是可达的。如果你想要控制这个行为，你可以部署network policy。
+如果你在跨主机容器通信中碰到问题，可以移步troubleshooting文档。
 
-### Communication Between Containers
-
-By default, all containers within the same environment are reachable via the `managed` network. If you want to alter the communication between containers, you can set up a [network policy]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/network-policy/).
-
-If you are facing issues with cross host communication, please refer to our troubleshooting [documentation]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/faqs/troubleshooting/#cross-host-communication).
-
-### Networking options
-
-Services launched in the UI can change their networking options by navigating to the **Networking** tab when adding a service. In the UI, all options are available for services except for `container` networking. In order to use `container` networking for a service, you can use either Rancher CLI, Rancher Compose or Docker CLI to launch the container.
+### 网络类型
+在UI上创建服务时，切换到“Networking”Tab页上可以选择网络类型，但是UI上默认不提供“Container”网络类型，如果要使用“Container”类型，则需要通过Rancher CLI/Rancher Compose/Docker CLI来创建。
 
 #### Managed
-By default, containers launched in Rancher using the UI or [Rancher CLI]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cli/) use the `managed` network, which uses Rancher's managed overlay network. All containers in the `managed` network are able to communicate with each other regardless of which host the container was deployed on. Most of Rancher's features, such as load balancers or DNS service, require the service to be in the `managed` network.
+默认情况下，通过UI创建容器会使用managed网络，在容器中使用ip addr或者ifconfig可以看到eth0和lo设备，eth0的IP从属于Rancher managed子网中，默认的子网是10.42.0.0/16，当然你也可以修改这个子网。
+注意：如果在基础设施服务中删除了网络驱动服务，那么容器的网络设置将会失效。
 
-Inside the container, the `ip addr` or `ifconfig` commands will show one network interface (i.e. `eth0`) along with the loopback interface (i.e. `lo`). The IP address of the network interface would be one from Rancher's managed subnet. The default subnet is `10.42.0.0/16`, but can be configured to your own subnet.
-
-> **Note:** For any containers relying on any networking launched from a network driver (i.e. `managed` or based on the name of the network driver), if the network infrastructure service (e.g. `ipsec`) is deleted, then the networking will fail for that container.
-
-##### Containers created with the Docker CLI
-For any containers launched through the Docker CLI, an extra label `--label io.rancher.container.network=true` can be used to launch the container into the `managed` network. Without this label, containers launched from the Docker CLI will be using the `bridge` network.
-
-If you want to launch a container in **only** the `managed` network, you'd need to add `--net=none` and `--label io.rancher.container.network=true` for the container to be started without the `bridge` network.
+##### 通过Docker CLI创建容器
+任何通过Docker CLI创建的容器，只要添加--label io.rancher.container.network=true的标签，那么将会自动使用managed网络。不用这个标签，大部分情况下使用的是bridge网络。
+如果容器只想使用managed网络，你需要使用--net=none和--label io.rancher.container.network=true。
 
 #### None
-When a container is launched with `none` for networking, the container is launched with no networking enabled. This is equivalent to launching a container from the Docker command line with the option `--net=none`.
-
-Inside the container, the `ip addr` or `ifconfig` commands will not show any network interfaces except for the loopback (i.e. `lo`).
+当容器使用none网络类型，基本上等同于Docker中的—net=none。在容器中也不会看到任何网络设备除了lo设备。
 
 #### Host
-When a container is launched with `host` networking, the container is launched with the same networking interfaces available to the host. This is equivalent to launching a container from the Docker command line with the option `--net=host`.
-
-Inside the container, the `ip addr` or `ifconfig` commands will show the same networking interfaces as the host.
+当容器使用host网络类型，基本上等同于Docker中的—net=host。在容器中能够看到主机的网络设备。
 
 #### Bridge
-When a container is launched with `bridge` networking, the container is launched on Docker's default bridge. By default, it is `docker0` unless the system administrator has changed it on the host. This is equivalent to launching a container from the Docker command line with the option `--net=bridge`.
-
-Inside the container, the `ip addr` or `ifconfig` commands will show one network interface (i.e. `eth0`) along with the loopback interface (i.e. `lo`). The IP address of the network interface will be one from the Docker's subnet. The default subnet used by Docker is `172.17.0.0/16`.
+当容器使用bridge网络类型，基本上等同于Docker中的—net=bridge。默认情况下，容器中可以看到172.17.0.0/16的网段IP。
 
 #### Container
-When a container is launched with networking from another container, the container is launched using the networking resources of the other container. This is equivalent to launching a container from the Docker command line with the option `--net=container:<CONTAINER_NAME>`.
+当容器使用container网络类型，基本上等同于Docker中—net=container:<CONTAINER>。在容器中可以看到指定容器的网络配置。
 
-Inside the container, the `ip addr` or `ifconfig` commands will show the same networking interfaces as the container that was selected. The actual IP address depends on the network mode of the original container. If the original container had `bridge` mode, then the IP address would be in the docker's subnet.
-
-### Example of Rancher's IPSec Network Service
-
-To leverage the CNI framework, you can enable a network infrastructure service, which is created from a network driver in a yaml file. In the `network_driver` key of the yaml, there are several options that are defined.
-
-Here is an example of Rancher's IPsec infrastructure service. The `network_driver` is configured in the `rancher-compose.yml` file.
-
-```yaml
+### Rancher IPSEC使用例子
+通过编写YAML文件，利用CNI框架来驱动，就可以构建Rancher的网络基础服务。下面是IPSEC网络驱动的YAML文件样例：
+```
 ipsec:
   network_driver:
     name: Rancher IPsec
@@ -106,51 +81,28 @@ ipsec:
 ```
 
 #### Name
-
-The name of the network driver.
+网络驱动的名字
 
 #### Default Network
-The `default_network` defines options for the networking in the environment.
-
-##### Name
-
-The name of the default network can be used when selecting a network mode for a service.
+默认网络定义的是当前Environment的网络配置
 
 ##### Host Ports
-
-By default, ports on a host are allowed to be published, but you can create a network that does not allow publishing ports on the host.
+默认情况下，可以在主机上开放端口，当然你可以选择不开放
 
 ##### Subnets
-
-You can select the network addresses for the subnet of the managed overlay network.
+你可以给Overlay网络定义一个子网
 
 ##### DNS && DNS Search
+这两个配置Rancher会自动生成
 
-The values in DNS and DNS Search  will be autopopulated in the containers.
-
-#### CNI configuration
-
-For the network driver, you can set the CNI configuration within the `cni_config`. The example above shows the CNI configuration for Rancher's IPsec infrastructure service.
-
-Most of the options specified in the CNI config are generic except a few which are specific to Rancher's CNI plugin implementation. This configuration can be customized by third party CNI plugin providers when they are integrating with Rancher.
+#### CNI 配置
+你可以将CNI的具体配置放在`cni_config`下面，具体的配置将会依赖你选择的CNI插件
 
 ##### bridge
-
-Specify the bridge name to be used by the CNI plugin. This is a generic CNI bridge plugin option.
-
-> For the "Rancher IPsec" plugin, the default is `docker0`
+Rancher IPSEC实际上利用了CNI的bridge插件，所以你会看到这个设置，默认是docker0
 
 ##### bridgeSubnet
-
-The subnet to use with this network plugin. This is Rancher specific option.
-
-> For the "Rancher IPsec" plugin, the default network is `10.42.0.0/16`. If you would like to use a different subnet other than this, this configuration option needs to be customized when creating a new environment template which is later used to deploy a new environment with the customized subnet.
+这个配置可以理解为主机上容器的子网，对于Rancher IPSEC就是10.42.0.0/16
 
 ##### mtu
-
-Different cloud providers have different MTU values in their networks. This option allows you to customize it to your needs. This is also a Rancher specific option.
-
-> Rancher's IPsec overlay network has an overhead of 98 bytes.
-> `MTU of the container's network interface = MTU of the network - 98`
-
-> For example, if your cloud provider's MTU is 1200 bytes then you would see an MTU of 1102 (= 1200 - 98) inside the container when you type `ip addr` or `ifconfig`
+不同的网络环境MTU的配置可能会不同，尤其是当你使用Overlay网络更需要注意。最终容器的MTU值应该是网络的MTU减去Overlay网络overhead的大小。比如IPSEC：1500-98=1402

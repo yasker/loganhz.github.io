@@ -2,55 +2,60 @@
 title: FAQS about Rancher Agents/Hosts
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
+---
+## FAQs 关于　Rancher agent/host
 ---
 
-## FAQs about Rancher Agent/Hosts
----
+### 我如何配置一个位于代理服务器后面的主机？
 
-### How do I set up my hosts behind a Proxy?
+要支持代理服务器后面的主机，你需要配置 Docker 的代理服务。详细说明参考添加自定义主机。
 
-To support hosts behind a proxy, you’ll need to edit the Docker daemon to point to the proxy. The detailed instructions are listed within our [adding custom host page]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/#hosts-behind-a-proxy).
 
-### What are reasons why Rancher agent would fail to start?
+### Rancher Agent 无法启动的原因是什么？
 
-#### Adding in `--name rancher-agent`
+#### 添加 `--name rancher-agent`
 
-If you edited the `docker run .... rancher/agent...` command from the UI to add in `--name rancher-agent`, then Rancher agent will fail to start. Rancher agent launches 3 different containers after the initial run. There will be 1 running container and 2 stopped containers. The containers named `rancher-agent` and `rancher-agent-state` are required for the Rancher agent to successfully connect with Rancher server. The third container with the defaulted Docker name can be removed.
+如果你从 UI 中编辑`docker run .... rancher/agent...`命令添加`--name rancher-agent`选项，那么 Rancher Agent 将启动失败。Rancher agent 在初始运行时会启动 3 个不同容器，1 个是运行状态和2 个停止状态。Rancher agent要成功连接到 Rancher Server 必须要有两个名字为`rancher-agent` 和 `rancher-agent-state`的容器，第三个与 docker 名称冲突的容器会被移除。
 
-#### Using a cloned VM
+#### 使用一个克隆的虚拟机。
 
-If you cloned a VM and attempting to register the cloned VM, it will not work and throw an error in the rancher-agent logs. `ERROR: Please re-register this agent.` The unique ID that rancher saves in `/var/lib/rancher/state` will be the same for cloned VMs and unable to re-register.
+如果你使用一个克隆的虚拟机并尝试注册它，它将不能工作并在 Rancher-agent 日志中产生`ERROR: Please re-register this agent.`.Rancher 的唯一 ID保存在`/var/lib/rancher/state`，和克隆的虚拟机是相同的所以无法重新注册。
 
-The workaround for this is to run the following command on the cloned VM `rm -rf /var/lib/rancher/state; docker rm -fv rancher-agent; docker rm -fv rancher-agent-state`, once completed you can register the server again.
+解决方法是在克隆的VM上运行以下命令： `rm -rf /var/lib/rancher/state; docker rm -fv rancher-agent; docker rm -fv rancher-agent-state`, 完成后可重新注册。
 
 <a id="agent-logs"></a>
 
-### Where can I find detailed logs of the Rancher Agent container?
+### 我在哪里可以找到 Rancher agent 容器的详细日志?
 
-As of v1.6.0, running `docker logs` on the Rancher agent container will provide a set of all logs related to the agent.
+从 v1.6.0起在Rancher代理上运行`docker logs`容器将提供一组与代理相关的所有日志。
 
-### How to check your host registration is set correctly?
 
-If you're having issues with Rancher Agents connect to Rancher Server, please check that your hosts are set up. When you first attempted to add a host in the Rancher UI, you had to set a Host Registration URL. The URL is used to establish a connection from your hosts to the Rancher API server. This URL must be reachable from your hosts. To verify that it is, log onto the host and execute a curl command:
+###如果验证你的主机注册设置是否正确？
+How to check your host registration is set correctly?
+
+如果你正面临Rancher Agent 和 Rancher　Server 连接问题，请检查主机设置。当你第一次尝试在 UI 中添加主机，你需要设置主机注册的 URL，该URL用于建立从主机到Rancher API服务器的连接。这个URL必须可以从你的主机访问到。 去验证它要登录到主机并执行curl命令：
+
 
 ```
 curl -i <Host Registration URL you set in UI>/v1
 ```
 
-You should get a json response. If authentication is turned on, the response code should be 401. If authentication is not turned on, the response code should be 200.
+你应该得到一个json响应。 如果认证开启，响应代码应为401.如果认证未打开，则响应代码应为200。
 
-> **Note:** Both normal HTTP connections and websocket connections (ws://) are used. If this URL points to a proxy or load balancer, make sure it is configured to handle websocket connections.
+> **注意:** 使用正常的HTTP连接和websocket连接（ws：//）。 如果此URL指向代理或负载平衡器，请确保它已配置为处理Websocket连接。
+###我该怎么固定主机 IP 和更改它，如果主机的 IP 变了（因为重启），我改怎么办？
 
-###  How does the host determine IP address and how can I change it? What do I do if the IP of my host has changed (due to reboot)?
 
-When the agent connects to Rancher server, it auto detects the IP of the agent. Sometimes, the IP that is selected is not the IP that you want to use or it selects the docker bridge IP, i.e. `172.17.x.x`.
+当agent连接到Rancher Server时，它会自动检测agent的IP。 有时，所选择的IP不是要使用的IP，或者选择了docker bridge IP
+, 如. `172.17.x.x`.
 
-Alternatively, if you've already registered a host and your host has a new IP after a reboot, the IP of your host in the UI will no longer match.
+或者，你有一个已经注册的主机，当主机重启后获得了一个新的IP,
+Alternatively, if you've already registered a host and your host has a new IP after a reboot, 这个 IP 将会和你的主机在 Rancher UI 中的 IP 不匹配。
 
-You can override the `CATTLE_AGENT_IP` setting and set the host IP to what you want.
+您可以重新配置“CATTLE_AGENT_IP”设置，并将主机IP设置为您想要的。
 
-When the host has the incorrect IP, the containers will not have access to the managed network. To get the host and all containers into the managed network, just edit the command to [add in a custom host]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/custom/) by specify the new IP as an environment variable (i.e Step 4). Run the edited command on the host. Do not stop or remove the existing agent on the host!
+当主机IP地址不正确时，容器将无法访问管理网络。 要使主机和所有容器进入管理网络，只需编辑命令[添加自定义主机]通过将新的IP指定为环境变量。 在主机上运行编辑的命令。 不要停止或删除主机上的现有代理！
 
 ```bash
 $ sudo docker run -d -e CATTLE_AGENT_IP=<NEW_HOST_IP> --privileged \
@@ -58,12 +63,14 @@ $ sudo docker run -d -e CATTLE_AGENT_IP=<NEW_HOST_IP> --privileged \
     rancher/agent:v0.8.2 http://SERVER_IP:8080/v1/scripts/xxxx
 ```
 
-### What happens if my host is deleted outside of Rancher?
+### 如果我的主机没有使用 Rancher而直接被删除会发生什么?
 
-If your host is deleted outside of Rancher, then Rancher server will continue to show the host until it’s removed. These hosts will initially be in _Reconnecting_ state before moving to `Disconnected` state. You will be able to **Delete** these hosts to remove them from the UI.
+如果你的主机直接被删除,  Rancher Server 会一直显示该主机.
+主机会处于`Reconnecting`状态，然后转到`Disconnected`状态，这样你才能够从 UI 中**删除**这些主机。
 
-If you have services that have deployed containers onto the `Disconnected` hosts, they will only be re-scheduled to other hosts if you have added [health checks]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks/).
+如果你有一些添加了健康检查功能的服务部署在`Disconnected`主机上，它们会重新调度到其他主机上。
 
-### Why is the same host showing up in the UI multiple times?
 
-If you are using boot2docker to add hosts, the hosts cannot persist `var/lib/rancher`, which is what Rancher uses to store necessary information for identify hosts.
+### 为什么同一主机在UI中多次出现?
+
+如果你使用 boot2docker添加主机，主机不能持久化`var / lib / rancher`，这是Rancher用来存储用于标识主机的必要信息。

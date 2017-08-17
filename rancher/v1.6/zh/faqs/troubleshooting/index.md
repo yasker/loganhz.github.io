@@ -2,57 +2,57 @@
 title: Troubleshooting FAQs about Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 redirect_from:
   - /rancher/v1.6/en/faqs/
   - /rancher/faqs/
   - /rancher/faqs/troubleshooting/
 ---
 
-## Troubleshooting FAQs
+## 故障排错及常见问题
 ---
 
-Please read more detailed FAQs about [Rancher Server]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/faqs/server) and [Rancher Agent/Hosts]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/faqs/agents/).
+请阅读有关Rancher服务器和Rancher代理/主机的更多详细常见问题。
 
-This section assumes you were able to successfully start Rancher server and add hosts.
+本节假设您能够成功启动Rancher服务器并添加主机。
 
-### Services/Containers
+### 服务/容器
 
-#### Why can I only edit the name of a container?
+#### 求助！为什么我只能编辑容器的名称？
 
-Docker containers are immutable (not changeable) after creation. The only things you can edit are things that we store that aren't really part of the Docker container. This includes restarting, it's still the same container if you stop and start it. You will need to remove and recreate a container to change anything else.
+Docker 容器在创建之后就不可更改了. 唯一可更改的内容是我们要存储的不属于 Docker 容器本身的那一部分数据. 无论是停止、启动或是重新启动，它始终在使用相同的容器. 如需改变任何内容都需要删除或重新创建一个容器.
+你可以**克隆**，即是选择已存在的容器提前在**添加服务**界面中填入所有要设置的内容，如果你忘记填入某项内容，可以通过克隆来改变它之后删除旧的容器.
 
-You can **Clone**, which will pre-fill the **Add Container** screen with all the settings from an existing container. If you forget one thing, you can clone the container, change it, and then delete the old container.
 
-#### How do linked containers/services work in Rancher?
+#### 如何在 Rancher 中关联容器/服务？How do linked containers/services work in Rancher?
 
-In Docker, linked containers (using `--link` in `docker run`) shows up in the `/etc/hosts` of the container it's linked to. In Rancher, we don't edit the `/etc/hosts`. Instead we run an [internal DNS server]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/internal-dns-service/) that makes links work across hosts. The DNS server would respond with the correct IP.
+在 Docker 中，关联容器（在 `docker run`中使用`--link`），之后在容器的`/etc/hosts`查看链接状态。在 Rancher 中，我们不需要更改容器的`/etc/hosts`文件，而是通过运行一个内部 DNS服务器来关联主机，DNS 服务器会反馈给我们正确的 IP。
 
-<a id="container-access"></a>
 
-#### Help! I cannot execute the shell or view logs of the container from the UI. How does Rancher access the shell/logs of a container?
+#### 求助! 我不能通过 Rancher的界面打开 Shell 或查看日志.  Rancher 是如何去访问容器的 Shell和日志?
 
-Since the agent is potentially open to the public internet, requests to the agent for a shell (or logs, etc) of a container aren't automatically trusted. The request from Rancher Server includes a JWT (JSON Web Token) and that JWT is signed by the server and can be verified by the agent to have actually come from the server. Part of that includes an expiration time, which is 5 minutes from when it is issued. This prevents a token from being used for long periods of time if it were to be intercepted, which is particularly important if not using SSL.
+Agent 有可能会联接公共网络，通过 Agent 去访问容器 Shell 或 Logs 的请求是不可信的。而从 Rancher 服务器中发出的请求包括一个 JWT（JSON Web Token)，JWT 是由服务器签名并且可由 Agent识别出请求的确来自服务器，JWT其中一部分包括有效期限，有效期为 5 分钟，如果JWT被拦截，可防止它被长时间使用。但如果不使用SSL，这一点尤为重要。
 
-If you run docker logs -f rancher-agent and the logs show messages about an expired token, then please check that the date/time of the Rancher Server host and Rancher Agent host are in sync.
+如果你运行`docker logs -f (rancher-agent　名称或 ID）`，日志会显示令牌失效的日期，随后检查 Rancher 服务器主机和 Rancher 代理主机的日期/时间的一致性。
 
-#### Where can I see logs of my service?
+#### 在哪里可以看到我的服务日志?
 
-In the service details, we provide service logs in a tab called **Log**. In the **Log** tab, it lists out all events related to the service including a timestamp and description of the event that occurs in the API. These logs are kept for 24 hours before being deleted.
+在服务的详细页中，我们提供了一个服务日志的标签**日志**。在**日志**标签中，列出了和服务相关的所有事件，包括时间戳、API事件相关描述，这些日志将会保留 24 小时。
 
-### Cross Host Communication
+### 跨主机通信
 
-If containers on different hosts cannot ping each other, there are some common scenarios that could be the issue.
+如果容器运行在不同主机上，不能够ping 通彼此, 可能是由一些常见的问题引起的.
 
-#### How to check if cross host communication is working?
+#### 如何检查跨主机通信是否正常?
 
-In the **Stacks** -> **Infrastructure Stacks**, check the status of the `healthcheck` stack. If the stack is active, then cross host communication is working.
+在**应用**->**基础设施**中，检查 `healthcheck` 应用的状态。如果是active跨主机通信就是正常的。
 
-To manually test, you can exec into any container and ping the internal IP (i.e. 10.42.x.x) of another container. The containers from infrastructure stacks may be hidden on the hosts page. To view them, select the "Show System" checkbox in the upper right corner.
+手动测试，你可以进入任何一个容器中，去 ping 另一个容器的内部 IP。在主机页面中可能会隐藏掉基础设施的容器，如需查看点击“显示系统容器”的复选框。
+
 
 #### Are the IPs of the hosts correct in the UI?
 
-Every so often, the IP of the host will accidentally pick up the docker bridge IP instead of the actual IP. These are typically `172.17.42.1` or starting with `172.17.x.x`. If this is the case, you need to re-register your host with the correct IP by explicitly setting the `CATTLE_AGENT_IP` environment variable in the `docker run` command.
+通常来讲，主机将提供给 Docker 网桥一个 IP 地址，而不是真实的 IP 地址，通常是`172.17.42.1`或以`172.17.x.x`开头的IP。如果是这种情况，在使用`docker run`命令时用正常的 IP 地址来指定`CATTLE_AGENT_IP`环境变量。
 
 ```bash
 $ sudo docker run -d -e CATTLE_AGENT_IP=<HOST_IP> --privileged \
@@ -60,9 +60,9 @@ $ sudo docker run -d -e CATTLE_AGENT_IP=<HOST_IP> --privileged \
     rancher/agent:v0.8.2 http://SERVER_IP:8080/v1/scripts/xxxx
 ```
 
-#### Running Ubuntu, and containers are unable to communicate with each other.
+#### 在 Ubuntu 上运行容器时彼此间不能正常通行.
 
-If you have `UFW` enabled, you can either disable `UFW` OR change `/etc/default/ufw` to:
+如果你的系统开启了`UFW`,请关闭`UFW`或更改`/etc/default/ufw`中的策略为：
 
 ```
 DEFAULT_FORWARD_POLICY="ACCEPT"
@@ -70,12 +70,14 @@ DEFAULT_FORWARD_POLICY="ACCEPT"
 
 <a id="subnet"></a>
 
-#### The default subnet (`10.42.0.0/16`) used by Rancher is already used in my network and prohibiting the managed network. How do I change the subnet?
+#### Rancher 的默认子网（`10.42.0.0/16`）在我的网络环境中已经被使用或禁止使用，我应该怎么去更改这个子网？
 
-The default subnet used for Rancher's overlay networking is `10.42.0.0/16`. If your network is already using this subnet, you will need to change the default subnet used in Rancher's networking. You will need to ensure the networking infrastructure service that you want to use has the correct [subnet]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking/#subnets) in the `default_network` in the `rancher-compose.yml` file.
 
-To change Rancher's IPsec or VXLAN network driver, you will need to have an [environment template]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template) with an updated infrastructure service. When creating a new environment template or editing an existing one, you edit the configuration of the networking infrastructure service by clicking on **Edit Config**. In the edit screen, you can enter a different subnet in the **Configuration Options** -> **Subnet** and click **Configure**. Any **new** environment using the updated environment template would be using the new subnet. Editing an existing environment template will not update the infrastructure services in existing environments.
+Rancher overlay 网络默认使用的子网是`10.42.0.0/16`。如果这个子网已经被使用，你将需要更改Rancher网络中使用的默认子网，在 `Rancher－compose.yml`文件中的使用合适子网配置`default_network`保证你的网络基础服务。
 
+
+要更改Rancher的IPsec或VXLAN网络驱动程序，您将需要具有更新的基础架构服务的环境模板。创建新环境模板或编辑现有环境模板时，可以通过单击**编辑**来配置网络基础结构服务的配置。在编辑页面中，选择**配置选项**　>　**子网**输入不同子网，点击**配置**。在任何新环境中将使用环境模板更新后的子网，编辑已经有的环境模板不会更改现在的环境中的子网。
+这个实例是通过升级网络驱动的`rancher-compose.yml`文件去改变子网为`10.32.0.0/16`.
 Here's an example of the updated network driver's `rancher-compose.yml` to change the subnet to `10.32.0.0/16`.
 
 ```yaml
@@ -114,15 +116,15 @@ ipsec:
           - dst: 169.254.169.250/32
 ```
 
-> **Note:** The previous method of updating the subnet through the API will no longer be applicable as Rancher has moved to infrastructure services.
+> **注意:** 随着 Rancher 通过升级基础服务来更新子网，以前通过API更新子网的方法将不再适用。
 
 ### DNS
 
 <a id="dns-config"></a>
 
-### How can I see if my DNS is set up correctly?
+### 如何查看我的 DNS 是否配置正确?
 
-If you want to see the configuration of the Rancher DNS setup, go to the **Stacks** -> **Infrastructure**. Find the `network-services` stack and select the `metadata` service. In the `metadata` service, exec into any of the containers named `network-services-metadata-dns-X`. You can use the UI and select **Execute Shell** on the container.
+如果你想查看 Rancher　DNS 配置，点击**应用** > **基础服务**。点击`network-services`应用，选择`metadata`,在`metadata`中，找到容器名为`network-services-metadata-dns-X`，通过 UI 选择该容器的 **执行命令行**。
 
 ```bash
 $ cat /etc/rancher-dns/answers.json
@@ -131,59 +133,62 @@ $ cat /etc/rancher-dns/answers.json
 
 #### CentOS
 
-##### Why are my containers unable to connect to network?
+##### 为什么我的容器无法连接到网络?
 
-If you run a container on the host (i.e. `docker run -it ubuntu`) and the container cannot talk to the internet or anything outside the host, then you might have hit a networking issue.
+如果你在主机上运行一个容器（如：`docker run -it ubuntu`）该容器不能与互联网或其他主机通信，那可能是遇到了网络问题。
 
-CentOS will by default set `/proc/sys/net/ipv4/ip_forward` to `0`, which will essentially bork all networking for Docker.  Docker sets this value to `1` but if you run `service restart networking` on CentOS it sets it back to `0`.
+Centos 默认设置`/proc/sys/net/ipv4/ip_forward`为`0`，这从底层阻断了 Docker 所有网络。Docker将此值设置为`1`，但如果在CentOS上运行`service restart network`，则将其设置为`0`。
+
 
 <a id="lb-config"></a>
 
 ### Load Balancer
 
-#### Why is my load balancer stuck in `Initializing`>?
+#### 为什么我的负载均衡是 `Initializing`状态?
 
-Load balancers automatically have [health checks]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks/) enabled on them. If the load balancer is stuck in `initializing` state, then most likely the [cross host communication](#cross-host-communication) between the hosts is not working.
+负载平衡器自动对其启用健康检查。 如果负载均衡器处于初始化状态，则很可能主机之间的跨主机通信不起作用。
 
-#### How can I see the configuration of my Load Balancer?
+#### 我如何看我的负载均衡器的配置?
 
-If you want to see the configuration of the load balancer, you will need to exec into the specific load balancer container and look for the configuration file. You can use the UI and select **Execute Shell** on the container.
+如果要查看负载平衡器的配置，你需要用进入负载平衡器容器内部查找配置文件，你可以在页面选择负载平衡容器的**执行命令行**
+
 
 ```bash
 $ cat /etc/haproxy/haproxy.cfg
 ```
 
-This file will provide all the configuration details of the load balancer.
+该文件将提供负载平衡器的所有配置详细信息。
 
-#### Where can I find the logs of HAProxy?
+#### 我在哪能找到 HAproxy 的日志?
 
-The logs of HAProxy can be found inside the load balancer container. `docker logs` of the load balancer container will only provide details of the service related to load balancer, but not the actual HAProxy logging.
+HAProxy的日志可以在负载平衡器容器内找到。 负载平衡器容器的`docker logs`只提供与负载平衡器相关的服务的详细信息，但不提供实际的HAProxy日志记录。
 
 ```
 $ cat /var/log/haproxy
 ```
 
-### HA
+### 高可用
 
-#### Rancher Compose Executor and Go-Machine-Service are continuously restarting.
+#### Rancher Compose Executor 和 Go-Machine-Service不断重启.
 
-In an HA set, if rancher-compose-executor and go-machine-service are continuously restarting, if you are behind a proxy, please ensure that proxy protocol is being used.
+在高可用集群中，如果你正在使用代理服务器后，如果rancher-compose-executor和go-machine-service不断重启，请确保正在使用代理协议。
 
-### Authentication
+### 认证
 
 <a id="manually-turn-off-github"></a>
 
-#### Help! I turned on [Access Control]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/) and can no longer access Rancher. How do I reset Rancher to disable Access Control?
+####求助！我打开了访问控制但不能访问 Rancher 了，我该如何重置 Rancher 禁用访问控制？
 
-If something goes wrong with your authentication (like your GitHub authentication getting corrupted), then you may be locked out of Rancher. To re-gain access to Rancher, you'll need to turn off Access Control in the database. In order to do so, you'll need access to the machine that is running Rancher Server.
+如果你的身份验证出现问题（例如你的GitHub身份验证已损坏），则可能会将其锁定在Rancher中。 要重新获得对Rancher的访问权限，您需要关闭数据库中的Access Control。 为此，您需要访问运行Rancher Server的主机。
 
 ```bash
 $ docker exec -it <rancher_server_container_ID> mysql
 ```
 
-> **Note:** The `<rancher_server_container_ID>` will be the container that has the Rancher database. If you [upgraded]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/upgrading/) and created a Rancher data container, you'll need to use the ID of the Rancher data container instead of the Rancher server container.
+> **注意:** 这个 `<rancher_server_container_ID>`将是具有Rancher数据库的容器。 如果您升级并创建了一个Rancher数据容器，则需要使用Rancher数据容器的ID而不是Rancher服务器容器。
 
-Access the cattle database.
+
+访问 Cattle数据库.
 
 ```bash
 mysql> use cattle;
@@ -192,20 +197,20 @@ mysql> use cattle;
 Review the `setting` table.
 
 ```bash
-mysql> select * from setting;  
+mysql> select * from setting;
 ```
 
-Update the `api.security.enabled` to `false` and clear the `api.auth.provider.configured` value . This change will turn off access control and anyone can access Rancher server with the UI/API.
+更改 `api.security.enabled` 为 `false` 清除 `api.auth.provider.configured` 值 . 此更改将关闭访问控制，任何人都可以使用UI / API访问Rancher服务器。
 
 ```bash
 mysql> update setting set value="false" where name="api.security.enabled";
 mysql> update setting set value="" where name="api.auth.provider.configured";
 ```
 
-Confirm the changes have been made in the `setting` table.
+确认在`setting`表中进行更改。
 
 ```bash
-mysql> select * from setting;  
+mysql> select * from setting;
 ```
 
-It may take ~1 minute before the authentication will be turned off in the UI, but you will be able to refresh the webpage and access Rancher with access control turned off.
+可能需要约1分钟才能在用户界面中关闭身份验证，但你可以刷新网页和访问关闭访问控制的 Rancher。
