@@ -2,55 +2,59 @@
 title: Containers
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Containers
+## 容器
 ---
 
-### Adding Containers
+### 添加容器
 
-Typically, we recommend that people add containers using [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-ui/applications/stacks/adding-services) as it provides a little more flexibility for the user, but sometimes we understand that you might want to spin up one container.
+通常，我们建议人们使用[services（服务）]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-ui/applications/stacks/adding-services) 添加容器，因为它为用户提供了一些更大的灵活性，但有时我们理解您可能需要升级一个容器。
 
-In the **Infrastructure** -> **Container** page, click on **Add Container**. Any options that `docker run` supports when creating containers is also supported in Rancher.
+在**Infrastructure（基础设施）** -> **Container（容器）**页面中，单击**Add Container（添加容器）**。任何docker run 支持的参数，同样的Rancher也支持。
 
-1. Provide a **Name** and if desired, **Description** for the container.
-2. Provide the **Image** to use. You can use any image on [DockerHub](https://hub.docker.com/) as well as any [registries]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/registries) that have been added to Rancher. The syntax for image name would match any `docker run` commands.
+1. 提供**Name（名称）**，如果需要，也可提供容器的**Description（描述）**。
+2. 提供**Image（镜像）**使用。您可以使用DockerHub上的任何镜像以及已添加到Rancher的[registries]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/registries) 。镜像名称的语法与任何`docker run`命令相匹配。
 
-    Syntax of image names. By default, we pull from the docker registry. If no tag is specified, we will pull the latest tag.
+
+    镜像名称的语法。默认情况下，我们从docker register中拉取。如果没有指定标签，我们将拉取标签为tag的镜像。
 
     `[registry-name]/[namespace]/[imagename]:[version]`
 
     <a id="port-mapping"></a>
 
-3. If desired, set up port mapping, which proviedes the ability to access the exposed ports on the container through the host IP. In the **Port Map** section, you define the public ports that will be used to communicate with the container. You also define the private port that is used to connect to the exposed port of the container.
 
-    **Random Port Mapping**
+3. 如果需要，设置端口映射，这提供了通过主机IP访问容器上暴露端口的方法。在**Port Map（端口映射）** 部分中，你可以定义用于与容器进行通信的公共端口。您还可以定义用于连接到容器的暴露端口的私有端口。
 
-    If you would like to take advantage of Rancher's random port mapping, the public port will be blank and you will need to define the private port. The private port is typically one of exposed ports on the container.
+    **随机端口映射**
 
-    > **Note:** When ports are exposed in Rancher, it will not show up in `docker ps` as Rancher manages the iptable rules to make the ports fully dynamic.
+    如果您想要利用Rancher的随机端口映射，公共端口可以留空，您只需要定义私有端口。私有端口通常是容器上的暴露端口之一。
 
-4. In the various tabs, all options available in Docker are available for Rancher. By default, we have set the `-i -t`.
 
-    If you chose to add the container from the **Infrastructure** -> **Containers** page, Rancher will automatically pick a host for you. Otherwise, if you have picked a host to add a container to, the host will be populated in the **Security/Host** tab.
 
-    There is also the ability to add labels to a container as well as apply scheduling rules. More details about labels and scheduling can be read [here]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-ui/scheduling/).
+    > **注:** 当在Rancher中显示端口时，它只会在创建时显示端口。如果端口映射有任何编辑，它不会在`docker ps`中更新，因为Rancher通过管理iptable规则，使端口完全动态。
 
-5. When you have completed filling out your container options, click **Create**.
+4. 在各种选项卡中，Docker中可用的所有选项均可用于Rancher。默认情况下，我们设置了`-i -t`。
 
-## Editing Containers
+    如果您选择从**Infrastructure(基础设施）** -> **Containers（容器）**页面添加容器，则Rancher会自动为您选择一个主机。否则，如果您选择了一个主机来添加容器，主机将被安装在**Security/Host**选项卡中。
+
+    你还可以向容器添加标签以及应用调度规则。有关标签和调度的更多细节参考[这里]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-ui/scheduling/)。
+5. 当您的填写容器选项完成后，单击**Create（创建）**。
+
+
+## 编辑容器
 ---
 
-From the dropdown of a container, you can select different actions to perform on a container. When viewing containers on a host or service, the dropdown icon can be found by hovering over the container name. In the **Infrastructure** -> **Containers**, the dropdown icon is only visible for containers that were created specifically on the hosts. Any containers created through a service will not display its dropdown icon.
+从容器的下拉列表中，您可以选择不同的操作来在容器上执行。在主机或服务器上查看容器时，可以通过将鼠标悬停在容器名称上来查找下拉图标。在**Infrastructure（基础设施）** -> **Containers（容器）**中，仅在主机上创建的容器才可以看到下拉图标。通过服务创建的任何容器都不会显示其下拉图标。
 
-You can always click on the container name, which will bring you to the container details page. On that page, the dropdown menu is located in the upper right hand corner next to the state of the container.
+您可以随时点击容器名称，这将带您进入容器详细信息页面。在该页面上，下拉菜单位于容器状态旁边的右上角。
 
-When you select **Edit** from the dropdown menu, you will be only able to change the name and description of the container. Docker containers are immutable (not changeable) after creation. The only things you can edit are things that we store that aren't really part of the Docker container. This includes restarting, it's still the same container if you stop and start it. You will need to remove and recreate a container to change anything else.
+当您从下拉菜单中选择**Edit（编辑）**时，您只能更改容器的名称和说明。Docker容器在创建后是不可变的。唯一可以编辑的是我们存储的东西，但这些不是Docker容器的一部分。这包括重新启动，即使停止并启动它，它仍然是同一个容器。您将需要删除并重新创建一个容器来更改任何其他内容。
 
-> **Note:** When ports are exposed in Rancher, it will not show up in `docker ps` as Rancher manages the iptable rules to make the ports fully dynamic.
+> **注:** 当Rancher暴露端口时，它不会出现在`docker ps`中，因为Rancher管理iptable规则以使端口完全动态。
 
-You can **Clone**, which will pre-fill the **Add Container** screen with all the settings from an existing container. If you forget one thing, you can clone the container, change it, and then delete the old container.
+您可以**克隆**，这将预先填充**添加容器**屏幕与现有容器的所有设置。如果您忘记了某些东西，您可以克隆容器，更改它，然后删除旧的容器。
 
 ### Changing the Container States
 
@@ -58,10 +62,17 @@ When a container is in a **Running** state, you can **Stop** the container. This
 
 You can **Delete** a container and have it removed from the host.
 
-### Executing the Shell
+当容器处于**Running(运行)**状态时，你可以**Stop(停止)**容器。这将停止主机上的容器，但不会将其移除。容器处于`暂停`状态后，可以选择**Start(开始)**以使容器再次开始运行。另一个选项是**Restart(重新启动)**容器，该容器将在一个步骤中停止并启动容器。
+
+您可以使用**Delete(删除)**使容器从主机中删除。
+
+
+### 执行Shell
 
 When you select **Execute Shell**, it brings you into the container shell prompt.
+当您选择**执行Shell**，它将带您进入容器shell提示符。
 
-### Viewing Logs
+### 查看日志
 
 It's always useful to see what is going on with the logs of a container. Clicking **View Logs** provides the equivalent of `docker logs <CONTAINER_ID>` on the host.
+通过查看日志去查看容器发生的情况是非常有帮助的。单击**View Logs（查看日志）**相当于docker logs <CONTAINER_ID>在主机上。

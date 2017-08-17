@@ -2,52 +2,54 @@
 title: Health Checks in Rancher
 layout: rancher-default-v1.6-zh
 version: v1.6
-lang: en
+lang: zh
 ---
 
-## Health Checks
+## 健康检查
 ---
 
-In Cattle environments, Rancher implements a health monitoring system by running a `healthcheck` infrastructure service, which launch `healthcheck` containers across its hosts to co-ordinate the distributed health checking of containers and services. These containers internally utilize HAProxy to validate the health status of your applications. When health checks are enabled either on an individual container or a service, each container is then monitored by up to three `healthcheck` containers running on separate hosts. The container is considered healthy if at least one HAProxy instance reports a "passed" health check and it is considered unhealthy when all HAProxy instances report a "unhealthy" health check.
+Cattle环境中，Rancher通过运行一个叫`healthcheck` 的基础设施服务部署了一套健康检查系统，其原理为在每台主机上部署了`healthcheck` 的容器来分布式的协调容器和服务。这些容器在内部利用HAProxy来检查应用的健康状态。一旦容器或服务上启用了健康检查，每个容器讲最多被三个运行在不同主机上的`healthcheck` 容器监控起来。只要有一个HAProxy实例认为其状态正常，该容器将被视为正常。如果所有HAProxy实例都认为其状态不正常，该容器将被视为状态异常。
 
-> **Note:** The only exception to this model is when your environment contains a single host, in this instance the health checks will be performed by the same host.
+> **注:** 该模式下唯一的例外为你的环境中只有一台主机，这种情况下健康检查将在同一台主机上被执行。
 
-Rancher handles network partitions and is more efficient than client-based health checks. By using HAProxy to perform health checks, Rancher enables users to specify the same health check policy across applications and load balancers.
 
-> **Note:** Health checks will only work for services that are using the managed network. If you select any other network choice, it will **not** be monitored.
+Rancher利用了不同网络位置的主机的机制进行健康检查，这种方式比客户端健康检查更高效。利用HAProxy来进行健康检查，Rancher使用户可以跨应用和服务均衡服务的选择相同的健康检查策略。
 
-### Configuration
 
-Use the following options to configure Health Checks:
+> **注:** 健康检查将只能在服务选择管理官网时生效。如果你选择了其他的网络类型，该服务将不会被监控。
 
-**Check type**: There are two types of checks - _TCP Connection Opens_ (only verifies that the port is open) and _HTTP Responds 2xx/3xx_ (performs an HTTP request and ensures a good response is received).
+### 配置
 
-**HTTP request**: If the check is of type _HTTP Responds 2xx/3xx_, you must specify a URL path to be queried. You can select the request method (`GET`, `POST`, etc) as well as the HTTP version (`HTTP/1.0`, `HTTP/1.1`).
+可以通过如下选择来配置健康检查：
 
-**Port**: The port to perform the check against.
+**检查类型**: 有两种检查方式 - _TCP Connection Opens_ (只验证端口是否打开) 以及 _HTTP Responds 2xx/3xx_ (进行HTTP请求并确保收到正确的回复)。
 
-**Initializing Timeout:** The number of milliseconds before we exit initializing.
+**HTTP 请求**: 如果检查类型是 _HTTP Responds 2xx/3xx_, 你必须制定一个可以接受查询的URL。 你可以选择方法 (`GET`, `POST`, etc) 以及HTTP版本 (`HTTP/1.0`, `HTTP/1.1`).
 
-**Check interval**: The number of milliseconds between checks.
+**端口**: 需要进行检查的端口
 
-**Check Timeout**: The number of milliseconds before a check without response times out.
+**Initializing Timeout 初始化超时:**  在退出初始化之前等待的毫秒数。
 
-**Healthy threshold**: The number of successful check responses before a (currently marked unhealthy) container is considered healthy again.
+**Check interval 检查间隔**:  在每次检查之间的时间间隔（毫秒）。
 
-**Unhealthy threshold**: The number of failed check responses before a (currently marked healthy) container is considered unhealthy.
+**Check Timeout 检查超时**: 在检查未得到回复并超时之前等待的毫秒数。
 
-**When Unhealthy**: There are 3 options of what to do when a container is considered unhealthy. `Take no action` means that the container will remain in unhealthy state. `Re-create` means that Rancher will destroy the unhealthy container and create a new container for the service.  `Re-create, only when at least X container is healthy` means that if there are `X` number of containers healthy, then the unhealthy container will be destroyed and re-created.
+**Healthy threshold 健康阈值**:  在一个不健康容器被标记为健康之前需要收到的健康检查回复的次数。
 
-### Adding Health Checks in the UI
+**Unhealthy threshold**: 在健康容器被标记为不健康之前需要收到的健康检查回复的次数。
 
-For [services]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/) or [load balancers]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/), health checks can be added by navigatiing to the **Health Check** tab. You can check TCP connections or HTTP responses for services and change the default values for the health check configuration.
+**When Unhealthy不健康门槛**: T
+当容器被认为是不健康时，有3种选择。`Take no action`意味着容器将保持不健康状态。`Re-create`意味着Rancher会破坏不健康的容器并为服务创建一个新的容器。 `Re-create, only when at least X container is healthy`意味着如果有`X`多个容器健康，不健康的容器将被破坏并重新创建。
 
-### Adding Health Checks to Services in Rancher Compose
+### 在UI中添加Health Checks
 
-Using [Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/rancher-compose/), health checks can be added in the `rancher-compose.yml`.
+对于[服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-services/)或[负载均衡]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/adding-load-balancers/)，可以通过导航到**Health Check**选项卡来添加Health check服务。您可以检查服务的TCP连接或HTTP响应，并更改health check配置的默认值。
 
-In our example, we show the health check configuration for the three different strategies if a container is found unhealthy.
+### 通过Rancher Compose添加 Health Checks
 
+使用[Rancher Compose]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/rancher-compose/)，health checks能添加在`rancher-compose.yml`文件中。
+
+在我们的示例中，如果容器发现不健康，我们会显示三种不同策略的健康检查配置。
 ```yaml
 version: '2'
 services:
@@ -106,18 +108,17 @@ services:
 ```
 
 
-### Failure Scenarios
+### 故障情况
 
-Scenario | Response
+状况 | 响应
 ----|----
-The container being monitored stops responding to health checks. | All the active HAProxy instances that are monitoring the container would detect the failure and mark the container as "unhealthy". If the container is part of a service then Rancher restores the service to its pre-defined scale through its service HA functionality.
-A host running containers with health checks enabled loses network connectivity or the agent on that host. | When network connectivity is lost to a host, the connection to the agent is lost from the Rancher server. Since the agent is not accessible, the host is marked as "reconnecting". At this time all that's known is that Rancher server can't connect to the host agent for that host. Health checking in Rancher is done against the container itself and not the host; as a result, the container would be unreachable to all of its active HAProxy instances. If the container is part of a service then Rancher restores the service to its pre-defined scale through its service HA functionality.
-A host running containers with health checks enabled has a complete failure. | When a host suffers a complete failure such as a power outage, the connection to the agent is lost from the Rancher server. Since the agent is not accessible, the host is marked as "reconnecting". At this time all that's known is that Rancher server can't connect to the host agent for that host. Health checking in Rancher is done against the container itself and not the host; as a result the container would be uncontactable by all of its active HAProxy instances. If the container is part of a service then Rancher restores the service to its pre-defined scale through its service HA functionality.
-A Host's agent fails but host remains online and the containers are running and are passing health checks. | In this instance, as the previous cases, the connection to the agent is lost from the Rancher server. Since the agent is not accessible, the host is marked as "reconnecting". At this time all that's known is that Rancher server can't connect to the host agent for that host. Health checking in Rancher is done against the container itself and not the host; as a result, the container would be unreachable to all of its active HAProxy instances. If the container is part of a service then Rancher restores the service to its pre-defined scale through its service HA functionality.
+被监测的容器停止响应Health check。| 所有的HAProxy实例将检测到故障，并将容器标记为“不健康”。如果容器是服务的一部分，则Rancher通过其服务HA功能将服务恢复到其预定义的规模。
+运行健康检查的容器的主机失去了网络连接或该主机上的代理。| 当主机丢失网络连接时，与Rancher服务连接的Rancher代理也会丢失网络连接。 由于代理不可访问，主机被标记为“重新连接”。这样我们知道了Rancher服务器无法连接到该主机的主机代理。对Rancher的健康检查是针对容器本身而不是主机完成的; 因此，容器将无法访问其所有活动的HAProxy实例。如果容器是服务的一部分，则Rancher通过其服务HA功能将服务恢复到其预定义的scale。
+运行启用了健康检查的容器的主机完全故障。| 当主机遇到完全故障（如断电）时，与代理服务器的连接，将从Rancher服务器中丢失。由于代理不可访问，主机被标记为“重新连接”。这样我们知道了Rancher服务器无法连接到该主机的主机代理。对Rancher的健康检查是针对容器本身而不是主机完成的; 因此，容器将被其所有活动的HAProxy实例无法访问。如果容器是服务的一部分，则Rancher通过其服务HA功能将服务恢复到其预定义的缩放比例。
+主机的代理失败，但主机保持在线，容器正在运行，并且正在进行健康检查。| 在这种情况下，如之前的情况，与代理服务器的连接丢失。由于代理不可访问，主机被标记为“重新连接”。这样我们知道了Rancher服务器无法连接到该主机的主机代理。对Rancher的健康检查是针对容器本身而不是主机完成的; 因此，容器将无法访问其所有活动的HAProxy实例。如果容器是服务的一部分，则Rancher通过其服务HA功能将服务恢复到其预定义的缩放比例。<br/>
+根据health check的结果容器会被标记成绿色或红色状态，
+根据健康检查的结果，会判断容器是处于绿色或红色状态。如果运行该服务的所有容器处于绿色状态，该服务就处于绿色（或“向上”）的状态。如果运行该服务所有容器都处于红色状态，则服务处于红色（或“向下”）状态。如果Rancher检测到至少一个容器不是处于红色状态，就将服务返回到绿色状态。
 
-<br>
-Depending on the result of health checks, a container is either in the green or red state. A service is in the green (or "up") state if all the containers implementing that service are in the green state, and alternatively, in the red (or "down") state if all the containers are subsequently in the red state.  A service is in the yellow (or "degraded") state if Rancher has detected that at least one of the containers is either in the red state or in the process of returning it to a green state.
+检测故障所用的时间是通过“间隔”值进行控制的，该值是通过compose或UI创建健康检查时定义的。
 
-The time taken to detect a failure is controlled through the 'interval' value, which is defined when creating the health check through either compose or the UI.
-
-> **Note:** The failure recovery actions are only executed after the container has become _green_. That is if a service has a long start-up time, the container won't be immediately restarted because the service takes longer than 2000ms to start. The Health Check first need to turn the container green before taking any other actions.
+> **注:** 故障恢复操作仅在容器状态变为绿色后执行。也就是说，如果服务的启动时间很长，则容器将不会立即重新启动，因为服务需要超过2000ms才能启动。健康检查首先需要在采取任何其他行动之前将容器变绿。
