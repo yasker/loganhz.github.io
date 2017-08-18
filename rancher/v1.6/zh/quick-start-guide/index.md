@@ -43,15 +43,15 @@ $ sudo docker logs -f <CONTAINER_ID>
 
 启动Rancher server只需要几分钟时间。当日志中显示 `.... Startup Succeeded, Listening on port...`的时候，Rancher UI就能正常访问了。配置一旦完成，这行日志就会立刻出现。这一输出之后也许还会有其他日志，因此，在初始化过程中这不一定是最后一行日志。
 
-Rancher UI的端口是 `8080`，想访问UI，需打开`http://<SERVER_IP>:8080`。如果你的浏览器和Rancher server是运行在同一主机上的，你需要主机的真实IP地址，比如 `http://192.168.1.100:8080` ，而不是 `http://localhost:8080` 或`http://127.0.0.1:8080`.
+Rancher UI的端口是 `8080`，想访问UI，需打开`http://<SERVER_IP>:8080`。如果你的浏览器和Rancher server是运行在同一主机上的，你需要主机的真实IP地址，比如 `http://192.168.1.100:8080` ，而不是 `http://localhost:8080` 或`http://127.0.0.1:8080`以防在添加主机的时候使用了不可达的IP而出现问题。
 
-> **注意：** 初始安装时Rancher的访问控制并未配置，任何能够访问你的IP地址的人，都可以访问你的UI和API。我们建议你配置 [访问控制]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/).
+> **注意：** 1. 初始安装时Rancher的访问控制并未配置，任何能够访问你的IP地址的人，都可以访问你的UI和API。我们建议你配置 [访问控制]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/). 2. 国内的公有云主机，如果需要使用80和8080端口，需备案后才可以使用。
 
 ### 添加主机
 
 为了简化操作，我们将添加运行着Rancher server的主机为Rancher内的主机。在实际的生产环境中，我们建议使用专用的主机来运行Rancher server。
 
-想要添加主机，首先你需要进入UI界面，点击**基础架构**，然后你将看到**主机**界面。点击**添加主机**，Rancher将提示你选择主机注册URL。这个URL是Rancher server运行所在的URL，且它必须可以被所有你要添加的主机访问到——当Rancher server会通过NAT防火墙或负载均衡器被暴露至互联网时，这一设定就非常重要了。如果你的主机有一个私有或本地的IP地址，比如 `192.168.*.*`，Rancher将打印一个警告信息，提醒你务必确保这个URL可以被主机访问到。
+想要添加主机，首先你需要进入UI界面，点击**基础架构**，然后你将看到**主机**界面。点击**添加主机**，Rancher将提示你选择主机注册URL。这个URL是Rancher server运行所在的URL，且它必须可以被所有你要添加的主机访问到——当Rancher server会通过NAT防火墙或负载均衡器被暴露至互联网时，这一设定就非常重要了。如果你的主机有一个私有或本地的IP地址，比如 `192.168.*.*`，Rancher将提示一个警告信息，提醒你务必确保这个URL可以被主机访问到。
 
 因为我们现在只会添加Rancher server主机自身，你可以暂时忽略这些警告。点击**保存**。默认选择**自定义**选项，你将得到运行Rancher agent容器的Docker命令。这里还有其他的公有云的选项，使用这些选项，Rancher可以使用Docker Machine来启动主机。
 
@@ -63,17 +63,17 @@ Rancher UI会给你提供一些指示，比如你的主机上应该开放的端�
 
 ### 基础架构服务
 
-当你第一次登陆Rancher时，你将自动进入**默认**[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)。默认已经为此环境选择了Cattle[环境模板]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template)来启动[基础架构服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)。要想充分利用Rancher的一些功能，如[dns]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/dns-service/)、[元数据]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/metadata-service)、[网络]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking)、[健康检查]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks/)，你需要启动这些基础架构服务。这些基础架构栈可以在**栈** -> **基础架构**中找到。在主机被添加至Rancher之前，这些栈会处于 `unhealthy` 状态。主机添加完成后，建议等到所有基础设施栈都处于`active`状态之后再添加服务。
+当你第一次登陆Rancher时，你将自动进入**默认**[环境]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/)。默认已经为此环境选择了Cattle[环境模板]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/environments/#what-is-an-environment-template)来启动[基础架构服务]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/)。要想充分利用Rancher的一些功能，如[dns]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/dns-service/)、[元数据]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/metadata-service)、[网络]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/rancher-services/networking)、[健康检查]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/cattle/health-checks/)，你需要启动这些基础架构服务。这些基础架构栈可以在**应用栈** -> **Infrastructure**中找到。在主机被添加至Rancher之前，这些栈会处于 `unhealthy` 状态。主机添加完成后，建议等到所有基础架构服务都处于`active`状态之后再添加服务。
 
-在主机上，来自基础架构服务的容器将被隐藏，除非您单击“**显示系统**”复选框。
+在主机上，所有属于基础架构服务的容器将被隐藏，除非你单击“**显示系统**”复选框。
 
 ### 通过UI创建一个容器
 
 导航到**应用**页面，如果你看到了欢迎屏幕，可以在欢迎屏幕中单击**定义服务**的按钮。如果您的Rancher设置中已有服务，您可以在任何现有stack中点击**添加服务**，或者创建一个新的应用来添加服务。应用只是将服务组合在一起的便捷方式。 如果需要创建新的应用，请单击**添加应用**，填写名称和描述，然后单击**创建**。 接着，在新的应用中单击**添加服务**。
 
-给服务取个名字，比如“第一个服务”。您可以使用我们的默认设置，然后单击**创建**。Rancher将开始在主机上启动容器。不论你的主机IP地址是什么，***第一个容器***的IP地址都将在 `10.42.*.*` 的范围内，因为Rancher已使用`ipsec`基础架构服务创建了一个managed overlay网络。这种managed overlay网络是容器如何在不同主机之间相互通信的方式。
+给服务取个名字，比如“第一个服务”。您可以使用我们的默认设置，然后单击**创建**。Rancher将开始在主机上启动容器。不论你的主机IP地址是什么，***第一个容器***的IP地址都将在 `10.42.*.*` 的范围内，因为Rancher已使用`ipsec`基础架构服务创建了一个managed overlay网络。各容器之间是通过这种managed overlay网络进行跨主机通信的。
 
-如果您单击***第一个容器***的下拉列表，您将可以进行管理操作，如停止容器、查看日志或访问容器控制台。
+如果你单击***第一个容器***的下拉列表，你将可以进行各种管理操作，如停止容器、查看日志或访问容器控制台。
 
 ### 通过Docker原生CLI创建一个容器
 
