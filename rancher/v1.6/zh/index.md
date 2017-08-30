@@ -14,7 +14,7 @@ redirect_from:
 ## Rancher概览
 ---
 
-Rancher是一个开源的可用于生产环境的企业级容器管理平台。通过Rancher，企业不必利用一系列的开源软件去从头搭建自己的容器服务平台。Rancher提供了在生产环境中使用的全栈化容器部署与管理平台。
+Rancher是一个开源的企业级容器管理平台。通过Rancher，企业再也不必自己使用一系列的开源软件去从头搭建容器服务平台。Rancher提供了在生产环境中使用的全栈化容器部署与管理平台。
 
 Rancher由以下四个部分组成：
 
@@ -32,7 +32,7 @@ Rancher为运行容器化的应用实现了一层灵活的[基础架构服务]({
 
 ### 应用商店
 
-Rancher的用户可以在[应用商店]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog)里一键部署由多个容器组成的应用。用户可以管理这个部署的应用，并且可以在这个应用有新的可用版本时进行自动化的升级。Rancher提供了一个由Rancher社区维护的应用商店，这个商店中包括了一系列的流行应用。Rancher的用户也可以[创建自己的私有应用商店]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/private-catalog/)。
+Rancher的用户可以在[应用商店]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog)里一键部署由多个容器组成的应用。用户可以管理这个部署的应用，并且可以在这个应用有新的可用版本时进行自动化的升级。Rancher提供了一个由Rancher社区维护的应用商店，其中包括了一系列的流行应用。Rancher的用户也可以[创建自己的私有应用商店]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/catalog/private-catalog/)。
 
 ### 企业级权限管理
 

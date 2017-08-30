@@ -11,29 +11,29 @@ redirect_from:
 ## 快速安装指南
 ---
 
-在本节中，我们将进行简单快速的Rancher安装，即在一台Linux机器上安装一个主机，并让它运行所有的必要功能。
+在本节中，我们将进行简单快速的Rancher安装，即在一台Linux机器上安装Rancher，并使其能够完成所有Rancher必要功能。
 
 ### 准备Linux主机
 
-先安装一个64位的Ubuntu 16.04 Linux主机，其内核必须高于3.10。你可以使用笔记本、虚拟机或物理服务器。请确保该Linux主机内存不低于1GB。在该主机上安装 [支持的Docker版本]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#supported-docker-versions)。
+先安装一个64位的Ubuntu 16.04 Linux主机，其内核必须高于3.10。你可以使用笔记本、虚拟机或物理服务器。请确保该Linux主机内存不低于*1GB*。在该主机上安装 [支持的Docker版本]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/hosts/#supported-docker-versions)。
 
 在主机上安装Docker的方法请参照[Docker](https://docs.docker.com/engine/installation/linux/ubuntulinux/)网站的安装说明。
 
-> **注意:** 目前尚不支持Docker for Windows以及Docker for Mac。
+> **注意:** 目前Rancher尚不支持Docker for Windows以及Docker for Mac。
 
 
 ### Rancher Server标签
 
-Rancher server有两种不同的标签。每一次大的版本更新，我们都会针对特定的版本提供详细的解释说明。
+Rancher Server有两种不同的标签。每一次大的版本更新，我们都会针对特定的版本提供详细的解释说明。
 
-* `rancher/server:latest` 标签意味着这是我们的最新版。这些版本已通过我们的CI自动化框架验证， 但并不适用于生产环境部署。
+* `rancher/server:latest` 标签意味着这是我们的最新版。这些版本已通过我们的CI自动化框架验证，但稳定性并不足以在对于生产环境部署。
 * `rancher/server:stable` 标签意味着这是稳定版本中的最新版。这些是我们推荐用户用于生产环境的版本。
 
 请不要使用任何含 `rc{n}` 后缀的版本。这些 `rc` 版本是供Rancher团队测试用的。
 
 ### 启动Rancher Server
 
-启动Rancher Server，你只需要一条命令。启动了容器之后，当server运行起来，我们将能查看到这个运行中的server的日志。
+你只需要一条命令就可以启动Rancher Server。当Rancher Server容器启动以后，我们将能查看到相关的日志。
 
 ```bash
 $ sudo docker run -d --restart=unless-stopped -p 8080:8080 rancher/server:stable
@@ -41,23 +41,23 @@ $ sudo docker run -d --restart=unless-stopped -p 8080:8080 rancher/server:stable
 $ sudo docker logs -f <CONTAINER_ID>
 ```
 
-启动Rancher server只需要几分钟时间。当日志中显示 `.... Startup Succeeded, Listening on port...`的时候，Rancher UI就能正常访问了。配置一旦完成，这行日志就会立刻出现。这一输出之后也许还会有其他日志，因此，在初始化过程中这不一定是最后一行日志。
+启动Rancher server只需要几分钟时间。当日志中显示 `.... Startup Succeeded, Listening on port...`的时候，Rancher UI就能正常访问了。配置一旦完成，这行日志就会立刻出现。需要注意的是，这一输出之后也许还会有其他日志，因此，在初始化过程中这不一定是最后一行日志。
 
-Rancher UI的端口是 `8080`，想访问UI，需打开`http://<SERVER_IP>:8080`。如果你的浏览器和Rancher server是运行在同一主机上的，你需要主机的真实IP地址，比如 `http://192.168.1.100:8080` ，而不是 `http://localhost:8080` 或`http://127.0.0.1:8080`以防在添加主机的时候使用了不可达的IP而出现问题。
+Rancher UI的默认端口是 `8080`。所以为了访问UI，需打开`http://<SERVER_IP>:8080`。需要注意的事，如果你的浏览器和Rancher server是运行在同一主机上的，你需要通过主机的**真实IP地址**访问，比如 `http://192.168.1.100:8080` ，而不是 `http://localhost:8080` 或`http://127.0.0.1:8080`，以防在添加主机的时候使用了不可达的IP而出现问题。
 
 > **注意：** 1. 初始安装时Rancher的访问控制并未配置，任何能够访问你的IP地址的人，都可以访问你的UI和API。我们建议你配置 [访问控制]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/configuration/access-control/). 2. 国内的公有云主机，如果需要使用80和8080端口，需备案后才可以使用。
 
 ### 添加主机
 
-为了简化操作，我们将添加运行着Rancher server的主机为Rancher内的主机。在实际的生产环境中，我们建议使用专用的主机来运行Rancher server。
+在这里，为了简化操作，我们将添加运行着Rancher server的主机为Rancher内的主机。在实际的生产环境中，请使用专用的主机来运行Rancher server。
 
 想要添加主机，首先你需要进入UI界面，点击**基础架构**，然后你将看到**主机**界面。点击**添加主机**，Rancher将提示你选择主机注册URL。这个URL是Rancher server运行所在的URL，且它必须可以被所有你要添加的主机访问到——当Rancher server会通过NAT防火墙或负载均衡器被暴露至互联网时，这一设定就非常重要了。如果你的主机有一个私有或本地的IP地址，比如 `192.168.*.*`，Rancher将提示一个警告信息，提醒你务必确保这个URL可以被主机访问到。
 
 因为我们现在只会添加Rancher server主机自身，你可以暂时忽略这些警告。点击**保存**。默认选择**自定义**选项，你将得到运行Rancher agent容器的Docker命令。这里还有其他的公有云的选项，使用这些选项，Rancher可以使用Docker Machine来启动主机。
 
-Rancher UI会给你提供一些指示，比如你的主机上应该开放的端口，还有其他一些可供选择的信息。鉴于我们现在添加的是Rancher server运行的主机，我们需要添加这个主机所使用的公网IP。其中一个选项提供输入此IP的功能，该IP可以自动使用环境变量更新自定义命令。
+Rancher UI会给你提供一些指示，比如你的主机上应该开放的端口，还有其他一些可供选择的信息。鉴于我们现在添加的是Rancher server运行的主机，我们需要添加这个主机所使用的公网IP。页面上的一个选项提供输入此IP的功能，此选项会自动更新Docker命令中的环境变量参数以保证正确。
 
-在运行Rancher server的主机上运行这个命令。
+然后请在运行Rancher server的主机上运行这个命令。
 
 当你在Rancher UI上点击**关闭**按钮时，你会被返回到**基础架构->主机**界面。一两分钟之后，主机会自动出现在这里。
 
@@ -71,7 +71,7 @@ Rancher UI会给你提供一些指示，比如你的主机上应该开放的端�
 
 导航到**应用**页面，如果你看到了欢迎屏幕，可以在欢迎屏幕中单击**定义服务**的按钮。如果您的Rancher设置中已有服务，您可以在任何现有stack中点击**添加服务**，或者创建一个新的应用来添加服务。应用只是将服务组合在一起的便捷方式。 如果需要创建新的应用，请单击**添加应用**，填写名称和描述，然后单击**创建**。 接着，在新的应用中单击**添加服务**。
 
-给服务取个名字，比如“第一个服务”。您可以使用我们的默认设置，然后单击**创建**。Rancher将开始在主机上启动容器。不论你的主机IP地址是什么，***第一个容器***的IP地址都将在 `10.42.*.*` 的范围内，因为Rancher已使用`ipsec`基础架构服务创建了一个managed overlay网络。各容器之间是通过这种managed overlay网络进行跨主机通信的。
+给服务取个名字，比如“第一个服务”。您可以使用我们的默认设置，然后单击**创建**。Rancher将开始在主机上启动容器。不论你的主机IP地址是什么，***第一个容器***的IP地址都将在 `10.42.*.*` 的范围内，因为Rancher已使用`ipsec`基础架构服务创建了一个managed overlay网络。各容器之间是通过这个managed overlay网络进行跨主机通信的。
 
 如果你单击***第一个容器***的下拉列表，你将可以进行各种管理操作，如停止容器、查看日志或访问容器控制台。
 
@@ -85,11 +85,11 @@ $ docker run -d -it --name=second-container ubuntu:14.04.2
 
 在UI中，你将看到***第二个容器***在你的主机上出现！
 
-Rancher会对Docker守护进程中发生的事件做出反应，做出正确的事情来调和自己的世界观与现实。你可以在此了解更多通过[Docker原生CLI]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/native-docker/)使用Rancher的事宜。
+Rancher会对Docker守护进程中发生的事件做出反应，调整自己以反映现实情况。你可以在此了解更多通过[Docker原生CLI]({{site.baseurl}}/rancher/{{page.version}}/{{page.lang}}/native-docker/)使用Rancher的事宜。
 
 如果你查看***第二个容器***的IP地址，你将发现它不在`10.42.*.*` 范围内。它的IP地址是Docker守护进程分配的常用IP地址。这是通过CLI创建Docker容器的预期行为。
 
-如果我们想通过CLI创建一个Docker容器，但仍希望它使用Rancher overlay网络的IP地址，该怎么做呢？我们只需要在命令中添加一个标签（比如`io.rancher.container.network=true`），让Rancher知道你希望此容器成为 `managed`网络的一部分。
+如果我们想通过CLI创建一个Docker容器，但仍希望它使用Rancher overlay网络的IP地址，该怎么做呢？我们只需要在命令中添加一个标签（`io.rancher.container.network=true`），让Rancher知道你希望此容器成为`managed`网络的一部分。
 
 ```bash
 $ docker run -d -it --label io.rancher.container.network=true ubuntu:14.04.2
@@ -99,21 +99,21 @@ $ docker run -d -it --label io.rancher.container.network=true ubuntu:14.04.2
 
 上文中我们已经介绍了如何创建单个容器以及这些单个容器之间如何跨主机网络通信。然而，现实情况中，大多数应用程序其实是由多个服务构成的，而每个服务又是由多个容器构成的。比如说，一个[LetsChat](http://sdelements.github.io/lets-chat/)应用程序，就是由下列几项服务构成的：
 
-1. 一个负载均衡器。负载均衡器把Internet流量转发给“LetChat”应用程序。
-2. 一个由两个“LetChat”容器组成的*Web*服务。
+1. 一个负载均衡器。负载均衡器把Internet流量转发给“LetsChat”应用程序。
+2. 一个由两个“LetsChat”容器组成的*web*服务。
 3. 一个由一个“Mongo”容器组成的数据库服务。
 
-负载均衡器的目标是*Web*服务（即LetsChat），Web服务将连接到数据库服务（即Mongo）。
+负载均衡器的目标是*web*服务（即LetsChat），Web服务将连接到数据库服务（即Mongo）。
 
 在本节中，我们将介绍如何在Rancher中创建和部署[LetsChat](http://sdelements.github.io/lets-chat/)应用程序。
 
 导航到**应用**页面，如果你看到了欢迎屏幕，可以在欢迎屏幕中单击**定义服务**的按钮。 如果您的Rancher设置中已有服务，您可以在任何现有应用中点击**添加应用**，来创建一个新的应用。填写名称和描述，然后单击**创建**。 接着，在新的应用中单击**添加服务**。
 
-首先，我们将创建一个名为`数据库`的数据库服务，并使用`mongo`镜像。单击**创建**。您将立即被带到应用页面，页面中将包含新创建的数据库服务。
+首先，我们将创建一个名为`database`的数据库服务，并使用`mongo`镜像。单击**创建**。您将立即被带到应用页面，页面中将包含新创建的数据库服务。
 
-接下来，再次点击**添加服务**以添加其他服务。我们将添加一个LetsChat服务并链接到*数据库*服务。让我们使用名称、`web`、以及`sdelements / let-chat`镜像。在UI中，我们可以移动滑块，将服务扩容至2个容器。在**服务链接**中，添加*数据库*服务并将其命名为`mongo`。就像在Docker一样，当您在名称中输入`mongo`时，Rancher会将链接数据库中的`letschat`镜像里的必要环境变量链接起来。单击**创建**。
+接下来，再次点击**添加服务**以添加其他服务。我们将添加一个LetsChat服务并链接到*database*服务。让我们使用名称`web`以及`sdelements/lets-chat`镜像。在UI中，我们可以移动滑块，将服务扩容至2个容器。在**服务链接**中，添加*database*服务并将其命名为`mongo`。就像在Docker一样，当您在名称中输入`mongo`时，Rancher会将链接数据库中的`letschat`镜像里的必要环境变量链接起来。单击**创建**。
 
-最后，我们将创建我们的负载均衡器。单击**添加服务**按钮旁的下拉菜单图标。选择**添加负载均衡器**。提供一个类似于`letchatapplb`这样的名字。输入源端口（即`80`端口），选择目标服务（即*Web*），并选择目标端口（即`8080`端口）。*Web*服务正在侦听`8080`端口。单击**创建**。
+最后，我们将创建我们的负载均衡器。单击**添加服务**按钮旁的下拉菜单图标。选择**添加负载均衡器**。提供一个类似于`letschatapplb`这样的名字。输入源端口（即`80`端口），选择目标服务（即*web*），并选择目标端口（即`8080`端口）。*web*服务正在侦听`8080`端口。单击**创建**。
 
 至此，我们的LetsChat应用程序已完成！在**应用**页面上，您可以以链接的形式查找到负载均衡器的暴露端口。点击该链接，一个新的浏览器将会打开，你将能看到LetsChat应用程序了。
 
@@ -169,7 +169,7 @@ services:
         path: ''
         priority: 1
         protocol: http
-        service: quickstartguide/web
+        service: web
         source_port: 80
         target_port: 8080
     health_check:
